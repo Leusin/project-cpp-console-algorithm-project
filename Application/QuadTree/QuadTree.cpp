@@ -6,7 +6,8 @@
 #include "Engine.h"
 #include "Actor/Unit/Unit.h"
 
-int QuadTree::maxDepth = 5;
+int QuadTree::maxDepth = 4;
+int QuadTree::renderOrder = 0;
 
 QuadTree::QuadTree()
 	: root{ nullptr }

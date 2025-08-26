@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "Bounds.h"
+#include "Math/Color.h"
 
 /*
 * 쿼드 트리 클래스
@@ -23,8 +24,8 @@ public:
 	void DrawBounds();
 
 public:
-
 	static int maxDepth;
+	static int renderOrder;
 
 private: // METHOD
 	void CreateRoot();

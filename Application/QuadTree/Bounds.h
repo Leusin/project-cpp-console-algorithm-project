@@ -18,6 +18,18 @@ public:
 
 public: // GET SET
 
+	void SetPosition(int newX, int newY)
+	{
+		x = newX;
+		y = newY;
+	}
+
+	void SetPosition(const Vector2I& newPosition)
+	{
+		x = newPosition.x;
+		y = newPosition.y;
+	}
+
 	int GetX() const { return x; }
 	int GetY() const { return y; }
 	int GetWidth() const { return width; }
