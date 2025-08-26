@@ -64,9 +64,6 @@ Engine::Engine()
 	//
 
 	SetConsoleCtrlHandler(ConsoleMessageProcedure, TRUE);
-
-	// cls 호출.
-	system("cls");
 }
 
 Engine::~Engine()
@@ -118,10 +115,12 @@ void Engine::Run()
 			Render();
 			// ========== EVENT ==========
 
+			#ifdef _DEBUG
 			// 제목에 FPS 출력
 			char title[50] = {};
 			sprintf_s(title, 50, "(h: %d, w: %d)FPS: %f", settings.height, settings.width, (1.f / deltaTime));
 			SetConsoleTitleA(title);
+			#endif
 
 			previousTime = currentTime;
 
@@ -290,16 +289,10 @@ void Engine::Tick(float deltaTime)
 	{
 		mainLevel->Tick(deltaTime);
 	}
-
-	/*if (GetKeyDown(VK_ESCAPE))
-	{
-		Quit();
-	}*/
 }
 
 void Engine::Render()
 {
-	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7 /*= FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED*/); // 출력 색상 정리.
 	Utils::SetConsoleTextColor(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
 
 	Clear(); // 화면 지우기

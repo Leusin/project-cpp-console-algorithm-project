@@ -3,6 +3,11 @@
 #include <Windows.h>
 #include "Core.h"
 
+enum class MounseButton
+{
+	Left = 0,
+	Right = 1
+};
 
 class Engine_API Input
 {
@@ -22,15 +27,18 @@ public: // RTTI
 	Input();
 	~Input();
 
-public: // MESSAGE
+public: // GET SET
 
 	// 키 처리
-	bool GetKey(int KeyCode);
-	bool GetKeyDown(int KeyCode);
-	bool GetKeyUp(int KeyCode);
+	bool GetKey(int KeyCode) const;
+	bool GetKeyDown(int KeyCode) const;
+	bool GetKeyUp(int KeyCode) const;
 
 	// 마우스 처리
-	bool GetMouseClick();
+	bool GetMouse(MounseButton button) const;
+	bool GetMouseDown(MounseButton button) const;
+	bool GetMouseUp(MounseButton button) const;
+
 	int GetMouseX() const;
 	int GetMouseY() const;
 
@@ -48,11 +56,17 @@ private: // FIELD
 	KeyState keyStates[256] = { };
 
 	// 마우스 상태
-	bool isMouseClick = false;
+	KeyState mouseStates [2];
 	int mouseX = 0;
 	int mouseY = 0;
 
 	static Input* instance;
 
-	HANDLE hInput;
+	HANDLE hStdin;
+
+	// 콘솔 기존 입력 모드
+	DWORD fdwSaveOldMode;
+
+	// 윈도우 포커스 상태를 나타내는 변수
+	bool hasFocus = true;
 };

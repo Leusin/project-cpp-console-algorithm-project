@@ -49,7 +49,7 @@ void MainLevel::Render()
 	quradTree.DrawBounds();
 
 	/// 마우스 입력 TEST
-	if (Input::Get().GetMouseClick())
+	if (Input::Get().GetMouse(MounseButton::Left) || Input::Get().GetMouse(MounseButton::Right))
 	{
 		// 마우스 클릭이 발생했을 때
 		char debugMouse[100];
