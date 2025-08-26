@@ -50,8 +50,6 @@ public: // GET SET
 	// 화면 중앙
 	Vector2I ScreenCenter() { return { halfWidth() , halfHeight() }; }
 
-	//static Engine& Get() { return *instance; }
-
 private: // METHOD
 	
 	//
