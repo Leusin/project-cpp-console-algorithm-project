@@ -56,7 +56,7 @@ Engine::Engine()
 	// 콘솔창 이벤트 등록
 	//
 
-	SetConsoleCtrlHandler(ConsoleMessageProcedure, TRUE);\
+	SetConsoleCtrlHandler(ConsoleMessageProcedure, TRUE);
 
 	// 콘솔 창 크기 변경 안되도록 설정.
 	// "관리자 모드에서만 제대로 실행됨"
@@ -187,10 +187,7 @@ void Engine::Quit()
 
 void Engine::AddLevel(Level* newLevel)
 {
-	if (mainLevel)
-	{
-		delete mainLevel;
-	}
+	SafeDelete(mainLevel);
 
 	mainLevel = newLevel;
 }

@@ -1,0 +1,84 @@
+#include "QuadTree.h"
+
+#include "Bounds.h"
+#include "QuadTreeNode.h"
+#include "Core.h"
+#include "Engine.h"
+#include "Actor/Unit/Unit.h"
+
+int QuadTree::maxDepth = 5;
+
+QuadTree::QuadTree()
+	: root{ nullptr }
+{
+	CreateRoot();
+}
+
+QuadTree::~QuadTree()
+{
+	Clear();
+}
+
+void QuadTree::Insert(Unit* unit)
+{
+	CreateRoot();
+
+	root->Insert(unit);
+}
+
+void QuadTree::Clear()
+{
+	SafeDelete(root);
+}
+
+bool QuadTree::Query(const Unit* targetUnit, std::vector<QuadTreeNode*>& possibleNode)
+{
+	possibleNode.clear();
+
+	// 겹침 가능성이 있는 영역 확인
+	root->Query(targetUnit->GetBounds(), possibleNode);
+
+	// 가능성이 있는 노드에서 실제로 겹치는지 노드 검사
+	std::vector<Unit*> intersects;
+
+	// 겹침 가능성 있는 영역 순회
+	for (QuadTreeNode* node : possibleNode)
+	{
+		// 각 영역이 가지는 노드 순회
+		for (Unit* point : node->GetPointers())
+		{
+			// 겹침 검사
+			if (point->GetBounds().Intersects(targetUnit->GetBounds()))
+			{
+				intersects.emplace_back(point);
+				continue;
+			}
+		}
+	}
+
+	// 최종 목록 반환.
+	// 노트: 함수에서 출력용 배열을 참조로 받으면 최적화 가능
+
+	if (possibleNode.empty())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void QuadTree::DrawBounds()
+{
+	if (root)
+	{
+		root->DrawBounds();
+	}
+}
+
+void QuadTree::CreateRoot()
+{
+	if (!root)
+	{
+		root = new QuadTreeNode({ 0, 0, Engine::Get().Width(), Engine::Get().Height() });
+	}
+}

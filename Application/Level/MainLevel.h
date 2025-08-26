@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Level/level.h"
+#include "QuadTree/QuadTree.h"
 
 class MainLevel : public Level
 {
@@ -10,4 +11,13 @@ public: // RAII
 
 	MainLevel();
 	~MainLevel();
+
+public: // 
+	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTime) override;
+	virtual void Render() override;
+
+private: // FILD
+
+	QuadTree quradTree;
 };
