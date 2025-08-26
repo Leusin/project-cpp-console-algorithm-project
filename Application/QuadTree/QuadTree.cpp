@@ -5,6 +5,7 @@
 #include "Core.h"
 #include "Engine.h"
 #include "Actor/Unit/Unit.h"
+#include "Render/Renderer.h"
 
 int QuadTree::maxDepth = 4;
 int QuadTree::renderOrder = 0;
@@ -68,11 +69,11 @@ bool QuadTree::Query(const Unit* targetUnit, std::vector<QuadTreeNode*>& possibl
 	return true;
 }
 
-void QuadTree::DrawBounds()
+void QuadTree::DrawBounds(Renderer& renderer)
 {
 	if (root)
 	{
-		root->DrawBounds();
+		root->DrawBounds(renderer);
 	}
 }
 
@@ -80,6 +81,6 @@ void QuadTree::CreateRoot()
 {
 	if (!root)
 	{
-		root = new QuadTreeNode({ 0, 0, Engine::Get().Width(), Engine::Get().Height() });
+		root = new QuadTreeNode({ 0, 0, Engine::Width(), Engine::Height() });
 	}
 }

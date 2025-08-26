@@ -21,7 +21,7 @@ public:
 	// 전달한 노드와 겹치는 노드를 반환 하는 질의 함수
 	bool Query(const class Unit* queryNode, std::vector<class QuadTreeNode*>& possibleNode);
 
-	void DrawBounds();
+	void DrawBounds(class Renderer& renderer);
 
 public:
 	static int maxDepth;

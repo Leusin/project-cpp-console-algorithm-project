@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "Utils/Utils.h"
 #include "Level/Level.h"
+#include "Render/Renderer.h"
 
 Actor::Actor(const char* image, Color color, const Vector2I& position)
 	: color(color), position(position)
@@ -44,19 +45,9 @@ void Actor::Tick(float deltaTime)
 	}
 }
 
-void Actor::Render()
+void Actor::Draw(Renderer& renderder)
 {
-	/// 더블 버퍼를 사용하지 않았을 때의 방법
-	// 커서위치 이동.
-	//static HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE); // 콘솔 출력 제어 핸들 얻어오기
-	// 커서 이동.
-	//Utils::SetConsolePosition(position);
-	// 색상 설정
-	//Utils::SetConsoleTextColor(color);
-	// printf("%s", image); // 그리기
-
-	// 엔진이 관리하는 이미지 버퍼에 액터의 문자열/색상 기록.
-	Engine::Get().WriteToBuffer(position, image, color, sortingOrder);
+	renderder.WriteToBuffer(position, image, color, sortingOrder);
 }
 
 void Actor::OnDestroy()
@@ -102,11 +93,6 @@ void Actor::Destroy()
 	isExpired = true; // 삭제 요청 설정
 	owner->DestroyActor(this); // 레벨에게 삭제 요청
 	OnDestroy();
-}
-
-void Actor::QuitGame()
-{
-	Engine::Get().Quit();
 }
 
 Vector2I Actor::Position() const

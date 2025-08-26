@@ -32,7 +32,7 @@ public: // GET SET
 	// 정리
 	void Clear();
 
-	void DrawBounds();
+	void DrawBounds(class Renderer& renderer);
 
 public: // GET SET
 

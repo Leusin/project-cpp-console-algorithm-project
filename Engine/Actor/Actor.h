@@ -21,14 +21,13 @@ public:
 
 	virtual void BeginPlay(); // 단 한번만 호출.
 	virtual void Tick(float deltaTime); // 매 프레임 호출. (반복성 작업/지속성이 필요한 작업)
-	virtual void Render(); // 그리기
+	virtual void Draw(class Renderer& renderder); // 그리기
 	
 	virtual void OnDestroy(); // 객체가 삭제되기 직전에 호출되는 함수.
 	
 	bool TestIntersect(const Actor* const other);
 
 	void Destroy(); // 삭제 요청
-	void QuitGame();
 
 /// <summary>
 /// Getter와 Setter 함수

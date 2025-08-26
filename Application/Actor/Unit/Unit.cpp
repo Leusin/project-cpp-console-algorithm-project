@@ -31,10 +31,10 @@ void Unit::Tick(float deltaTime)
     currentPosition.x += distance * directionX;
 
     // 화면 경계 체크 및 방향 전환
-    if (currentPosition.x > Engine::Get().Width())
+    if (currentPosition.x > Engine::Width())
     {
         // 화면 오른쪽 끝에 도달하면 방향을 왼쪽으로 바꿈
-        currentPosition.x = Engine::Get().Width();
+        currentPosition.x = Engine::Width();
         directionX = -1.0f;
     }
     else if (currentPosition.x < 0)

@@ -5,10 +5,7 @@
 #include "Input.h"
 #include "Math/Vector2I.h"
 #include "Math/Color.h"
-
-/**
- * TODO: 언젠가 Engine의 싱글턴 지우고 싶다.
- */
+#include "Render/Renderer.h"
 
  /// <summary>
  /// 엔진 설정 구조체
@@ -20,137 +17,82 @@ struct EngineSettings
 	float framerate = 0.0f; // 타겟 프레임 속도
 };
 
-struct ImageBuffer
-{
-	ImageBuffer(int bufferCount)
-	{
-		charInfoArray = new CHAR_INFO[bufferCount];
-		memset(charInfoArray, 0, sizeof(CHAR_INFO) * bufferCount);
-
-		sortingOrderArray = new int[bufferCount];
-		memset(charInfoArray, 0, sizeof(int) * bufferCount);
-	}
-
-	~ImageBuffer()
-	{
-		SafeDeleteArray(charInfoArray);
-		SafeDeleteArray(sortingOrderArray);
-	}
-
-	// 콘솔에 그릴 때 사용할 구조체 (문자,색상 값 저장).
-	CHAR_INFO* charInfoArray = nullptr;
-
-	// 해당 위치에 그릴지를 판단할 때 사용할 뎁스 값(sortingOrder).
-	int* sortingOrderArray = nullptr;
-};
-
-
 class Engine_API Engine
 {
-public:
+public: // RTTI
+
 	Engine();
 	virtual ~Engine();
 
-	void AddLevel(class Level* newLevel);
-
-	void Run(); // 엔진 루프
-
-	/// <summary>
-	/// 문자열 그리기 요청 함수.
-	/// </summary>
-	/// <param name="position">기록할 문자 위치</param>
-	/// <param name="image">기록할 문자</param>
-	/// <param name="color">문자의 색상</param>
-	/// <param name="sortingOrder">이미지 순서</param>
-	void WriteToBuffer(const Vector2I& position, const char* image, Color color = Color::White, int sortingOrder = 0);
-	// 버퍼를 곧바로 교환 요청할 때 사용하는 함수.
-	void PresentImmediately();
-
 	virtual void CleanUp(); // 메모리 해제
 
-	void Quit(); // 종료
+public: // MESSAGE
 
-	static Engine& Get();
+	// 엔진 루프
+	void Run(); 
+
+	// 레벨 추가
+	void AddLevel(class Level* newLevel);
+
+	// 종료
+	void Quit();
+
+public: // GET SET
 
 	// 화면의 너비
-	int Width() const;
-	int halfWidth() const;
+	static int Width();
+	static int halfWidth();
+
 	// 화면의 높이
-	int Height() const;
-	int halfHeight() const;
+	static int Height();
+	static int halfHeight();
+
 	// 화면 중앙
-	Vector2I ScreenCenter();
+	Vector2I ScreenCenter() { return { halfWidth() , halfHeight() }; }
 
-	class ScreenBuffer* GetRenderer() const;
+	//static Engine& Get() { return *instance; }
 
-	/// <summary>
-	///  직교 좌표계 → 화면 좌표계 변환 함수
-	/// </summary>
-	Vector2I OrthogonalToScreenCoords(const Vector2F& worldPos, const Vector2I& cameraPos = Vector2I::Zero);
-
-	/// <summary>
-	/// 화면 좌표계 → 직교 좌표계 변환 함수 
-	/// </summary>
-	Vector2F ScreenToOrthogonalCoords(const Vector2I& screenPos, const Vector2I& cameraPos = Vector2I::Zero);
-
-protected:
-	class Level* mainLevel = nullptr; // 메인 레벨
-
-private:
-	//
-	//메인 루프 함수
-	//
+private: // METHOD
 	
+	//
+	// Main Loop 함수
+	//
+
+	// 갓 생성한 액터 초기화
 	void BeginPlaye();
+
+	// 업데이트 (입력, 게임 로직)
 	void Tick(float deltaTime = 0.0f);
 
-	// 액터 그리기 (백버퍼에 기록)
+	// 그리기 (백버퍼에 기록)
 	void Render();
 
 	//
-	// 초기화 함수
+	// 기타 초기화
 	//
 	
 	// 엔진 설정
-	void LoadEngineSettings(); 
+	static void LoadEngineSettings(); 
 
-	//
-	// Render 함수
-	//
-
-	// 화면 지우는 함수 (전체를 빈 문자열로 설정).
-	void Clear();
-
-	// 버퍼 교환 함수 (프론트 버퍼 <-> 백버퍼)
-	void Present();
-
-	// 글자 버퍼 지우는 함수.
-	void ClearImageBuffer();
-
-private:
+	// 리사이즈 제한 설정
 	void DisableToResizeWindow();
 
-	bool isQuit = false; // 엔진 종료 플래그
+protected: // FIELD
 
-	Input input; // 입력 관리자
+	class Level* mainLevel = nullptr; // 메인 레벨
 
-	EngineSettings settings; // 엔진 설정
+private: // FIELD
 
-	//
-	// Render 관련
-	//
+	// 엔진 종료 플래그
+	bool isQuit = false; 
 
-	//CHAR_INFO* imageBuffer = nullptr;
-	// 문자, 색상, 뎁스(sortingOrder)까지 저장하는 버퍼.
-	ImageBuffer* imageBuffer = nullptr;
+	// 입력 관리자
+	Input input; 
 
-	class ScreenBuffer* renderTargets[2] = { }; // 이중 버퍼.
-	
-	int currentRenderTargetIndex = 0; // 백버퍼로 사용하는 렌더 타겟의 인덱스.
+	// 렌더러
+	Renderer renderer;
 
-	//
-	// 싱글턴 변수
-	//
+	// 엔진 설정
+	static EngineSettings settings;
 
-	static Engine* instance;
 };

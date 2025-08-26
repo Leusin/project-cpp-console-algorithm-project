@@ -19,7 +19,7 @@ public:
 
 	virtual void BeginPlay();
 	virtual void Tick(float deltaTime);
-	virtual void Render();
+	virtual void Draw(class Renderer& renderder);
 
 	void AddActor(Actor* newActor); // 레벨에 액터 추가
 	void DestroyActor(Actor* newActor); // 액터 삭제

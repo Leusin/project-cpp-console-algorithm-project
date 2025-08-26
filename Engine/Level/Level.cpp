@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Utils/Utils.h"
 #include "Actor/Actor.h"
+#include "Render/Renderer.h"
 
 Level::Level()
 {
@@ -42,11 +43,11 @@ void Level::Tick(float deltaTime)
 	}
 }
 
-void Level::Render()
+void Level::Draw(Renderer& renderder)
 {
 	for (Actor* const actor : actors)
 	{
-		actor->Render(); // Draw Call
+		actor->Draw(renderder); // Draw Call
 	}
 }
 

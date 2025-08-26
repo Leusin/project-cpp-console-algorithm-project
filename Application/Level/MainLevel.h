@@ -15,7 +15,7 @@ public: // RAII
 public: // 
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
-	virtual void Render() override;
+	virtual void Draw(class Renderer& renderer) override;
 
 private: // FILD
 

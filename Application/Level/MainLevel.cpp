@@ -2,6 +2,7 @@
 
 #include "Actor/Unit/Unit.h"
 #include "Math/Vector2I.h"
+#include "Render/Renderer.h"
 
 // TEST TODO: 테스트 마치고 지울 것
 #include "Input.h"
@@ -42,11 +43,11 @@ void MainLevel::Tick(float deltaTime)
 	}
 }
 
-void MainLevel::Render()
+void MainLevel::Draw(Renderer& renderer)
 {
-	super::Render();
+	super::Draw(renderer);
 
-	quradTree.DrawBounds();
+	quradTree.DrawBounds(renderer);
 
 	/// 마우스 입력 TEST
 	if (Input::Get().GetMouse(MounseButton::Left) || Input::Get().GetMouse(MounseButton::Right))
@@ -54,13 +55,13 @@ void MainLevel::Render()
 		// 마우스 클릭이 발생했을 때
 		char debugMouse[100];
 		sprintf_s(debugMouse, sizeof(debugMouse), "Mouse ( %d , %d )", Input::Get().GetMouseX(), Input::Get().GetMouseY());
-		Engine::Get().WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, 100);
+		renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, 100);
 	}
 	if (Input::Get().GetKey('A'))
 	{
 		// 마우스 클릭이 발생했을 때
 		char debugMouse[100];
 		sprintf_s(debugMouse, sizeof(debugMouse), "Pressed  A !!");
-		Engine::Get().WriteToBuffer({ 10, 10 }, debugMouse, Color::LightGreen, 100);
+		renderer.WriteToBuffer({ 10, 10 }, debugMouse, Color::LightGreen, 100);
 	}
 }

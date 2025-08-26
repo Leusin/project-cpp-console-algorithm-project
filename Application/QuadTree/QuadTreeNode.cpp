@@ -3,7 +3,7 @@
 #include "QuadTree.h"
 #include "Core.h"
 #include "Actor/Unit/Unit.h"
-#include "Engine.h"
+#include "Render/Renderer.h"
 
 QuadTreeNode::QuadTreeNode(const Bounds& bounds, int depth)
 	:bounds{ bounds }, depth{ depth }
@@ -118,7 +118,7 @@ void QuadTreeNode::Clear()
 	}
 }
 
-void QuadTreeNode::DrawBounds()
+void QuadTreeNode::DrawBounds(Renderer& renderer)
 {
 	// 뎁스에 따 른 색상 변경
 	Color color = Color::Intensity;
@@ -149,27 +149,27 @@ void QuadTreeNode::DrawBounds()
 	for (int ix = 0; ix < bounds.GetWidth(); ++ix)
 	{
 		// Top
-		Engine::Get().WriteToBuffer({ bounds.GetX() + ix, bounds.GetY() }, hpbarChar, color, QuadTree::renderOrder);
+		renderer.WriteToBuffer({ bounds.GetX() + ix, bounds.GetY() }, hpbarChar, color, QuadTree::renderOrder);
 		// Bottom
-		Engine::Get().WriteToBuffer({ bounds.GetX() + ix, bounds.MaxY() - 1 }, hpbarChar, color, QuadTree::renderOrder);
+		renderer.WriteToBuffer({ bounds.GetX() + ix, bounds.MaxY() - 1 }, hpbarChar, color, QuadTree::renderOrder);
 	}
 
 	for (int iy = 0; iy < bounds.GetHeight(); ++iy)
 	{
 		// Left
-		Engine::Get().WriteToBuffer({ bounds.GetX(), bounds.GetY() + iy }, hpbarChar, color, QuadTree::renderOrder);
+		renderer.WriteToBuffer({ bounds.GetX(), bounds.GetY() + iy }, hpbarChar, color, QuadTree::renderOrder);
 		// Right
-		Engine::Get().WriteToBuffer({ bounds.MaxX() - 1, bounds.GetY() + iy }, hpbarChar, color, QuadTree::renderOrder);
+		renderer.WriteToBuffer({ bounds.MaxX() - 1, bounds.GetY() + iy }, hpbarChar, color, QuadTree::renderOrder);
 	}
 
 
 	// 자손 노드 경계 그리기
 	if (IsDivided())
 	{
-		topLeft->DrawBounds();
-		topRight->DrawBounds();
-		bottomLeft->DrawBounds();
-		bottomRight->DrawBounds();
+		topLeft->DrawBounds(renderer);
+		topRight->DrawBounds(renderer);
+		bottomLeft->DrawBounds(renderer);
+		bottomRight->DrawBounds(renderer);
 	}
 }
 

@@ -8,7 +8,7 @@
 /// </summary>
 class ScreenBuffer
 {
-	friend class Engine;
+	friend class Renderer;
 
 public:
 	// 새 버퍼 생성 시 사용

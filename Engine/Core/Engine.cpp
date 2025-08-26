@@ -3,18 +3,24 @@
 #include <iostream>
 #include "Level/level.h"
 #include "Utils/Utils.h"
-#include "Render/ScreenBuffer.h"
 
-Engine* Engine::instance = nullptr;
 
+// static 멤버 및 함수 변수 정의
+
+EngineSettings Engine::settings;
+
+// 전역 변수 콘솔 창 이벤트 처리에 사용
+Engine* instance = nullptr; 
+
+// 콘솔창 이벤트 처리 함수
 BOOL WINAPI ConsoleMessageProcedure(DWORD ctrlType)
 {
 	switch (ctrlType)
 	{
 	case CTRL_CLOSE_EVENT:
 	{
-		Engine::Get().CleanUp(); // Engine::Get().~Engine(); // 와 같다
-		return false;
+		instance->Quit();
+		return true;
 	}
 	}
 	return true;
@@ -22,48 +28,24 @@ BOOL WINAPI ConsoleMessageProcedure(DWORD ctrlType)
 
 Engine::Engine()
 {
-	instance = this;
-
-	// 콘솔 커서 끄기
-	_CONSOLE_CURSOR_INFO consoleCursorInfo;
-	consoleCursorInfo.bVisible = false;
-	consoleCursorInfo.dwSize = 1;
-	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleCursorInfo); // 커서가 보이지 않도록 
-
-	// 전체 화면 모드 설정 (안됨)
-	// SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE), CONSOLE_FULLSCREEN_MODE, NULL);
-
-	// 콘솔 창 크기 변경 안되도록 설정.
+	// 콘솔 창 크기 변경 안되도록 설정
 	// "관리자 모드에서만 제대로 실행됨"
 	DisableToResizeWindow();
 
 	// 엔진 설정 로드
 	LoadEngineSettings();
 
+	// 렌더러 초기화
+	renderer.Initialize(&settings);
+
 	// 랜덤 종자값(Seed) 생성
 	srand(static_cast<unsigned int>(time(nullptr)));
 
-	//
-	// 랜더 관련 초기화
-	//
-
-	// 이미지 버퍼 생성.
-	Vector2I screenSize(settings.width, settings.height);
-	imageBuffer = new ImageBuffer((settings.width + 1) * settings.height + 1);
-
-	ClearImageBuffer(); // 버퍼 초기화 (문자 버퍼).
-
-	// 두 개의 버퍼 생성.
-	renderTargets[0] = new ScreenBuffer(GetStdHandle(STD_OUTPUT_HANDLE), screenSize);
-	renderTargets[1] = new ScreenBuffer(screenSize);
-
-	Present(); // 버퍼 교환.
-
-	//
 	// 콘솔창 이벤트 등록
-	//
-
 	SetConsoleCtrlHandler(ConsoleMessageProcedure, TRUE);
+
+	// 싱글턴 아님
+	instance = this;
 }
 
 Engine::~Engine()
@@ -71,17 +53,18 @@ Engine::~Engine()
 	CleanUp();
 }
 
+void Engine::CleanUp()
+{
+	// 렌더러 정리.
+	renderer.CleanUp();
+
+	// 레벨 삭제.
+	SafeDelete(mainLevel);
+}
+
 void Engine::Run()
 {
-	// 현재 콘솔 크기 가져오기
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-
-	Vector2I newSize;
-	newSize.x = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-	newSize.y = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-
-	//float currentTime = timeGetTime();
+	// 이전 프레임과 현재 프레임의 시간 측정
 	LARGE_INTEGER currentTime;
 	QueryPerformanceCounter(&currentTime);
 	LARGE_INTEGER previousTime = currentTime;
@@ -93,101 +76,63 @@ void Engine::Run()
 	// 타겟 프레임 설정
 	float targetFrameRate = (settings.framerate != 0.0f) ? settings.framerate : 60.f;
 
+	// 한 프레임에 걸리는 시간
 	float oneFrameTime = 1.f / targetFrameRate;
 
+	// 메인 루프
 	while (true)
 	{
+		// 종료 요청이 들어왔는지 확인
 		if (isQuit)
 		{
 			break;
 		}
 
+		// 델타 타임: 현재 프레임과 이전 프레임의 시간 차이 계산
 		QueryPerformanceCounter(&currentTime);
 		float deltaTime = (currentTime.QuadPart - previousTime.QuadPart) / (float)frequency.QuadPart;
 
+		// 입력 처리
 		input.ProcessInput();
 
-		if (deltaTime >= oneFrameTime) // 고정 프레임
+		// 고정 프레임
+		if (deltaTime >= oneFrameTime)
 		{
-			// ========== EVENT ==========
 			BeginPlaye();
 			Tick(deltaTime);
 			Render();
-			// ========== EVENT ==========
 
-			#ifdef _DEBUG
+#ifdef _DEBUG
+
 			// 제목에 FPS 출력
 			char title[50] = {};
 			sprintf_s(title, 50, "(h: %d, w: %d)FPS: %f", settings.height, settings.width, (1.f / deltaTime));
 			SetConsoleTitleA(title);
-			#endif
 
+#endif
+
+			// 이전 프레임 시간 갱신
 			previousTime = currentTime;
 
+			// 키 상태 저장
 			input.SavePreviousKeyStates();
 
-			if (mainLevel) // 이전 프레임에 추가 및 삭제 요청 처리
+
+			// 이전 프레임에 추가 및 삭제 요청 처리
+			if (mainLevel)
 			{
 				mainLevel->ProcessAddAndDestroyActors();
 			}
 		}
 	}
 
-	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7 /*= FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED*/); // 출력 색상 정리.
-	Utils::SetConsoleTextColor(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+	//Utils::SetConsoleTextColor(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
 }
 
-void Engine::WriteToBuffer(const Vector2I& position, const char* image, Color color, int sortingOrder)
+void Engine::AddLevel(Level* newLevel)
 {
-	// 문자열 길이.
-	int length = static_cast<int>(strlen(image));
-
-	// 문자열 기록.
-	for (int ix = 0; ix < length; ++ix)
-	{
-		// 글자의 현재 x, y 좌표를 계산
-		int currentX = position.x + ix;
-		int currentY = position.y;
-
-		// 현재 글자의 위치가 화면 범위 안에 있는지 확인
-		if (currentX < 0 || currentX >= settings.width || currentY < 0 || currentY >= settings.height)
-		{
-			continue;
-		}
-
-		// 화면 범위 안에 있다면, 버퍼 인덱스를 계산
-		int index = (currentY * settings.width) + currentX;
-
-		if (imageBuffer->sortingOrderArray[index] > sortingOrder)
-		{
-			continue;
-		}
-
-		// 버퍼에 문자/색상 기록.
-		imageBuffer->charInfoArray[index].Char.AsciiChar = image[ix];
-		imageBuffer->charInfoArray[index].Attributes = (WORD)color;
-
-		imageBuffer->sortingOrderArray[index] = sortingOrder;
-	}
-}
-
-void Engine::PresentImmediately() // 언제 사용할지 잘 모르겠다
-{
-	GetRenderer()->Render(imageBuffer->charInfoArray); // 백 버퍼에 그리기
-	Present(); // 버퍼 교환
-}
-
-void Engine::CleanUp()
-{
-	// 레벨 삭제.
 	SafeDelete(mainLevel);
-
-	// 문자 버퍼 삭제.
-	SafeDelete(imageBuffer);
-
-	// 렌더 타겟 삭제.
-	SafeDelete(renderTargets[0]);
-	SafeDelete(renderTargets[1]);
+	mainLevel = newLevel;
 }
 
 void Engine::Quit()
@@ -195,82 +140,24 @@ void Engine::Quit()
 	isQuit = true;
 }
 
-void Engine::AddLevel(Level* newLevel)
-{
-	SafeDelete(mainLevel);
-
-	mainLevel = newLevel;
-}
-
-int Engine::Width() const
+int Engine::Width()
 {
 	return settings.width;
 }
 
-int Engine::halfWidth() const
+int Engine::halfWidth()
 {
 	return settings.width / 2;
 }
 
-int Engine::Height() const
+int Engine::Height()
 {
 	return settings.height;
 }
 
-int Engine::halfHeight() const
+int Engine::halfHeight()
 {
 	return settings.height / 2;
-}
-
-Vector2I Engine::ScreenCenter()
-{
-	return { halfWidth() , halfHeight() };
-}
-
-ScreenBuffer* Engine::GetRenderer() const
-{
-	return renderTargets[currentRenderTargetIndex];
-}
-
-Vector2I Engine::OrthogonalToScreenCoords(const Vector2F& worldPos, const Vector2I& cameraPos)
-{
-	Vector2I screenPos;
-
-	// 1. 카메라 위치를 기준으로 상대적 위치를 계산합니다.
-	screenPos.x = (int)round(worldPos.x) - cameraPos.x;
-	screenPos.y = (int)round(worldPos.y) - cameraPos.y;
-
-	// 2. Y축을 뒤집습니다. (y-up -> y-down)
-	screenPos.y *= -1;
-
-	// 3. 화면 중앙을 기준으로 옮깁니다.
-	screenPos.x += halfWidth();
-	screenPos.y += halfHeight();
-
-	return screenPos;
-}
-
-Vector2F Engine::ScreenToOrthogonalCoords(const Vector2I& screenPos, const Vector2I& cameraPos)
-{
-	Vector2F worldPos;
-
-	// 1. 화면 중앙을 기준으로 상대적 위치를 계산합니다.
-	worldPos.x = (float)screenPos.x - halfWidth();
-	worldPos.y = (float)screenPos.y - halfHeight();
-
-	// 2. Y축을 뒤집습니다. (y-down -> y-up)
-	worldPos.y *= -1;
-
-	// 3. 카메라 위치를 더해 최종 월드 좌표를 얻습니다.
-	worldPos.x += cameraPos.x;
-	worldPos.y += cameraPos.y;
-
-	return worldPos;
-};
-
-Engine& Engine::Get()
-{
-	return *instance;
 }
 
 void Engine::BeginPlaye()
@@ -293,19 +180,13 @@ void Engine::Tick(float deltaTime)
 
 void Engine::Render()
 {
-	Utils::SetConsoleTextColor(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
-
-	Clear(); // 화면 지우기
-
 	// LEVEL
 	if (mainLevel)
 	{
-		mainLevel->Render();
+		mainLevel->Draw(renderer);
 	}
 
-	GetRenderer()->Render(imageBuffer->charInfoArray); // 백버퍼에 데이터 쓰기
-
-	Present(); // 버퍼 교환
+	renderer.Render();
 }
 
 void Engine::LoadEngineSettings()
@@ -368,51 +249,6 @@ void Engine::LoadEngineSettings()
 
 	// 파일 닫기
 	fclose(file);
-}
-
-void Engine::Clear()
-{
-	ClearImageBuffer();
-	GetRenderer()->Clear();
-}
-
-void Engine::Present()
-{
-	// 버퍼 교환.
-	SetConsoleActiveScreenBuffer(GetRenderer()->buffer);
-
-	// 인덱스 뒤집기. 1->0, 0->1.
-	currentRenderTargetIndex = 1 - currentRenderTargetIndex;
-}
-
-void Engine::ClearImageBuffer()
-{
-	// 글자 버퍼 덮어쓰기.
-	for (int y = 0; y < settings.height; ++y)
-	{
-		for (int x = 0; x < settings.width; ++x)
-		{
-			int index = (y * (settings.width)) + x;
-			CHAR_INFO& buffer = imageBuffer->charInfoArray[index];
-			buffer.Char.AsciiChar = ' ';
-			buffer.Attributes = 0;
-			imageBuffer->sortingOrderArray[index] = -1;
-		}
-
-		// 각 줄 끝에 개행 문자 추가.
-		int index = (y * (settings.width)) + settings.width;
-		CHAR_INFO& buffer = imageBuffer->charInfoArray[index];
-		buffer.Char.AsciiChar = '\n';
-		buffer.Attributes = 0;
-		imageBuffer->sortingOrderArray[index] = -1;
-	}
-
-	// 마지막에 널 문자 추가.
-	int index = (settings.width) * settings.height + 1;
-	CHAR_INFO& buffer = imageBuffer->charInfoArray[index];
-	buffer.Char.AsciiChar = '\0';
-	buffer.Attributes = 0;
-	imageBuffer->sortingOrderArray[index] = -1;
 }
 
 void Engine::DisableToResizeWindow()
