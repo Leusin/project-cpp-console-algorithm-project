@@ -30,6 +30,13 @@ Engine::Engine()
 	consoleCursorInfo.dwSize = 1;
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleCursorInfo); // 커서가 보이지 않도록 
 
+	// 전체 화면 모드 설정 (안됨)
+	// SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE), CONSOLE_FULLSCREEN_MODE, NULL);
+
+	// 콘솔 창 크기 변경 안되도록 설정.
+	// "관리자 모드에서만 제대로 실행됨"
+	DisableToResizeWindow();
+
 	// 엔진 설정 로드
 	LoadEngineSettings();
 
@@ -58,10 +65,6 @@ Engine::Engine()
 
 	SetConsoleCtrlHandler(ConsoleMessageProcedure, TRUE);
 
-	// 콘솔 창 크기 변경 안되도록 설정.
-	// "관리자 모드에서만 제대로 실행됨"
-	DisableToResizeWindow();
-
 	// cls 호출.
 	system("cls");
 }
@@ -73,6 +76,14 @@ Engine::~Engine()
 
 void Engine::Run()
 {
+	// 현재 콘솔 크기 가져오기
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+
+	Vector2I newSize;
+	newSize.x = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	newSize.y = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
 	//float currentTime = timeGetTime();
 	LARGE_INTEGER currentTime;
 	QueryPerformanceCounter(&currentTime);
@@ -144,7 +155,7 @@ void Engine::WriteToBuffer(const Vector2I& position, const char* image, Color co
 		{
 			continue;
 		}
-		
+
 		// 화면 범위 안에 있다면, 버퍼 인덱스를 계산
 		int index = (currentY * settings.width) + currentX;
 
@@ -214,7 +225,7 @@ int Engine::halfHeight() const
 
 Vector2I Engine::ScreenCenter()
 {
-	return { halfWidth() , halfHeight()  };
+	return { halfWidth() , halfHeight() };
 }
 
 ScreenBuffer* Engine::GetRenderer() const
