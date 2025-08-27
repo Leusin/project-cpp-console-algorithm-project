@@ -3,6 +3,7 @@
 #include "Level/level.h"
 #include "QuadTree/QuadTree.h"
 #include "AStar/AStar.h"
+#include "Debug/Debug.h"
 
 class MainLevel : public Level
 {
@@ -13,17 +14,32 @@ public: // RAII
 	MainLevel();
 	~MainLevel();
 
-public: // 
+public: // EVENT
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
 	virtual void Draw(class Renderer& renderer) override;
 
+private: // METHOD
+	
+	// 업데이트
+	void UpdateQuadTree();
+
+	// 디버깅 관련
+	void DrawDebug(class Renderer& renderer);
+	void DrawGrids(class Renderer& renderer, int x, int y, int w, int h, int depth = 0);
+
 private: // FILD
 
-	QuadTree quradTree;
+	// 핵심 알고리즘: 쿼드 트리
+	QuadTree quadTree;
+
+	// 핵심 알고리즘: A*
 	AStar aStar;
 
-	// 맵 정보
+	// A*가 사용할 맵 정보
 	const std::vector<std::vector<int>> map;
+
+	// 디버그
+	Debug debug;
 };

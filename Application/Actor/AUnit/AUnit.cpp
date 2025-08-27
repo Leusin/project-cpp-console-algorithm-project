@@ -5,6 +5,7 @@
 #include "AStar/AStar.h"
 #include "Core.h"
 #include "Render/Renderer.h"
+#include "Debug/Debug.h"
 
 // TEST
 #include "Input.h"
@@ -14,7 +15,7 @@ AUnit::AUnit(const Vector2I& spawnPosition, class AStar& aStar)
 	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
 	, aStar{ aStar }
 {
-	SetSortingOrder(100);
+	SetSortingOrder(200);
 }
 
 AUnit::~AUnit()
@@ -30,7 +31,7 @@ void AUnit::Tick(float deltaTime)
 	//
 
 	path.clear();
-	path = aStar.FindPath(GetCurrentPosition(), {Input::Get().GetMouseX(), Input::Get().GetMouseY() });
+	path = aStar.FindPath(GetCurrentPosition(), { Input::Get().GetMouseX(), Input::Get().GetMouseY() });
 
 	// 
 	// 쿼드 트리 TEST
@@ -67,9 +68,12 @@ void AUnit::Draw(Renderer& renderder)
 {
 	super::Draw(renderder);
 
-	for (const Vector2I& position : path)
+	if (Debug::IsDebugMode())
 	{
-		renderder.WriteToBuffer(position, "*", Color::Green, 80);
+		for (const Vector2I& position : path)
+		{
+			renderder.WriteToBuffer(position, "*", Color::Green, Debug::RenderOrder() + 1);
+		}
 	}
 }
 

@@ -4,6 +4,7 @@
 #include "Core.h"
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
+#include "Debug/Debug.h"
 
 QNode::QNode(const Bounds& bounds, int depth)
 	:bounds{ bounds }, depth{ depth }
@@ -121,45 +122,23 @@ void QNode::Clear()
 void QNode::DrawBounds(Renderer& renderer)
 {
 	// 뎁스에 따 른 색상 변경
-	Color color = Color::Intensity;
-
-	switch (depth)
-	{
-	case 0: // 루트 노드
-		color = Color::Intensity;
-		break;
-	case 1:
-		color = Color::Green;
-		break;
-	case 2:
-		color = Color::Yellow;
-		break;
-	case 3:
-		color = Color::White;
-		break;
-	case 4:
-	default:
-		color = Color::Intensity;
-		break;
-	}
-
+	Color color = Color::Green;
 
 	// 현재 노드 경계 그리기
-	char hpbarChar[2] = { '#', '\0' };
 	for (int ix = 0; ix < bounds.GetWidth(); ++ix)
 	{
 		// Top
-		renderer.WriteToBuffer({ bounds.GetX() + ix, bounds.GetY() }, hpbarChar, color, QuadTree::renderOrder);
+		renderer.WriteToBuffer({ bounds.GetX() + ix, bounds.GetY() }, "#", color, Debug::RenderOrder());
 		// Bottom
-		renderer.WriteToBuffer({ bounds.GetX() + ix, bounds.MaxY() - 1 }, hpbarChar, color, QuadTree::renderOrder);
+		renderer.WriteToBuffer({ bounds.GetX() + ix, bounds.MaxY() - 1 }, "#", color, Debug::RenderOrder());
 	}
 
 	for (int iy = 0; iy < bounds.GetHeight(); ++iy)
 	{
 		// Left
-		renderer.WriteToBuffer({ bounds.GetX(), bounds.GetY() + iy }, hpbarChar, color, QuadTree::renderOrder);
+		renderer.WriteToBuffer({ bounds.GetX(), bounds.GetY() + iy }, "#", color, Debug::RenderOrder());
 		// Right
-		renderer.WriteToBuffer({ bounds.MaxX() - 1, bounds.GetY() + iy }, hpbarChar, color, QuadTree::renderOrder);
+		renderer.WriteToBuffer({ bounds.MaxX() - 1, bounds.GetY() + iy }, "#", color, Debug::RenderOrder());
 	}
 
 

@@ -25,7 +25,6 @@ public:
 
 public:
 	static int maxDepth;
-	static int renderOrder;
 
 private: // METHOD
 	void CreateRoot();

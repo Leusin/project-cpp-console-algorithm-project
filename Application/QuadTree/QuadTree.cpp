@@ -8,7 +8,6 @@
 #include "Render/Renderer.h"
 
 int QuadTree::maxDepth = 3;
-int QuadTree::renderOrder = 0;
 
 QuadTree::QuadTree()
 	: root{ nullptr }
