@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Actor\AUnit\AUnit.cpp" />
+    <ClCompile Include="AStar\AStar.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Level\MainLevel.cpp" />
     <ClCompile Include="Level\MainLevel.h" />
@@ -176,6 +177,8 @@
     <ClInclude Include="Actor\QEntity\QEntity.h" />
     <ClInclude Include="Actor\AUnit\AUnit.h" />
     <ClInclude Include="Actor\AUnit\UnitStats.h" />
+    <ClInclude Include="AStar\ANode.h" />
+    <ClInclude Include="AStar\AStar.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="QuadTree\Bounds.h" />
     <ClInclude Include="QuadTree\QNode.h" />

@@ -2,6 +2,7 @@
 
 #include "Level/level.h"
 #include "QuadTree/QuadTree.h"
+#include "AStar/AStar.h"
 
 class MainLevel : public Level
 {
@@ -20,4 +21,5 @@ public: //
 private: // FILD
 
 	QuadTree quradTree;
+	AStar aStar;
 };
