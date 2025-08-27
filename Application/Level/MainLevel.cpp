@@ -10,12 +10,16 @@
 #include "Engine.h"
 
 MainLevel::MainLevel()
+	:map(Engine::Height(), std::vector<int>(Engine::Width(), 0))
 {
-	AddActor(new AUnit({0, 0}));
-	AddActor(new AUnit({1, 5}));
-	AddActor(new AUnit({4, 10}));
-	AddActor(new AUnit({30, 15}));
-	AddActor(new AUnit({36, 25}));
+	// aStar
+	aStar.SetMap(map);
+
+	AddActor(new AUnit({0, 0}, aStar));
+	AddActor(new AUnit({1, 5}, aStar));
+	AddActor(new AUnit({4, 10}, aStar));
+	AddActor(new AUnit({30, 15}, aStar));
+	AddActor(new AUnit({36, 25}, aStar));
 }
 
 MainLevel::~MainLevel()

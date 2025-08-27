@@ -23,7 +23,11 @@ public: // RAII
 public: // MESSAGE
 
 	// 경로 탐색
-	std::vector<class ANode*> FindPath(const Vector2I& start, const Vector2I& goal, std::vector<std::vector<int>>& grid);
+	std::vector<Vector2I> FindPath(const Vector2I& start, const Vector2I& goal);
+
+public: // SET
+
+	void SetMap(const std::vector<std::vector<int>>& map) { this->map = &map; }
 
 private: // METHOD
 
@@ -31,7 +35,7 @@ private: // METHOD
 
 	// 탐색을 마친 후 경로를 조립해 반환하는 함수
 	// 목표 노드에서 부모 노드를 참조해 시작 노드까지 역추적 하면서 경로 구함
-	std::vector<class ANode*> ConstructPath();
+	std::vector<Vector2I> ConstructPath(class ANode* node);
 
 	// 탐색하려는 노드가 목표 노드인지 검사
 	bool IsDestination(const ANode* node);
@@ -53,10 +57,15 @@ private: // METHOD
 	// 닫힌 리스트: 방문된 노드 목록
 	std::vector<class ANode*> closedList;
 
+	// 메모리 관리를 위해 모든 노드를 저장하는
+	std::vector<ANode*> allNodes; 
+
 	// 시작
 	class ANode* startNode;
 
 	// 목표
 	class ANode* goalNode;
 
+	// 현재 맵 데이터
+	const std::vector<std::vector<int>>* map;
 };

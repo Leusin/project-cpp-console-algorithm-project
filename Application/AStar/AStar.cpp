@@ -1,7 +1,6 @@
 #include "AStar.h"
 
 #include <cmath>
-#include "Engine.h"
 #include "ANode.h"
 
 AStar::AStar()
@@ -15,8 +14,13 @@ AStar::~AStar()
 	Clear();
 }
 
-std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I& goal, std::vector<std::vector<int>>& grid)
+std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goal)
 {
+	if (!map) // 맵 데이터가 없는 채임
+	{
+		__debugbreak();
+	}
+
 	// 이전 작업이 있다면 비우기
 	Clear();
 
@@ -24,13 +28,23 @@ std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I&
 	startNode = new ANode(start.x, start.y);
 	goalNode = new ANode(goal.x, goal.y);
 
+	allNodes.emplace_back(startNode);
+	allNodes.emplace_back(goalNode);
+
 	// 상화좌우, 대각선 방향 및 비용
 	std::vector<Direction> directions =
 	{
-		// 하상우좌 (화면 좌표계 기준)
-		{0, 1, 1.0f}, {0, -1, 1.0f}, {1, 0, 1.0f}, {-1, 0, 1.0f},
+		// 상하좌우 (화면 좌표계 기준)
+		{0, -1, 1.0f},  // 상
+		{0,  1, 1.0f},  // 하
+		{-1, 0, 1.0f},  // 좌
+		{1,  0, 1.0f},  // 우
+
 		// 대각선
-		{1, 1, 1.414f}, {1, -1, 1.414f}, {1, -1, 1.414f}, {-1, -1, 1.414f}
+		{-1, -1, 1.414f}, // 좌상
+		{1,  -1, 1.414f}, // 우상
+		{-1,  1, 1.414f}, // 좌하
+		{1,   1, 1.414f}  // 우하
 	};
 
 	// 1. 초기화
@@ -38,7 +52,7 @@ std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I&
 
 	while (!openList.empty())
 	{
-		//2. fCost 가 가장 낮은 노드 선택
+		// 2. fCost 가 가장 낮은 노드 선택
 
 		// 가장 비용이 작은 노드 탐색
 		ANode* current = openList[0];
@@ -55,7 +69,7 @@ std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I&
 		if (IsDestination(current))
 		{
 			// 목표 노드인 경우, 지금까지 경로 반환
-			return ConstructPath();
+			return ConstructPath(current);
 		}
 
 		// 4. 닫힌 리스트로 이동 (열린 리스트에선 제거)
@@ -86,7 +100,7 @@ std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I&
 			continue;
 		}
 
-		closedList.emplace_back(startNode);
+		closedList.emplace_back(current);
 
 		// 이웃 노드 방문
 		for (const Direction& direction : directions)
@@ -95,7 +109,7 @@ std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I&
 			int newX = current->position.x + direction.x;
 			int newY = current->position.y + direction.y;
 
-			// 그리드 밖인지 확인
+			// 범위 밖인지 확인
 			if (!IsInRange(newX, newY))
 			{
 				continue;
@@ -103,7 +117,7 @@ std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I&
 
 			// (옵션) 장애물인지 확인
 			// 여기선 값이 1일 경우 장애물
-			if (grid[newY][newX] == 1)
+			if ((*map)[newY][newX] == -1)
 			{
 				continue;
 			}
@@ -117,10 +131,12 @@ std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I&
 
 			// 방문을 위한 노드 생성
 			ANode* neighbor = new ANode(newX, newY, current);
+			allNodes.emplace_back(neighbor);
+
 			neighbor->gCost = current->gCost + direction.cost;
 
 			// 휴리스틱 비용 계산
-			neighbor->hCost = CalculateHeuristic(current, goalNode);
+			neighbor->hCost = CalculateHeuristic(neighbor, goalNode);
 
 			ANode* openListNode = nullptr;
 			for (ANode* node : openList)
@@ -139,57 +155,38 @@ std::vector<class ANode*> AStar::FindPath(const Vector2I& start, const Vector2I&
 			{
 				openList.emplace_back(neighbor);
 			}
-			else
-			{
-				SafeDelete(neighbor);
-			}
 		}
 
 	} // While END
 
-	// 경로를 찾지 못했음
-	SafeDelete(startNode);
-	SafeDelete(goalNode);
-
-	return std::vector<class ANode*>();
+	return std::vector<Vector2I>();
 }
 
 void AStar::Clear()
 {
-	// 오픈 리스트 비우기
-	for (ANode* node : openList)
+	// 모든 노드 리스트 비우기
+	for (ANode* node : allNodes)
 	{
 		SafeDelete(node);
 	}
 
+	allNodes.clear();
 	openList.clear();
-
-	// 클로즈 리스트 비우기
-	for (ANode* node : closedList)
-	{
-		SafeDelete(node);
-	}
-
 	closedList.clear();
 }
 
-std::vector<ANode*> AStar::ConstructPath()
+std::vector<Vector2I> AStar::ConstructPath(ANode* node)
 {
-	std::vector<ANode*> path;
-	ANode* current = goalNode;
+	std::vector<Vector2I> path;
+	ANode* current = node;
 
 	while (current != nullptr)
 	{
-		path.emplace_back(current);
+		path.emplace_back(current->position);
 		current = current->parent;
 	}
 
 	std::reverse(path.begin(), path.end());
-
-	// 참조중인 노드 정리. 할당해제는 내보내지는 벡터에게 위임.
-	startNode = nullptr;
-	goalNode = nullptr;
-
 	return path;
 }
 
@@ -200,7 +197,12 @@ bool AStar::IsDestination(const ANode* node)
 
 bool AStar::IsInRange(int x, int y)
 {
-	if (x < 0 || y < 0 || x >= Engine::Width()|| y >= Engine::Height())
+	if (map->empty())
+	{
+		return false;
+	}
+
+	if (x < 0 || y < 0 || x >= (int)(*map)[0].size() || y >= (int)map->size())
 	{
 		return false;
 	}
@@ -227,7 +229,6 @@ bool AStar::HasVisited(int x, int y, float gCost)
 			else if (node->gCost > gCost)
 			{
 				openList.erase(openList.begin() + i);
-				SafeDelete(node);
 			}
 		}
 	}
@@ -247,7 +248,6 @@ bool AStar::HasVisited(int x, int y, float gCost)
 			else if (node->gCost > gCost)
 			{
 				closedList.erase(closedList.begin() + i);
-				SafeDelete(node);
 			}
 		}
 	}
