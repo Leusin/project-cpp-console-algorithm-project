@@ -1,10 +1,11 @@
 #include "AStar.h"
 
 #include <cmath>
+#include <algorithm>
 #include "ANode.h"
 
 AStar::AStar()
-	: startNode{ nullptr }, goalNode{ nullptr }
+	: startNode{ nullptr }, goalNode{ nullptr }, map{ nullptr }
 {
 }
 
@@ -24,9 +25,9 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 	// 이전 작업이 있다면 비우기
 	Clear();
 
-	// TODO 좌표와 댜략적인 정보만 받고 생성하도록 만들기
 	startNode = new ANode(start.x, start.y);
-	goalNode = new ANode(goal.x, goal.y);
+	Vector2I clampedGoal = { std::clamp(goal.x, 0, (int)(*map)[0].size() - 1), std::clamp(goal.y, 0, (int)(*map).size() - 1) };
+	goalNode = new ANode(clampedGoal.x, clampedGoal.y);
 
 	allNodes.emplace_back(startNode);
 	allNodes.emplace_back(goalNode);

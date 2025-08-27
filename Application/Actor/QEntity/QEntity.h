@@ -26,7 +26,7 @@ public: // GET SET
 
 	Bounds GetBounds() const { return bounds; }
 
-private: // FILD
+protected: // FILD
 
 	// 쿼드 트리에 넣기 위한 경계 상자
 	Bounds bounds;

@@ -58,7 +58,7 @@ private: // METHOD
 	std::vector<class ANode*> closedList;
 
 	// 메모리 관리를 위해 모든 노드를 저장하는
-	std::vector<ANode*> allNodes; 
+	std::vector<class  ANode*> allNodes;
 
 	// 시작
 	class ANode* startNode;

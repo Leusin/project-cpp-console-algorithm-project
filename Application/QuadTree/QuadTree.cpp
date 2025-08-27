@@ -7,7 +7,7 @@
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
 
-int QuadTree::maxDepth = 4;
+int QuadTree::maxDepth = 3;
 int QuadTree::renderOrder = 0;
 
 QuadTree::QuadTree()
