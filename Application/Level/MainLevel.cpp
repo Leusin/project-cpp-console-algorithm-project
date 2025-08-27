@@ -1,6 +1,6 @@
 #include "MainLevel.h"
 
-#include "Actor/Unit/Unit.h"
+#include "Actor/AUnit/AUnit.h"
 #include "Math/Vector2I.h"
 #include "Render/Renderer.h"
 
@@ -11,11 +11,11 @@
 
 MainLevel::MainLevel()
 {
-	AddActor(new Unit({0, 0}));
-	AddActor(new Unit({1, 5}));
-	AddActor(new Unit({4, 10}));
-	AddActor(new Unit({30, 15}));
-	AddActor(new Unit({36, 25}));
+	AddActor(new AUnit({0, 0}));
+	AddActor(new AUnit({1, 5}));
+	AddActor(new AUnit({4, 10}));
+	AddActor(new AUnit({30, 15}));
+	AddActor(new AUnit({36, 25}));
 }
 
 MainLevel::~MainLevel()
@@ -36,9 +36,9 @@ void MainLevel::Tick(float deltaTime)
 	auto actors = GetActors();
 	for (const Actor* actor : actors)
 	{
-		if (actor->As<Unit>())
+		if (actor->As<AUnit>())
 		{
-			quradTree.Insert((Unit*)actor);
+			quradTree.Insert((AUnit*)actor);
 		}
 	}
 }

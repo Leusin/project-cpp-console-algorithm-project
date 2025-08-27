@@ -18,13 +18,14 @@ enum class NodeIndex
 class QuadTreeNode
 {
 public: // RAII
+
 	QuadTreeNode(const Bounds& bounds, int depth = 0);
 	~QuadTreeNode();
 
 public: // GET SET
 
 	// 삽입
-	void Insert(class Unit* node);
+	void Insert(class QEntity* node);
 
 	// 질의
 	void Query(const Bounds& queryBounds, std::vector<class QuadTreeNode*>& possibleNodes);
@@ -37,7 +38,7 @@ public: // GET SET
 public: // GET SET
 
 	Bounds GetBounds() const { return bounds; }
-	const std::vector<class Unit*>& GetPointers() const { return points; }
+	const std::vector<class QEntity*>& GetPointers() const { return points; }
 
 	QuadTreeNode* GetTopLeft() const { return topLeft; }
 	QuadTreeNode* GetTopRight() const { return topRight; }
@@ -67,7 +68,7 @@ private: // FILD
 	Bounds bounds;
 
 	// 현재 노드에 포함된 노드 (배열).
-	std::vector<class Unit*> points;
+	std::vector<class QEntity*> points;
 
 	// 자식 노드
 	QuadTreeNode* topLeft = nullptr;

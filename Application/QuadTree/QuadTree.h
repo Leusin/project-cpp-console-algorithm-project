@@ -14,12 +14,12 @@ public:
 	~QuadTree();
 
 	// 노드 추가하는 함수
-	void Insert(class Unit* node);
+	void Insert(class QEntity* node);
 
 	void Clear();
 
 	// 전달한 노드와 겹치는 노드를 반환 하는 질의 함수
-	bool Query(const class Unit* queryNode, std::vector<class QuadTreeNode*>& possibleNode);
+	bool Query(const class QEntity* queryNode, std::vector<class QuadTreeNode*>& possibleNode);
 
 	void DrawBounds(class Renderer& renderer);
 

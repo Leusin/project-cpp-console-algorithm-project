@@ -2,7 +2,7 @@
 
 #include "QuadTree.h"
 #include "Core.h"
-#include "Actor/Unit/Unit.h"
+#include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
 
 QuadTreeNode::QuadTreeNode(const Bounds& bounds, int depth)
@@ -15,7 +15,7 @@ QuadTreeNode::~QuadTreeNode()
 	Clear();
 }
 
-void QuadTreeNode::Insert(Unit* unit)
+void QuadTreeNode::Insert(QEntity* unit)
 {
 	// 겹치는지 완전히 포함되는지 확인
 	NodeIndex result = TestRegion(unit->GetBounds());

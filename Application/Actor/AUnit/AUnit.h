@@ -1,20 +1,19 @@
 #pragma once
 
-#include "Actor/Actor.h"
+#include "Actor/QEntity/QEntity.h"
 #include "QuadTree/Bounds.h"
 #include "UnitStats.h"
 
 /// <summary>
-/// 이 프로젝트에서 화면에 움직일 수 있는 것들을 정의한 클래스
-/// - [] 쿼드 트리 자료구조에 넣을 수 있야 한다.
+/// QaudTree가 관리하고 AStar를 가진 객체
 /// </summary>
-class Unit : public Actor
+class AUnit : public QEntity
 {
-	RTTI_DECLARATIONS(Unit, Actor)
+	RTTI_DECLARATIONS(AUnit, QEntity)
 
 public: // RAII
-	Unit(const Vector2I& spawnPosition);
-	virtual ~Unit();
+	AUnit(const Vector2I& spawnPosition);
+	virtual ~AUnit();
 
 public:
 	//virtual void BeginPlay() override;
@@ -29,14 +28,9 @@ public:
 
 public: // GET SET
 
-	Bounds GetBounds() const { return bounds; }
-
 	Vector2I GetCurrentPosition() const;
 
 private: // FILD
-
-	// 쿼드 트리에 넣기 위한 경계 상자
-	Bounds bounds;
 
 	UnitStats stats;
 	

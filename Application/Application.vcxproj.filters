@@ -27,7 +27,7 @@
     <ClCompile Include="Level\MainLevel.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Actor\Unit\Unit.cpp">
+    <ClCompile Include="Actor\AUnit\AUnit.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="QuadTree\QuadTree.cpp">
@@ -44,7 +44,7 @@
     <ClInclude Include="Game\Game.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Actor\Unit\Unit.h">
+    <ClInclude Include="Actor\AUnit\AUnit.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="QuadTree\QuadTree.h">
@@ -56,7 +56,10 @@
     <ClInclude Include="QuadTree\QuadTreeNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Actor\Unit\UnitStats.h">
+    <ClInclude Include="Actor\AUnit\UnitStats.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor\QEntity\QEntity.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

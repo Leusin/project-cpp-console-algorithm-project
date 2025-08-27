@@ -163,7 +163,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Actor\Unit\Unit.cpp" />
+    <ClCompile Include="Actor\AUnit\AUnit.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Level\MainLevel.cpp" />
     <ClCompile Include="Level\MainLevel.h" />
@@ -173,8 +173,9 @@
     <ClCompile Include="QuadTree\QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Actor\Unit\Unit.h" />
-    <ClInclude Include="Actor\Unit\UnitStats.h" />
+    <ClInclude Include="Actor\QEntity\QEntity.h" />
+    <ClInclude Include="Actor\AUnit\AUnit.h" />
+    <ClInclude Include="Actor\AUnit\UnitStats.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="QuadTree\Bounds.h" />
     <ClInclude Include="QuadTree\QuadTreeNode.h" />

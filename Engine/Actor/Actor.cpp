@@ -6,7 +6,7 @@
 #include "Level/Level.h"
 #include "Render/Renderer.h"
 
-Actor::Actor(const char* image, Color color, const Vector2I& position)
+Actor::Actor(const Vector2I& position, Color color, const char* image)
 	: color(color), position(position)
 {
 	// iamge 초기화

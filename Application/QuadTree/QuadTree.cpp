@@ -4,7 +4,7 @@
 #include "QuadTreeNode.h"
 #include "Core.h"
 #include "Engine.h"
-#include "Actor/Unit/Unit.h"
+#include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
 
 int QuadTree::maxDepth = 4;
@@ -21,7 +21,7 @@ QuadTree::~QuadTree()
 	Clear();
 }
 
-void QuadTree::Insert(Unit* unit)
+void QuadTree::Insert(QEntity* unit)
 {
 	CreateRoot();
 
@@ -33,7 +33,7 @@ void QuadTree::Clear()
 	SafeDelete(root);
 }
 
-bool QuadTree::Query(const Unit* targetUnit, std::vector<QuadTreeNode*>& possibleNode)
+bool QuadTree::Query(const QEntity* targetUnit, std::vector<QuadTreeNode*>& possibleNode)
 {
 	possibleNode.clear();
 
@@ -41,13 +41,13 @@ bool QuadTree::Query(const Unit* targetUnit, std::vector<QuadTreeNode*>& possibl
 	root->Query(targetUnit->GetBounds(), possibleNode);
 
 	// 가능성이 있는 노드에서 실제로 겹치는지 노드 검사
-	std::vector<Unit*> intersects;
+	std::vector<QEntity*> intersects;
 
 	// 겹침 가능성 있는 영역 순회
 	for (QuadTreeNode* node : possibleNode)
 	{
 		// 각 영역이 가지는 노드 순회
-		for (Unit* point : node->GetPointers())
+		for (QEntity* point : node->GetPointers())
 		{
 			// 겹침 검사
 			if (point->GetBounds().Intersects(targetUnit->GetBounds()))
