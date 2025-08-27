@@ -36,4 +36,5 @@ private: // FILD
 	
 	// 현재 위치(실수 좌표) - 내보낼땐 정수 좌표로 변환
 	Vector2F currentPosition;
+
 };

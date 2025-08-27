@@ -169,7 +169,7 @@
     <ClCompile Include="Level\MainLevel.h" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="QuadTree\Bounds.cpp" />
-    <ClCompile Include="QuadTree\QuadTreeNode.cpp" />
+    <ClCompile Include="QuadTree\QNode.cpp" />
     <ClCompile Include="QuadTree\QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -178,7 +178,7 @@
     <ClInclude Include="Actor\AUnit\UnitStats.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="QuadTree\Bounds.h" />
-    <ClInclude Include="QuadTree\QuadTreeNode.h" />
+    <ClInclude Include="QuadTree\QNode.h" />
     <ClInclude Include="QuadTree\QuadTree.h" />
   </ItemGroup>
   <ItemGroup>

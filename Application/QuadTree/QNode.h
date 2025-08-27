@@ -15,12 +15,12 @@ enum class NodeIndex
 	OutOfArea	// 영역에 벗어난 경우
 };
 
-class QuadTreeNode
+class QNode
 {
 public: // RAII
 
-	QuadTreeNode(const Bounds& bounds, int depth = 0);
-	~QuadTreeNode();
+	QNode(const Bounds& bounds, int depth = 0);
+	~QNode();
 
 public: // GET SET
 
@@ -28,7 +28,7 @@ public: // GET SET
 	void Insert(class QEntity* node);
 
 	// 질의
-	void Query(const Bounds& queryBounds, std::vector<class QuadTreeNode*>& possibleNodes);
+	void Query(const Bounds& queryBounds, std::vector<class QNode*>& possibleNodes);
 
 	// 정리
 	void Clear();
@@ -40,10 +40,10 @@ public: // GET SET
 	Bounds GetBounds() const { return bounds; }
 	const std::vector<class QEntity*>& GetPointers() const { return points; }
 
-	QuadTreeNode* GetTopLeft() const { return topLeft; }
-	QuadTreeNode* GetTopRight() const { return topRight; }
-	QuadTreeNode* GetBottomLeft() const { return bottomLeft; }
-	QuadTreeNode* GetBottomRight() const { return bottomRight; }
+	QNode* GetTopLeft() const { return topLeft; }
+	QNode* GetTopRight() const { return topRight; }
+	QNode* GetBottomLeft() const { return bottomLeft; }
+	QNode* GetBottomRight() const { return bottomRight; }
 
 private: // MESSAGE
 
@@ -71,8 +71,8 @@ private: // FILD
 	std::vector<class QEntity*> points;
 
 	// 자식 노드
-	QuadTreeNode* topLeft = nullptr;
-	QuadTreeNode* topRight = nullptr;
-	QuadTreeNode* bottomLeft = nullptr;
-	QuadTreeNode* bottomRight = nullptr;
+	QNode* topLeft = nullptr;
+	QNode* topRight = nullptr;
+	QNode* bottomLeft = nullptr;
+	QNode* bottomRight = nullptr;
 };

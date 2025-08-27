@@ -36,7 +36,7 @@
     <ClCompile Include="QuadTree\Bounds.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="QuadTree\QuadTreeNode.cpp">
+    <ClCompile Include="QuadTree\QNode.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClInclude Include="QuadTree\Bounds.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="QuadTree\QuadTreeNode.h">
+    <ClInclude Include="QuadTree\QNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Actor\AUnit\UnitStats.h">

@@ -1,7 +1,7 @@
 #include "QuadTree.h"
 
 #include "Bounds.h"
-#include "QuadTreeNode.h"
+#include "QNode.h"
 #include "Core.h"
 #include "Engine.h"
 #include "Actor/QEntity/QEntity.h"
@@ -33,7 +33,7 @@ void QuadTree::Clear()
 	SafeDelete(root);
 }
 
-bool QuadTree::Query(const QEntity* targetUnit, std::vector<QuadTreeNode*>& possibleNode)
+bool QuadTree::Query(const QEntity* targetUnit, std::vector<QNode*>& possibleNode)
 {
 	possibleNode.clear();
 
@@ -44,7 +44,7 @@ bool QuadTree::Query(const QEntity* targetUnit, std::vector<QuadTreeNode*>& poss
 	std::vector<QEntity*> intersects;
 
 	// 겹침 가능성 있는 영역 순회
-	for (QuadTreeNode* node : possibleNode)
+	for (QNode* node : possibleNode)
 	{
 		// 각 영역이 가지는 노드 순회
 		for (QEntity* point : node->GetPointers())
@@ -81,6 +81,6 @@ void QuadTree::CreateRoot()
 {
 	if (!root)
 	{
-		root = new QuadTreeNode({ 0, 0, Engine::Width(), Engine::Height() });
+		root = new QNode({ 0, 0, Engine::Width(), Engine::Height() });
 	}
 }

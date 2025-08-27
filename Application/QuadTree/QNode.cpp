@@ -1,21 +1,21 @@
-#include "QuadTreeNode.h"
+#include "QNode.h"
 
 #include "QuadTree.h"
 #include "Core.h"
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
 
-QuadTreeNode::QuadTreeNode(const Bounds& bounds, int depth)
+QNode::QNode(const Bounds& bounds, int depth)
 	:bounds{ bounds }, depth{ depth }
 {
 }
 
-QuadTreeNode::~QuadTreeNode()
+QNode::~QNode()
 {
 	Clear();
 }
 
-void QuadTreeNode::Insert(QEntity* unit)
+void QNode::Insert(QEntity* unit)
 {
 	// 겹치는지 완전히 포함되는지 확인
 	NodeIndex result = TestRegion(unit->GetBounds());
@@ -58,7 +58,7 @@ void QuadTreeNode::Insert(QEntity* unit)
 	}
 }
 
-void QuadTreeNode::Query(const Bounds& queryBounds, std::vector<QuadTreeNode*>& possibleNodes)
+void QNode::Query(const Bounds& queryBounds, std::vector<QNode*>& possibleNodes)
 {
 	// 현재 노드 추가
 	possibleNodes.emplace_back(this);
@@ -96,7 +96,7 @@ void QuadTreeNode::Query(const Bounds& queryBounds, std::vector<QuadTreeNode*>& 
 }
 
 // 정리 함수.
-void QuadTreeNode::Clear()
+void QNode::Clear()
 {
 	// 현재 노드 - 엔진이 알아서 정리함
 	points.clear();
@@ -118,7 +118,7 @@ void QuadTreeNode::Clear()
 	}
 }
 
-void QuadTreeNode::DrawBounds(Renderer& renderer)
+void QNode::DrawBounds(Renderer& renderer)
 {
 	// 뎁스에 따 른 색상 변경
 	Color color = Color::Intensity;
@@ -173,7 +173,7 @@ void QuadTreeNode::DrawBounds(Renderer& renderer)
 	}
 }
 
-NodeIndex QuadTreeNode::TestRegion(const Bounds& bounds)
+NodeIndex QNode::TestRegion(const Bounds& bounds)
 {
 	// 전달된 bounds와 겹치는 4분면 목록 확인.
 	std::vector<NodeIndex> quads = GetQuads(bounds);
@@ -194,7 +194,7 @@ NodeIndex QuadTreeNode::TestRegion(const Bounds& bounds)
 	return NodeIndex::Straddling;
 }
 
-std::vector<NodeIndex> QuadTreeNode::GetQuads(const Bounds& bounds)
+std::vector<NodeIndex> QNode::GetQuads(const Bounds& bounds)
 {
 	std::vector<NodeIndex> quads;
 
@@ -238,7 +238,7 @@ std::vector<NodeIndex> QuadTreeNode::GetQuads(const Bounds& bounds)
 	return quads;
 }
 
-bool QuadTreeNode::Subdivide()
+bool QNode::Subdivide()
 {
 	// 최대 깊이에 도달했는지
 	// 도달했다면 더는 분할 안 함
@@ -270,16 +270,16 @@ bool QuadTreeNode::Subdivide()
 		|            |            |
 		+------------+------------+
 		*/
-		topLeft = new QuadTreeNode(Bounds(x, y, halfWidth, halfHeight), depth + 1);
-		topRight = new QuadTreeNode(Bounds(x + halfWidth, y, halfWidth, halfHeight), depth + 1);
-		bottomLeft = new QuadTreeNode(Bounds(x, y + halfHeight, halfWidth, halfHeight), depth + 1);
-		bottomRight = new QuadTreeNode(Bounds(x + halfWidth, y + halfHeight, halfWidth, halfHeight), depth + 1);
+		topLeft = new QNode(Bounds(x, y, halfWidth, halfHeight), depth + 1);
+		topRight = new QNode(Bounds(x + halfWidth, y, halfWidth, halfHeight), depth + 1);
+		bottomLeft = new QNode(Bounds(x, y + halfHeight, halfWidth, halfHeight), depth + 1);
+		bottomRight = new QNode(Bounds(x + halfWidth, y + halfHeight, halfWidth, halfHeight), depth + 1);
 	}
 
 	return true;
 }
 
-bool QuadTreeNode::IsDivided()
+bool QNode::IsDivided()
 {
 	// 하나라도 null이 아니면 분활 완료
 	// 자손 노드중 하나가 모두 null이라면 모두 null

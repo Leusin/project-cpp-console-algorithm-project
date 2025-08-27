@@ -19,7 +19,7 @@ public:
 	void Clear();
 
 	// 전달한 노드와 겹치는 노드를 반환 하는 질의 함수
-	bool Query(const class QEntity* queryNode, std::vector<class QuadTreeNode*>& possibleNode);
+	bool Query(const class QEntity* queryNode, std::vector<class QNode*>& possibleNode);
 
 	void DrawBounds(class Renderer& renderer);
 
@@ -31,5 +31,5 @@ private: // METHOD
 	void CreateRoot();
 
 private:
-	class QuadTreeNode* root = nullptr;
+	class QNode* root = nullptr;
 };
