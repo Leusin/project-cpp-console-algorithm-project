@@ -68,6 +68,35 @@ bool QuadTree::Query(const QEntity* targetUnit, std::vector<QNode*>& possibleNod
 	return true;
 }
 
+bool QuadTree::Query(const Bounds& targetBounds, std::vector<class QEntity*>& intersects)
+{
+	std::vector<QNode*> possibleNode;
+
+	// 겹침 가능성이 있는 영역 확인
+	root->Query(targetBounds, possibleNode);
+
+	// 겹침 가능성 있는 영역 순회
+	for (QNode* node : possibleNode)
+	{
+		// 각 영역이 가지는 노드 순회
+		for (QEntity* point : node->GetPointers())
+		{
+			// 겹침 검사
+			if (point->GetBounds().Intersects(targetBounds))
+			{
+				intersects.emplace_back(point);
+				continue;
+			}
+		}
+	}
+
+	if (possibleNode.empty())
+	{
+		return false;
+	}
+	return true;
+}
+
 void QuadTree::DrawBounds(Renderer& renderer)
 {
 	if (root)

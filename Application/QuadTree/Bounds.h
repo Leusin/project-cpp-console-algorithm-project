@@ -16,6 +16,8 @@ public:
 	// 겹침 행성 판정 함수.
 	bool Intersects(const Bounds& other) const;
 
+	void Draw(class Renderer& renderer);
+
 public: // GET SET
 
 	void SetPosition(int newX, int newY)
@@ -28,6 +30,18 @@ public: // GET SET
 	{
 		x = newPosition.x;
 		y = newPosition.y;
+	}
+
+	void SetSize(int newWidth, int newHight)
+	{
+		width = newWidth;
+		height = newHight;
+	}
+
+	void SetSize(const Vector2I& newSize)
+	{
+		width = newSize.x;
+		height = newSize.y;
 	}
 
 	int GetX() const { return x; }

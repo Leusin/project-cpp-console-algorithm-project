@@ -11,20 +11,28 @@
 /// </summary>
 class AUnit : public QEntity
 {
+	enum class State
+	{
+		IDLE
+	};
+
 	RTTI_DECLARATIONS(AUnit, QEntity)
 
 public: // RAII
 	AUnit(const Vector2I& spawnPosition, class AStar& aStar);
 	virtual ~AUnit();
 
-public:
-	//virtual void BeginPlay() override;
+public: // EVENT
+	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
 	virtual void Draw(class Renderer& renderder) override;
+
+public: // MESSAGE
 
 public: // GET SET
 
 	Vector2I GetCurrentPosition() const;
+	void SetIsSelected(bool val) { isSeleted = val; }
 
 private: // METHOD
 
@@ -36,9 +44,16 @@ private: // FILD
 	// 현재 위치(실수 좌표) - 내보낼땐 정수 좌표로 변환
 	Vector2F currentPosition;
 
-	// 
+	// 길찾기 요청
 	class AStar& aStar;
 
-	// 
+	// 길찾기 경로
 	std::vector<Vector2I> path;
+
+	// 선택 되었는지
+	bool isSeleted = false;
+	// 선택되었을 때 색
+	Color selectedColor = Color::LightCyan;
+	// 원래 색
+	Color unitColor = Color::White;
 };

@@ -3,6 +3,7 @@
 #include "Level/level.h"
 #include "QuadTree/QuadTree.h"
 #include "AStar/AStar.h"
+#include "DragBox/DragBox.h"
 #include "Debug/Debug.h"
 
 class MainLevel : public Level
@@ -39,6 +40,8 @@ private: // FILD
 
 	// A*가 사용할 맵 정보
 	const std::vector<std::vector<int>> map;
+
+	DragBox dragBox;
 
 	// 디버그
 	Debug debug;

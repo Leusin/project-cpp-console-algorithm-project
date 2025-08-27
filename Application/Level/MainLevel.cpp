@@ -7,6 +7,7 @@
 
 MainLevel::MainLevel()
 	:map(Engine::Height(), std::vector<int>(Engine::Width(), 0))
+	, dragBox{quadTree}
 {
 	// aStar
 	aStar.SetMap(map);
@@ -38,6 +39,9 @@ void MainLevel::Tick(float deltaTime)
 	// 쿼드트리 업데이트
 	UpdateQuadTree();
 
+	// 드래그 박스 업데이트
+	dragBox.Tick();
+
 	// 틸트'~' 키를 눌렀을 때 디버그 모드를 토글
 	if (Input::Get().GetKeyDown(VK_OEM_3))
 	{
@@ -47,7 +51,8 @@ void MainLevel::Tick(float deltaTime)
 
 /*
 * 랜더 순서
-*
+* 300: 드레그
+* 
 * 200: 유닛
 *
 * 디버깅 랜더는 공통적으로 100 내외
@@ -59,6 +64,10 @@ void MainLevel::Tick(float deltaTime)
 void MainLevel::Draw(Renderer& renderer)
 {
 	super::Draw(renderer);
+
+	dragBox.Draw(renderer);
+
+	// 디버그 정보 랜더
 	DrawDebug(renderer);
 }
 
@@ -95,7 +104,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 
 	// 마우스 위치
 	char debugMouse[100];
-	sprintf_s(debugMouse, sizeof(debugMouse), "Mouse ( %d , %d )", Input::Get().GetMouseX(), Input::Get().GetMouseY());
+	sprintf_s(debugMouse, sizeof(debugMouse), "M ( %d , %d )", Input::Get().GetMouseX(), Input::Get().GetMouseY());
 	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, Debug::RenderOrder() + 2);
 }
 

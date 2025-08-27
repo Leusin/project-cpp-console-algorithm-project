@@ -22,6 +22,11 @@ AUnit::~AUnit()
 {
 }
 
+void AUnit::BeginPlay()
+{
+	unitColor = GetColor();
+}
+
 void AUnit::Tick(float deltaTime)
 {
 	super::Tick(deltaTime);
@@ -35,8 +40,9 @@ void AUnit::Tick(float deltaTime)
 
 	// 
 	// 쿼드 트리 TEST
-	// 
+	//
 
+	/*
 	static float directionX = 1.0f; // 1: 오른쪽, -1: 왼쪽
 	// 이동할 거리 계산 (속도 * 시간)
 	float distance = stats.speed * deltaTime;
@@ -61,12 +67,17 @@ void AUnit::Tick(float deltaTime)
 	// 그려질 위치 업데이트
 	SetPosition(GetCurrentPosition());
 	// 경계 상자 업데이트
+	*/
+
 	bounds.SetPosition(GetCurrentPosition());
 }
 
 void AUnit::Draw(Renderer& renderder)
 {
 	super::Draw(renderder);
+
+	// 색상 설정
+	color = (isSeleted) ? selectedColor : unitColor;
 
 	if (Debug::IsDebugMode())
 	{
