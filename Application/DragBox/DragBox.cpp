@@ -9,10 +9,11 @@
 #include "Debug/Debug.h"
 
 
-DragBox::DragBox(QuadTree& quadTree)
+DragBox::DragBox(QuadTree& quadTree, std::vector<AUnit*>& selectedUnit)
 	: bounds{ Vector2I::Zero }
 	, isDragging{ false }
 	, quadTree{ quadTree }
+	, selectedUnit{ selectedUnit }
 {
 }
 
@@ -49,10 +50,17 @@ void DragBox::Tick()
 	}
 
 	// 마우스 떼는 순간
-	if (Input::Get().GetMouseUp(MounseButton::Left))
+	if (isDragging && Input::Get().GetMouseUp(MounseButton::Left))
 	{
 		// drag end
 		isDragging = false;
+
+		// 예전에 선택된 유닛 모두 비우기
+		for (AUnit* unit : selectedUnit)
+		{
+			unit->SetIsSelected(false);
+		}
+		selectedUnit.clear();
 
 		// 쿼드 트리에게 해당 영역에 관리중인 객체들이 있는지 질의한다
 		// 그 중 AUnit 인 객체의 선택 상태를 true로 만든다
@@ -63,7 +71,9 @@ void DragBox::Tick()
 			{
 				if (entity->As<AUnit>())
 				{
-					((AUnit*)entity)->SetIsSelected(true);
+					AUnit* unit = (AUnit*)entity;
+					unit->SetIsSelected(true);
+					selectedUnit.push_back(unit);
 				}
 			}
 		}

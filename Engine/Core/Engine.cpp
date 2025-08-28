@@ -10,7 +10,7 @@
 EngineSettings Engine::settings;
 
 // 전역 변수 콘솔 창 이벤트 처리에 사용
-Engine* instance = nullptr; 
+Engine* instance = nullptr;
 
 // 콘솔창 이벤트 처리 함수
 BOOL WINAPI ConsoleMessageProcedure(DWORD ctrlType)
@@ -79,6 +79,9 @@ void Engine::Run()
 	// 한 프레임에 걸리는 시간
 	float oneFrameTime = 1.f / targetFrameRate;
 
+	float slowUpdateAccumulator = 0.0f;
+	const float slowUpdateInterval = oneFrameTime * 3;
+
 	// 메인 루프
 	while (true)
 	{
@@ -101,6 +104,13 @@ void Engine::Run()
 			BeginPlaye();
 			Tick(deltaTime);
 			Render();
+
+			// 프레임이 높은 업데이트를 위한 구간
+			slowUpdateAccumulator += deltaTime;
+			if (slowUpdateAccumulator >= slowUpdateInterval)
+			{
+				SlowTick(slowUpdateAccumulator);
+			}
 
 #ifdef _DEBUG
 
@@ -125,8 +135,6 @@ void Engine::Run()
 			}
 		}
 	}
-
-	//Utils::SetConsoleTextColor(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
 }
 
 void Engine::AddLevel(Level* newLevel)
@@ -175,6 +183,15 @@ void Engine::Tick(float deltaTime)
 	if (mainLevel)
 	{
 		mainLevel->Tick(deltaTime);
+	}
+}
+
+void Engine::SlowTick(float deltaTime)
+{
+	// LEVEL
+	if (mainLevel)
+	{
+		mainLevel->SlowTick(deltaTime);
 	}
 }
 

@@ -61,6 +61,7 @@ private: // METHOD
 
 	// 업데이트 (입력, 게임 로직)
 	void Tick(float deltaTime = 0.0f);
+	void SlowTick(float deltaTime = 0.0f);
 
 	// 그리기 (백버퍼에 기록)
 	void Render();

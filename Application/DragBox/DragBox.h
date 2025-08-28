@@ -9,7 +9,7 @@ class DragBox
 {
 public: // RAII
 
-    DragBox(class QuadTree& quadTree);
+    DragBox(class QuadTree& quadTree, std::vector<class AUnit*>& selectedUnit);
 
 public: // MESSAGE
 
@@ -23,4 +23,5 @@ private: // FILD
     bool isDragging = false;
 
     class QuadTree& quadTree;
+    std::vector<class AUnit*>& selectedUnit;
 };

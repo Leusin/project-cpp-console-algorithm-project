@@ -6,16 +6,17 @@
 #include "QuadTree/Bounds.h"
 #include "UnitStats.h"
 
+enum class AUnitState
+{
+	Idle,
+	Move
+};
+
 /// <summary>
 /// QaudTree가 관리하고 AStar를 가진 객체
 /// </summary>
 class AUnit : public QEntity
 {
-	enum class State
-	{
-		IDLE
-	};
-
 	RTTI_DECLARATIONS(AUnit, QEntity)
 
 public: // RAII
@@ -34,10 +35,15 @@ public: // GET SET
 	Vector2I GetCurrentPosition() const;
 	void SetIsSelected(bool val) { isSeleted = val; }
 
+	void SetMove(const Vector2I& targetPos);
+
 private: // METHOD
 
 
 private: // FILD
+
+	// 유닛의 현재 상태
+	AUnitState state = AUnitState::Idle;
 
 	UnitStats stats;
 	
@@ -52,8 +58,10 @@ private: // FILD
 
 	// 선택 되었는지
 	bool isSeleted = false;
+
 	// 선택되었을 때 색
 	Color selectedColor = Color::LightGreen;
+
 	// 원래 색
 	Color unitColor = Color::White;
 };

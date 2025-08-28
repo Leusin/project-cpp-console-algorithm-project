@@ -43,6 +43,11 @@ void Level::Tick(float deltaTime)
 	}
 }
 
+void Level::SlowTick(float deltaTime)
+{
+
+}
+
 void Level::Draw(Renderer& renderder)
 {
 	for (Actor* const actor : actors)
