@@ -83,7 +83,7 @@ void AUnit::Draw(Renderer& renderder)
 	{
 		for (const Vector2I& position : path)
 		{
-			renderder.WriteToBuffer(position, "*", Color::Green, Debug::RenderOrder() + 1);
+			renderder.WriteToBuffer(position, "*", Color::LightGreen, Debug::RenderOrder() + 1);
 		}
 	}
 }

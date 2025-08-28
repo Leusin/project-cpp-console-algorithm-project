@@ -148,7 +148,9 @@ void QNode::DrawBounds(Renderer& renderer)
 	renderer.WriteToBuffer({ x, maxY }, "+", color, renderOrder); // Bottom-left
 	renderer.WriteToBuffer({ maxX , maxY }, "+", color, renderOrder); // Bottom-right
 
-	//renderer.WriteToBuffer({ x + 1 , y + 1 }, "1", color, renderOrder); // Bottom-right
+	char buffer[2];
+	sprintf_s(buffer, sizeof(buffer), "%d", depth);
+	renderer.WriteToBuffer({ x + 1 , y + 1 }, buffer, color, renderOrder); // Bottom-right
 
 	for (int ix = x + 1; ix < maxX; ++ix)
 	{
@@ -252,31 +254,41 @@ bool QNode::Subdivide()
 	}
 
 	// 아직 분할 안되었다면 분할
+	
 	if (!IsDivided())
 	{
-		// 영역 나누기
-
 		// 영역 계산을 위한 변수
 		int x = bounds.GetX();
 		int y = bounds.GetY();
-		int halfWidth = bounds.GetWidth() / 2;
-		int halfHeight = bounds.GetHeight() / 2;
+		int width = bounds.GetWidth();
+		int height = bounds.GetHeight();
+		int halfWidth = width / 2;
+		int halfHeight = height / 2;
+
+		// 현재 영역이 정수로만 처리되어서 분할 시 경계선이 어긋날 수 있어서 주의해야 한다
+		// ex. 너비가 101인 영역을 이등분하면 50/51, 인 영역이 나와야하지만 처리를 안하면 50/50으로 됨
 
 		// 분할 4분면 객체 생성
 		// 4분면 분할 객체 생성
-		/*
-		+------------+------------+
-		|    0 (TL)  |    1 (TR)  |
-		|            |            |
-		+------------+------------+
-		|    2 (BL)  |    3 (BR)  |
-		|            |            |
-		+------------+------------+
+		/*							정수 나누셈에 유의!!
+		+------------+-------------+ 
+		|    0 (TL)  |    1 (TR)   | 1 TR, 3 BR
+		|            |             | 너비: width - halfWidth
+		+------------+-------------+
+		|    2 (BL)  |    3 (BR)   |
+		|            |             | 2 BL, 3 BR
+		|            |             | 높이: height - halfHeight
+		+------------+-------------+
 		*/
+
+		// 0
 		topLeft = new QNode(Bounds(x, y, halfWidth, halfHeight), depth + 1);
-		topRight = new QNode(Bounds(x + halfWidth, y, halfWidth, halfHeight), depth + 1);
-		bottomLeft = new QNode(Bounds(x, y + halfHeight, halfWidth, halfHeight), depth + 1);
-		bottomRight = new QNode(Bounds(x + halfWidth, y + halfHeight, halfWidth, halfHeight), depth + 1);
+		// 1
+		topRight = new QNode(Bounds(x + halfWidth, y, width - halfWidth, halfHeight), depth + 1);
+		// 2
+		bottomLeft = new QNode(Bounds(x, y + halfHeight, halfWidth, height - halfHeight), depth + 1);
+		// 3
+		bottomRight = new QNode(Bounds(x + halfWidth, y + halfHeight, width - halfWidth, height - halfHeight), depth + 1);
 	}
 
 	return true;

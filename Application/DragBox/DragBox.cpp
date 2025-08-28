@@ -6,6 +6,7 @@
 #include "QuadTree/QuadTree.h"
 #include "QuadTree/QNode.h"
 #include "Actor/AUnit/AUnit.h"
+#include "Debug/Debug.h"
 
 
 DragBox::DragBox(QuadTree& quadTree)
@@ -77,6 +78,13 @@ void DragBox::Draw(Renderer& renderer)
 	}
 
 	bounds.Draw(renderer);
+
+	if (Debug::IsDebugMode())
+	{
+		char buffer[32];
+		sprintf_s(buffer, sizeof(buffer), "B(%d/%d/%d/%d)", bounds.GetX(), bounds.GetY(), bounds.GetWidth(), bounds.GetHeight());
+		renderer.WriteToBuffer({ bounds.GetX(), bounds.GetY() - 1 }, buffer, Color::LightGreen, 300);
+	}
 }
 
 std::vector<class Unit*> DragBox::GetSelectedUnits(const std::vector<Unit*>& allUnits)

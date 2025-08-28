@@ -19,7 +19,7 @@ public:
 	void Clear();
 
 	// 전달한 노드와 겹치는 노드를 반환 하는 질의 함수
-	bool Query(const class QEntity* queryNode, std::vector<class QNode*>& possibleNode);
+	bool Query(const class QEntity* queryTarget, std::vector<class QNode*>& possibleNode);
 	bool Query(const class Bounds& targetBounds, std::vector<class QEntity*>& intersects);
 
 	void DrawBounds(class Renderer& renderer);
