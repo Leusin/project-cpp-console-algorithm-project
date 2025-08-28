@@ -169,7 +169,7 @@
   <ItemGroup>
     <ClCompile Include="Actor\AUnit\AUnit.cpp" />
     <ClCompile Include="AStar\AStar.cpp" />
-    <ClCompile Include="Debug\Debug.cpp" />
+    <ClCompile Include="Game\Debug.cpp" />
     <ClCompile Include="DragBox\DragBox.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Level\MainLevel.cpp" />
@@ -185,8 +185,9 @@
     <ClInclude Include="Actor\AUnit\UnitStats.h" />
     <ClInclude Include="AStar\ANode.h" />
     <ClInclude Include="AStar\AStar.h" />
-    <ClInclude Include="Debug\Debug.h" />
+    <ClInclude Include="Game\Debug.h" />
     <ClInclude Include="DragBox\DragBox.h" />
+    <ClInclude Include="Debug\Debug.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="QuadTree\Bounds.h" />
     <ClInclude Include="QuadTree\QNode.h" />

@@ -6,7 +6,7 @@
 #include "Engine.h"
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
-#include "Debug/Debug.h"
+#include "Game/Debug.h"
 
 int QuadTree::maxDepth = 3;
 

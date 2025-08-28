@@ -6,7 +6,7 @@
 #include "QuadTree/QuadTree.h"
 #include "QuadTree/QNode.h"
 #include "Actor/AUnit/AUnit.h"
-#include "Debug/Debug.h"
+#include "Game/Debug.h"
 
 
 DragBox::DragBox(QuadTree& quadTree, std::vector<AUnit*>& selectedUnit)

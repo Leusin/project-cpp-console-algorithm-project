@@ -4,7 +4,7 @@
 #include "QuadTree/QuadTree.h"
 #include "AStar/AStar.h"
 #include "DragBox/DragBox.h"
-#include "Debug/Debug.h"
+#include "Game/Debug.h"
 
 class MainLevel : public Level
 {

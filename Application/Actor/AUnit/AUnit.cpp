@@ -5,7 +5,7 @@
 #include "AStar/AStar.h"
 #include "Core.h"
 #include "Render/Renderer.h"
-#include "Debug/Debug.h"
+#include "Game/Debug.h"
 
 // TEST
 #include "Input.h"

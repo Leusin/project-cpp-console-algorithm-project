@@ -48,6 +48,9 @@
     <ClCompile Include="DragBox\DragBox.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Debug.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Game.h">
@@ -77,10 +80,13 @@
     <ClInclude Include="AStar\AStar.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Debug\Debug.h">
+    <ClInclude Include="Game\Debug.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DragBox\DragBox.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Debug.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
