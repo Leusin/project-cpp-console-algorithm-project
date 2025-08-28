@@ -26,7 +26,7 @@ public: // RAII
 public: // EVENT
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
-	virtual void Draw(class Renderer& renderder) override;
+	virtual void Draw(class Renderer& renderer) override;
 
 public: // MESSAGE
 

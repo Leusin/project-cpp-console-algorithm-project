@@ -37,24 +37,31 @@ void AUnit::Tick(float deltaTime)
 	}
 }
 
-void AUnit::Draw(Renderer& renderder)
+void AUnit::Draw(Renderer& renderer)
 {
 	// 색상 설정
 	color = (isSeleted) ? selectedColor : unitColor;
 
-	super::Draw(renderder);
+	super::Draw(renderer);
 
 	// 디버그 정보 랜더
 	if (Debug::IsDebugMode())
 	{
+		// 현 위치
+		char debugMouse[16];
+		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);
+		renderer.WriteToBuffer({ Position().x + 1, Position().y - 1 }, debugMouse, Color::LightGreen, Debug::RenderOrder() + 1);
+
+
+		// 이동 경로
 		if (state == AUnitState::Move)
 		{
-			for (const Vector2I& position : path)
+			for (int i = currentWaypointIndex; i < path.size(); ++i)
 			{
-				renderder.WriteToBuffer(position, "*", Color::LightWhite, Debug::RenderOrder() + 1);
+				renderer.WriteToBuffer(path[i], "*", Color::LightWhite, Debug::RenderOrder() + 1);
 			}
 
-			renderder.WriteToBuffer(path.back(), "X", Color::LightGreen, Debug::RenderOrder() + 1);
+			renderer.WriteToBuffer(path.back(), "X", Color::LightRed, Debug::RenderOrder() + 1);
 		}
 	}
 }
@@ -93,6 +100,9 @@ bool AUnit::FollowPath(float deltaTime)
 		// 도착지인지 확인(그리고 인덱스 밖인지 확인)
 		if (currentWaypointIndex >= path.size())
 		{
+			currentPosition.x = (float)Position().x;
+			currentPosition.y = (float)Position().y;
+
 			state = AUnitState::Idle;
 			currentWaypointIndex = 0;
 			return true;
