@@ -91,10 +91,11 @@ bool QuadTree::Query(const Bounds& targetBounds, std::vector<class QEntity*>& in
 		}
 	}
 
-	if (possibleNode.empty())
+	if (intersects.empty())
 	{
 		return false;
 	}
+
 	return true;
 }
 

@@ -88,11 +88,10 @@ void QNode::Query(const Bounds& queryBounds, std::vector<QNode*>& possibleNodes)
 		{
 			bottomLeft->Query(queryBounds, possibleNodes);
 		}
-		else if (index == NodeIndex::BottomLeft)
+		else if (index == NodeIndex::BottomRight)
 		{
-			bottomLeft->Query(queryBounds, possibleNodes);
+			bottomRight->Query(queryBounds, possibleNodes);
 		}
-
 	}
 }
 
@@ -138,7 +137,7 @@ void QNode::DrawBounds(Renderer& renderer)
 	}
 
 
-	int renderOrder = Debug::RenderOrder() - 3 + depth;
+	int renderOrder = Debug::RenderOrder() - QuadTree::maxDepth + depth;
 
 	// 현재 노드 경계 그리기
 
@@ -211,6 +210,7 @@ std::vector<NodeIndex> QNode::GetQuads(const Bounds& bounds)
 	int centerX = x + halfWidth;
 	int centerY = y + halfHeight;
 
+	/*
 	// 왼쪽 영역과 겹쳤는지 확인.
 	bool left = bounds.GetX() < centerX && bounds.MaxX() >= x;
 
@@ -222,6 +222,12 @@ std::vector<NodeIndex> QNode::GetQuads(const Bounds& bounds)
 
 	// 아래쪽 영역과 겹쳤는지 확인.
 	bool bottom = bounds.MaxY() >= centerY && bounds.GetY() < this->bounds.MaxY();
+	*/
+
+	bool left = bounds.GetX() <= centerX;
+	bool right = bounds.MaxX() >= centerX;
+	bool top = bounds.GetY() <= centerY;
+	bool bottom = bounds.MaxY() >= centerY;
 
 	if (top && left)
 	{
