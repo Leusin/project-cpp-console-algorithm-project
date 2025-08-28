@@ -1,4 +1,5 @@
 #include "MainLevel.h"
+#include <timeapi.h>
 
 #include "Engine.h"
 #include "Actor/AUnit/AUnit.h"
@@ -39,6 +40,9 @@ void MainLevel::Tick(float deltaTime)
 	// 드래그 박스 업데이트
 	dragBox.Tick();
 
+	// 쿼드트리 업데이트
+	UpdateQuadTree();
+
 	// 유닛 선택 해제
 	MoveUnits();
 
@@ -51,12 +55,12 @@ void MainLevel::Tick(float deltaTime)
 
 void MainLevel::SlowTick(float deltaTime)
 {
-	// 쿼드트리 업데이트
-	UpdateQuadTree();
+
 }
 
 /*
 * 랜더 순서
+* 500: 마우스 포인터
 * 300: 드레그
 *
 * 200: 유닛
@@ -78,10 +82,17 @@ void MainLevel::Draw(Renderer& renderer)
 
 	// 디버그 정보 랜더
 	DrawDebug(renderer);
+
+	// 마우스 랜더
+	if (!Debug::IsDebugMode())
+	{
+		renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, "+", Color::Green, 500);
+	}
 }
 
 void MainLevel::UpdateQuadTree()
 {
+	quadTree.Clear();
 	auto actors = GetActors();
 	for (const Actor* actor : actors)
 	{
@@ -117,18 +128,29 @@ void MainLevel::MoveUnits()
 {
 	if (Input::Get().GetMouseUp(MounseButton::Right))
 	{
-
+		//auto timeStamp1 = timeGetTime();
 		if (selectedUnits.empty())
 		{
 			return;
 		}
 
+		//auto outerTimeStamp1 = timeGetTime();
 		for (AUnit* unit : selectedUnits)
 		{
+			//auto timeStamp2 = timeGetTime();
+
 			unit->SetMove({ Input::Get().GetMouseX(), Input::Get().GetMouseY() });
-			unit->SetIsSelected(false);
+
+			/* auto timeStamp3 = timeGetTime();
+
+			char buffer[256] = {};
+			sprintf_s(buffer, 256, "Period1: %f\n", (float)(timeStamp3 - timeStamp2) / (float)1000.0f);
+			OutputDebugStringA(buffer);*/
 		}
 
-		selectedUnits.clear();
+		/*auto outerTimeStamp2 = timeGetTime();
+		char buffer2[256] = {};
+		sprintf_s(buffer2, 256, "Total: %f\n", (float)(outerTimeStamp2 - outerTimeStamp1) / (float)1000.0f);
+		OutputDebugStringA(buffer2);*/
 	}
 }

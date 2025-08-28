@@ -39,6 +39,7 @@ public: // GET SET
 
 private: // METHOD
 
+	bool FollowPath(float deltaTime);
 
 private: // FILD
 
@@ -55,6 +56,7 @@ private: // FILD
 
 	// 길찾기 경로
 	std::vector<Vector2I> path;
+	int currentWaypointIndex = 0;
 
 	// 선택 되었는지
 	bool isSeleted = false;

@@ -67,13 +67,30 @@ void DragBox::Tick()
 		std::vector<QEntity*> intersects;
 		if (quadTree.Query(bounds, intersects))
 		{
-			for (QEntity* entity: intersects)
+			for (QEntity* entity : intersects)
 			{
 				if (entity->As<AUnit>())
 				{
 					AUnit* unit = (AUnit*)entity;
-					unit->SetIsSelected(true);
-					selectedUnit.push_back(unit);
+
+					bool isContain = false;
+
+					// 이미 같은 유닛이 있는지 확인한다
+					for (AUnit* selected : selectedUnit)
+					{
+						if (selected == unit)
+						{
+							isContain = true;
+							break;
+						}
+					}
+
+					// 유닛을 목록에 넣는다.
+					if (!isContain)
+					{
+						unit->SetIsSelected(true);
+						selectedUnit.push_back(unit);
+					}
 				}
 			}
 		}

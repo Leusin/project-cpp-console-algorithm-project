@@ -90,7 +90,7 @@ void Input::ProcessInput()
 	if (PeekConsoleInput(hStdin, irInBuf, 128, &cNumRead) && cNumRead > 0)
 	{
 		// 입력 버퍼에 이벤트가 존재하면, 해당 이벤트를 모두 읽어들임
-		ReadConsoleInput(hStdin, irInBuf, cNumRead, &cNumRead);
+		// ReadConsoleInput(hStdin, irInBuf, cNumRead, &cNumRead);
 
 		for (DWORD i = 0; i < cNumRead; i++)
 		{
