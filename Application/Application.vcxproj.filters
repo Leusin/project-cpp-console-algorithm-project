@@ -27,22 +27,19 @@
     <ClCompile Include="Level\MainLevel.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Actor\AUnit\AUnit.cpp">
+    <ClCompile Include="Algorithm\Actor\AUnit\AUnit.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="QuadTree\QuadTree.cpp">
+    <ClCompile Include="Algorithm\QuadTree\QuadTree.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="QuadTree\Bounds.cpp">
+    <ClCompile Include="Algorithm\QuadTree\Bounds.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="QuadTree\QNode.cpp">
+    <ClCompile Include="Algorithm\QuadTree\QNode.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="AStar\AStar.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Debug\Debug.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DragBox\DragBox.cpp">
@@ -51,27 +48,30 @@
     <ClCompile Include="Game\Debug.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Algorithm\Algorithm.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Game.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Actor\AUnit\AUnit.h">
+    <ClInclude Include="Algorithm\Actor\AUnit\AUnit.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="QuadTree\QuadTree.h">
+    <ClInclude Include="Algorithm\QuadTree\QuadTree.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="QuadTree\Bounds.h">
+    <ClInclude Include="Algorithm\QuadTree\Bounds.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="QuadTree\QNode.h">
+    <ClInclude Include="Algorithm\QuadTree\QNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Actor\AUnit\UnitStats.h">
+    <ClInclude Include="Algorithm\Actor\AUnit\UnitStats.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Actor\QEntity\QEntity.h">
+    <ClInclude Include="Algorithm\Actor\QEntity\QEntity.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="AStar\ANode.h">
@@ -87,6 +87,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Debug\Debug.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Algorithm.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

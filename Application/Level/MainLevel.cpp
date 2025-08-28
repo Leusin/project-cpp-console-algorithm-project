@@ -6,19 +6,21 @@
 #include "Math/Vector2I.h"
 #include "Render/Renderer.h"
 #include "Actor/AUnit/AUnit.h"
+#include "QuadTree/QuadTree.h"
+#include "AStar/AStar.h"
 
 MainLevel::MainLevel()
 	: map(Engine::Height(), std::vector<int>(Engine::Width(), 0))
-	, dragBox{ quadTree, selectedUnits }
+	, dragBox{ algorithm.quadTree, selectedUnits }
 {
 	// aStar
-	aStar.SetMap(map);
+	algorithm.aStar.SetMap(map);
 
-	AddActor(new AUnit({ 0, 0 }, aStar));
-	AddActor(new AUnit({ 1, 5 }, aStar));
-	AddActor(new AUnit({ 4, 10 }, aStar));
-	AddActor(new AUnit({ 30, 15 }, aStar));
-	AddActor(new AUnit({ 36, 25 }, aStar));
+	AddActor(new AUnit({ 0, 0 }));
+	AddActor(new AUnit({ 1, 5 }));
+	AddActor(new AUnit({ 4, 10 }));
+	AddActor(new AUnit({ 30, 15 }));
+	AddActor(new AUnit({ 36, 25 }));
 
 	// TODO: 마무리 할 떄쯤 아래 디버그 켜기 함수 지우기
 	debug.ToggleDebugMode();
@@ -92,13 +94,13 @@ void MainLevel::Draw(Renderer& renderer)
 
 void MainLevel::UpdateQuadTree()
 {
-	quadTree.Clear();
+	Algorithm::quadTree.Clear();
 	auto actors = GetActors();
 	for (const Actor* actor : actors)
 	{
-		if (actor->As<AUnit>())
+		if (!actor->IsExpired() && actor->As<AUnit>())
 		{
-			quadTree.Insert((AUnit*)actor);
+			Algorithm::quadTree.Insert((AUnit*)actor);
 		}
 	}
 }
@@ -115,12 +117,12 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	if (drawGreed)
 	{
 		// 현재 쿼드 트리 정보 그리기
-		quadTree.DrawBounds(renderer);
+		Algorithm::quadTree.DrawBounds(renderer);
 	}
 
 	// 마우스 위치
 	char debugMouse[100];
-	sprintf_s(debugMouse, sizeof(debugMouse), "M ( %d , %d )", Input::Get().GetMouseX(), Input::Get().GetMouseY());
+	sprintf_s(debugMouse, sizeof(debugMouse), "M(%d,%d)", Input::Get().GetMouseX(), Input::Get().GetMouseY());
 	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, Debug::RenderOrder() + 2);
 }
 

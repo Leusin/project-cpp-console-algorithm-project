@@ -2,18 +2,17 @@
 
 #include <cmath>
 #include "Engine.h"
-#include "AStar/AStar.h"
 #include "Core.h"
 #include "Render/Renderer.h"
 #include "Game/Debug.h"
+#include "Algorithm.h"
 
 // TEST
 #include "Input.h"
 
-AUnit::AUnit(const Vector2I& spawnPosition, class AStar& aStar)
+AUnit::AUnit(const Vector2I& spawnPosition)
 	: QEntity(spawnPosition, Color::White, "U")
 	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
-	, aStar{ aStar }
 {
 	SetSortingOrder(200);
 }
@@ -75,7 +74,7 @@ void AUnit::SetMove(const Vector2I& targetPos)
 {
 	state = AUnitState::Move;
 	path.clear();
-	path = aStar.FindPath(GetCurrentPosition(), targetPos);
+	path = Algorithm::aStar.FindPath(GetCurrentPosition(), targetPos);
 
 	// 새로운 경로를 받았기 때문에 인덱스 초기화
 	currentWaypointIndex = 0;

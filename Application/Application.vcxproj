@@ -132,7 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Includes\;$(SolutionDir)Includes\Core\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Algorithm\;$(SolutionDir)Includes\;$(SolutionDir)Includes\Core\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -167,7 +167,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Actor\AUnit\AUnit.cpp" />
+    <ClCompile Include="Algorithm\Algorithm.cpp" />
+    <ClCompile Include="Algorithm\Actor\AUnit\AUnit.cpp" />
     <ClCompile Include="AStar\AStar.cpp" />
     <ClCompile Include="Game\Debug.cpp" />
     <ClCompile Include="DragBox\DragBox.cpp" />
@@ -175,23 +176,24 @@
     <ClCompile Include="Level\MainLevel.cpp" />
     <ClCompile Include="Level\MainLevel.h" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="QuadTree\Bounds.cpp" />
-    <ClCompile Include="QuadTree\QNode.cpp" />
-    <ClCompile Include="QuadTree\QuadTree.cpp" />
+    <ClCompile Include="Algorithm\QuadTree\Bounds.cpp" />
+    <ClCompile Include="Algorithm\QuadTree\QNode.cpp" />
+    <ClCompile Include="Algorithm\QuadTree\QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Actor\QEntity\QEntity.h" />
-    <ClInclude Include="Actor\AUnit\AUnit.h" />
-    <ClInclude Include="Actor\AUnit\UnitStats.h" />
+    <ClInclude Include="Algorithm\Actor\QEntity\QEntity.h" />
+    <ClInclude Include="Algorithm\Actor\AUnit\AUnit.h" />
+    <ClInclude Include="Algorithm\Actor\AUnit\UnitStats.h" />
+    <ClInclude Include="Algorithm\Algorithm.h" />
     <ClInclude Include="AStar\ANode.h" />
     <ClInclude Include="AStar\AStar.h" />
     <ClInclude Include="Game\Debug.h" />
     <ClInclude Include="DragBox\DragBox.h" />
     <ClInclude Include="Debug\Debug.h" />
     <ClInclude Include="Game\Game.h" />
-    <ClInclude Include="QuadTree\Bounds.h" />
-    <ClInclude Include="QuadTree\QNode.h" />
-    <ClInclude Include="QuadTree\QuadTree.h" />
+    <ClInclude Include="Algorithm\QuadTree\Bounds.h" />
+    <ClInclude Include="Algorithm\QuadTree\QNode.h" />
+    <ClInclude Include="Algorithm\QuadTree\QuadTree.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CppConsoleAlgorithmProject\Engine\Engine.vcxproj">
