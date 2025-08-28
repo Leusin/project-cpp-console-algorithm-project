@@ -124,7 +124,7 @@ void QuadTree::DrawGrids(Renderer& renderer, int x, int y, int w, int h, int dep
 		return;
 	}
 
-	Color color = Color::Intensity;
+	Color color = Color::White;
 
 	int renderOrder = DebugMode::RenderOrder() - 4;
 

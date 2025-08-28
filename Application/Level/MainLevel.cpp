@@ -5,16 +5,17 @@
 #include "Actor/AUnit/AUnit.h"
 #include "Math/Vector2I.h"
 #include "Render/Renderer.h"
-#include "Actor/AUnit/AUnit.h"
 #include "QuadTree/QuadTree.h"
 #include "AStar/AStar.h"
 
 MainLevel::MainLevel()
-	: map(Engine::Height(), std::vector<int>(Engine::Width(), 0))
-	, dragBox{ quadTree, selectedUnits }
+	: dragBox{ quadTree, selectedUnits }
 {
+	// 맵 데이터 로드
+	//map
+
 	// aStar
-	aStar.SetMap(map);
+	aStar.SetMap(map.GetWeightMap());
 
 	AddActor(new AUnit({ 0, 0 }));
 	AddActor(new AUnit({ 1, 5 }));
@@ -80,6 +81,12 @@ void MainLevel::Draw(Renderer& renderer)
 {
 	super::Draw(renderer);
 
+	map.Initialize();
+
+	// 맵
+	map.Draw(renderer);
+
+	// 드래그 박스
 	dragBox.Draw(renderer);
 
 	// 디버그 정보 랜더

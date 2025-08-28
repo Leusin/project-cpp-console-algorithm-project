@@ -5,6 +5,7 @@
 #include "AStar/AStar.h"
 #include "Game/DebugMode.h"
 #include "DragBox/DragBox.h"
+#include "Map/Map.h"
 
 class MainLevel : public Level
 {
@@ -48,7 +49,7 @@ private: // FILD
 	QuadTree quadTree;
 
 	// A*가 사용할 맵 정보
-	const std::vector<std::vector<int>> map;
+	Map map;
 
 	// 드래그로 선택된 유닛들
 	std::vector<class AUnit*> selectedUnits;

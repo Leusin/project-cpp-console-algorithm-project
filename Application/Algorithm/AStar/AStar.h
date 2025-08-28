@@ -28,7 +28,7 @@ public: // MESSAGE
 
 public: // SET
 
-	void SetMap(const std::vector<std::vector<int>>& map) { this->map = &map; }
+	void SetMap(const std::vector<std::vector<float>>& map) { this->map = &map; }
 
 private: // METHOD
 
@@ -50,6 +50,9 @@ private: // METHOD
 	// 휴리스틱 계산
 	float CalculateHeuristic(class ANode* current, class ANode* goal);
 
+	// 이동 가능한지
+	bool CanMove(const Vector2I& pos);
+
 private: // METHOD
 
 	// 열린 리스트: 방문할 노드 목록
@@ -68,5 +71,5 @@ private: // METHOD
 	class ANode* goalNode;
 
 	// 현재 맵 데이터
-	const std::vector<std::vector<int>>* map;
+	const std::vector<std::vector<float>>* map;
 };

@@ -12,6 +12,7 @@
     <ClCompile Include="Algorithm\QuadTree\QNode.cpp" />
     <ClCompile Include="Algorithm\QuadTree\QuadTree.cpp" />
     <ClCompile Include="Game\DebugMode.cpp" />
+    <ClCompile Include="Level\Map\Map.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor\QEntity\QEntity.h" />
@@ -26,5 +27,6 @@
     <ClInclude Include="Algorithm\QuadTree\QNode.h" />
     <ClInclude Include="Algorithm\QuadTree\QuadTree.h" />
     <ClInclude Include="Game\DebugMode.h" />
+    <ClInclude Include="Level\Map\Map.h" />
   </ItemGroup>
 </Project>

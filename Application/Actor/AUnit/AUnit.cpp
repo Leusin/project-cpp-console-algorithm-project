@@ -44,14 +44,8 @@ void AUnit::Draw(Renderer& renderer)
 	// 디버그 정보 랜더
 	if (DebugMode::IsDebugMode())
 	{
-		// 현 위치
-		char debugMouse[16];
-		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);
-		renderer.WriteToBuffer({ Position().x, Position().y + 1 }, debugMouse, Color::LightGreen, DebugMode::RenderOrder() + 1);
-
-
 		// 이동 경로
-		if (state == AUnitState::Move)
+		if (state == AUnitState::Move && !path.empty())
 		{
 			for (int i = currentWaypointIndex; i < path.size(); ++i)
 			{
@@ -60,6 +54,11 @@ void AUnit::Draw(Renderer& renderer)
 
 			renderer.WriteToBuffer(path.back(), "X", Color::LightRed, DebugMode::RenderOrder() + 2);
 		}
+
+		// 현 위치
+		char debugMouse[16];
+		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);
+		renderer.WriteToBuffer({ Position().x, Position().y + 1 }, debugMouse, Color::LightGreen, DebugMode::RenderOrder() + 3);
 	}
 }
 
@@ -80,7 +79,7 @@ void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar)
 
 bool AUnit::FollowPath(float deltaTime)
 {
-	if (state != AUnitState::Move)
+	if (state != AUnitState::Move || path.empty())
 	{
 		return false;
 	}
