@@ -1,14 +1,12 @@
 #include "AUnit.h"
 
 #include <cmath>
-#include "Engine.h"
 #include "Core.h"
-#include "Render/Renderer.h"
-#include "Game/Debug.h"
-#include "Algorithm.h"
-
-// TEST
 #include "Input.h"
+#include "Engine.h"
+#include "AStar/AStar.h"
+#include "Game/DebugMode.h"
+#include "Render/Renderer.h"
 
 AUnit::AUnit(const Vector2I& spawnPosition)
 	: QEntity(spawnPosition, Color::White, "U")
@@ -44,12 +42,12 @@ void AUnit::Draw(Renderer& renderer)
 	super::Draw(renderer);
 
 	// 디버그 정보 랜더
-	if (Debug::IsDebugMode())
+	if (DebugMode::IsDebugMode())
 	{
 		// 현 위치
 		char debugMouse[16];
 		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);
-		renderer.WriteToBuffer({ Position().x + 1, Position().y - 1 }, debugMouse, Color::LightGreen, Debug::RenderOrder() + 1);
+		renderer.WriteToBuffer({ Position().x, Position().y + 1 }, debugMouse, Color::LightGreen, DebugMode::RenderOrder() + 1);
 
 
 		// 이동 경로
@@ -57,10 +55,10 @@ void AUnit::Draw(Renderer& renderer)
 		{
 			for (int i = currentWaypointIndex; i < path.size(); ++i)
 			{
-				renderer.WriteToBuffer(path[i], "*", Color::LightWhite, Debug::RenderOrder() + 1);
+				renderer.WriteToBuffer(path[i], "*", Color::LightWhite, DebugMode::RenderOrder() + 1);
 			}
 
-			renderer.WriteToBuffer(path.back(), "X", Color::LightRed, Debug::RenderOrder() + 1);
+			renderer.WriteToBuffer(path.back(), "X", Color::LightRed, DebugMode::RenderOrder() + 2);
 		}
 	}
 }
@@ -70,11 +68,11 @@ Vector2I AUnit::GetCurrentPosition() const
 	return Vector2I((int)round(currentPosition.x), (int)round(currentPosition.y));
 }
 
-void AUnit::SetMove(const Vector2I& targetPos)
+void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar)
 {
 	state = AUnitState::Move;
 	path.clear();
-	path = Algorithm::aStar.FindPath(GetCurrentPosition(), targetPos);
+	path = aStar.FindPath(GetCurrentPosition(), targetPos);
 
 	// 새로운 경로를 받았기 때문에 인덱스 초기화
 	currentWaypointIndex = 0;

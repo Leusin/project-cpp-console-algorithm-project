@@ -35,7 +35,7 @@ public: // GET SET
 	Vector2I GetCurrentPosition() const;
 	void SetIsSelected(bool val) { isSeleted = val; }
 
-	void SetMove(const Vector2I& targetPos);
+	void SetMove(const Vector2I& targetPos, class AStar& aStar);
 
 private: // METHOD
 

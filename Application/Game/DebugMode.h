@@ -1,15 +1,14 @@
 #pragma once
 
-class Debug
+class DebugMode
 {
 public:
+
+	void ToggleDebugMode() { isDebugMode = !isDebugMode; }
 	static bool IsDebugMode();
 	static int RenderOrder();
 
-	void ToggleDebugMode() { IsDebug  = !IsDebug; }
-
 private:
-	static bool IsDebug;
+	static bool isDebugMode;
 	static int renderOrder;
 };
-

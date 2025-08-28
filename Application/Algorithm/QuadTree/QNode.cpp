@@ -4,7 +4,7 @@
 #include "Core.h"
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
-#include "Game/Debug.h"
+#include "Game/DebugMode.h"
 
 QNode::QNode(const Bounds& bounds, int depth)
 	:bounds{ bounds }, depth{ depth }
@@ -137,7 +137,7 @@ void QNode::DrawBounds(Renderer& renderer)
 	}
 
 
-	int renderOrder = Debug::RenderOrder() - QuadTree::maxDepth + depth;
+	int renderOrder = DebugMode::RenderOrder() - QuadTree::maxDepth + depth;
 
 	// 현재 노드 경계 그리기
 
