@@ -16,7 +16,7 @@ public: // RAII
 
 	QEntity(const Vector2I& position, Color color = Color::White, const char* image = "U")
 		: Actor(position, color, image)
-		, bounds{ position }
+		, bounds{ position , 0, 0}
 	{
 	}
 

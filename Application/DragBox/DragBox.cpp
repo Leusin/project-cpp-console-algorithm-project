@@ -53,6 +53,8 @@ void DragBox::Tick()
 		// drag end
 		isDragging = false;
 
+		// 쿼드 트리에게 해당 영역에 관리중인 객체들이 있는지 질의한다
+		// 그 중 AUnit 인 객체의 선택 상태를 true로 만든다
 		std::vector<QEntity*> intersects;
 		if (quadTree.Query(bounds, intersects))
 		{

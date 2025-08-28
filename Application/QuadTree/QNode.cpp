@@ -121,26 +121,50 @@ void QNode::Clear()
 
 void QNode::DrawBounds(Renderer& renderer)
 {
-	// 뎁스에 따 른 색상 변경
-	Color color = Color::Green;
+	int x = bounds.GetX();
+	int y = bounds.GetY();
+	int maxX= bounds.MaxX();
+	int maxY = bounds.MaxY();
+
+	Color color = Color::White;
+
+	switch (depth)
+	{
+	case 0: { color = Color::LightWhite; } break;
+	case 1: { color = Color::LightCyan; } break;
+	case 2: { color = Color::LightMagenta; } break;
+	case 3: { color = Color::LightYellow; } break;
+	default: { color = Color::Intensity; } break;
+	}
+
+
+	int renderOrder = Debug::RenderOrder() - 3 + depth;
 
 	// 현재 노드 경계 그리기
-	for (int ix = 0; ix < bounds.GetWidth(); ++ix)
+
+	// 꼭짓점 그리기
+	renderer.WriteToBuffer({ x, y }, "+", color, renderOrder); // Top-left
+	renderer.WriteToBuffer({ maxX, y }, "+", color, renderOrder); // Top-right
+	renderer.WriteToBuffer({ x, maxY }, "+", color, renderOrder); // Bottom-left
+	renderer.WriteToBuffer({ maxX , maxY }, "+", color, renderOrder); // Bottom-right
+
+	//renderer.WriteToBuffer({ x + 1 , y + 1 }, "1", color, renderOrder); // Bottom-right
+
+	for (int ix = x + 1; ix < maxX; ++ix)
 	{
 		// Top
-		renderer.WriteToBuffer({ bounds.GetX() + ix, bounds.GetY() }, "#", color, Debug::RenderOrder());
+		renderer.WriteToBuffer({ ix, y }, "-", color, renderOrder);
 		// Bottom
-		renderer.WriteToBuffer({ bounds.GetX() + ix, bounds.MaxY() - 1 }, "#", color, Debug::RenderOrder());
+		renderer.WriteToBuffer({ ix, maxY }, "-", color, renderOrder);
 	}
 
-	for (int iy = 0; iy < bounds.GetHeight(); ++iy)
+	for (int iy = y + 1; iy < maxY; ++iy)
 	{
 		// Left
-		renderer.WriteToBuffer({ bounds.GetX(), bounds.GetY() + iy }, "#", color, Debug::RenderOrder());
+		renderer.WriteToBuffer({ x, iy }, "|", color, renderOrder);
 		// Right
-		renderer.WriteToBuffer({ bounds.MaxX() - 1, bounds.GetY() + iy }, "#", color, Debug::RenderOrder());
+		renderer.WriteToBuffer({ maxX, iy }, "|", color, renderOrder);
 	}
-
 
 	// 자손 노드 경계 그리기
 	if (IsDivided())

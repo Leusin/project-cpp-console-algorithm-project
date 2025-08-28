@@ -6,7 +6,7 @@
 #include "Render/Renderer.h"
 
 MainLevel::MainLevel()
-	:map(Engine::Height(), std::vector<int>(Engine::Width(), 0))
+	: map(Engine::Height(), std::vector<int>(Engine::Width(), 0))
 	, dragBox{quadTree}
 {
 	// aStar
@@ -58,8 +58,11 @@ void MainLevel::Tick(float deltaTime)
 * 디버깅 랜더는 공통적으로 100 내외
 * 102 - 마우스 위치
 * 101 - A* 경로
-* 100 - 쿼드 트리그리드
-* 99 - 기본 그리드
+* 100 - 쿼드 트리그리드(depth 3)
+* 99 - 쿼드 트리그리드(depth 2)
+* 98 - 쿼드 트리그리드(depth 1)
+* 97 - 쿼드 트리그리드(depth 0)
+* 96 - 기본 그리드
 */
 void MainLevel::Draw(Renderer& renderer)
 {
@@ -96,7 +99,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	if (drawGreed)
 	{
 		// 그리드 그리기
-		DrawGrids(renderer, 0, 0, Engine::Width(), Engine::Height());
+		DrawGrids(renderer, 0, 0, Engine::Width() - 1, Engine::Height() - 1);
 
 		// 현재 쿼드 트리 정보 그리기
 		quadTree.DrawBounds(renderer);
@@ -116,23 +119,24 @@ void MainLevel::DrawGrids(Renderer& renderer, int x, int y, int w, int h, int de
 	}
 
 	Color color = Color::Intensity;
-	int renderOrder = Debug::RenderOrder() - 1;
+
+	int renderOrder = Debug::RenderOrder() - 4;
 
 
 	// 현재 노드 경계 그리기
-	char element[2] = { '#', '\0' };
+	char element[2] = { '.', '\0' };
 	// 1. 윗변과 아랫변 그리기 (현재 영역의 너비 사용)
 	for (int ix = x; ix < x + w; ++ix)
 	{
 		renderer.WriteToBuffer({ ix, y }, element, color, renderOrder);
-		renderer.WriteToBuffer({ ix, y + h - 1 }, element, color, renderOrder);
+		renderer.WriteToBuffer({ ix, y + h }, element, color, renderOrder);
 	}
 
 	// 2. 왼쪽 변과 오른쪽 변 그리기 (현재 영역의 높이 사용)
 	for (int iy = y; iy < y + h; ++iy)
 	{
 		renderer.WriteToBuffer({ x, iy }, element, color, renderOrder);
-		renderer.WriteToBuffer({ x + w - 1, iy }, element, color, renderOrder);
+		renderer.WriteToBuffer({ x + w, iy }, element, color, renderOrder);
 	}
 
 	int halfWidth = w / 2;

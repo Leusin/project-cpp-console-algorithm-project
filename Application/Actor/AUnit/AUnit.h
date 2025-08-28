@@ -53,7 +53,7 @@ private: // FILD
 	// 선택 되었는지
 	bool isSeleted = false;
 	// 선택되었을 때 색
-	Color selectedColor = Color::LightCyan;
+	Color selectedColor = Color::LightGreen;
 	// 원래 색
 	Color unitColor = Color::White;
 };

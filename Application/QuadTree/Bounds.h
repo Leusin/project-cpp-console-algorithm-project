@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Math/Vector2I.h"
+#include "Math/Color.h"
+
 
 class Bounds
 {
@@ -16,7 +18,7 @@ public:
 	// 겹침 행성 판정 함수.
 	bool Intersects(const Bounds& other) const;
 
-	void Draw(class Renderer& renderer);
+	void Draw(class Renderer& renderer, const char* img = "#", Color color = Color::LightGreen);
 
 public: // GET SET
 

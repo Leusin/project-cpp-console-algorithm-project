@@ -109,6 +109,6 @@ void QuadTree::CreateRoot()
 {
 	if (!root)
 	{
-		root = new QNode({ 0, 0, Engine::Width(), Engine::Height() });
+		root = new QNode({ 0, 0, Engine::Width() - 1, Engine::Height() -1 });
 	}
 }
