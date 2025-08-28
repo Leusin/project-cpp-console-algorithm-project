@@ -28,7 +28,6 @@ private: // METHOD
 
 	// 디버깅 관련
 	void DrawDebug(class Renderer& renderer);
-	void DrawGrids(class Renderer& renderer, int x, int y, int w, int h, int depth = 0);
 
 private: // FILD
 

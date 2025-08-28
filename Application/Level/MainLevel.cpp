@@ -98,9 +98,6 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	if (Input::Get().GetKeyDown('1')) { drawGreed = !drawGreed; }
 	if (drawGreed)
 	{
-		// 그리드 그리기
-		DrawGrids(renderer, 0, 0, Engine::Width() - 1, Engine::Height() - 1);
-
 		// 현재 쿼드 트리 정보 그리기
 		quadTree.DrawBounds(renderer);
 	}
@@ -109,48 +106,4 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	char debugMouse[100];
 	sprintf_s(debugMouse, sizeof(debugMouse), "M ( %d , %d )", Input::Get().GetMouseX(), Input::Get().GetMouseY());
 	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, Debug::RenderOrder() + 2);
-}
-
-void MainLevel::DrawGrids(Renderer& renderer, int x, int y, int w, int h, int depth)
-{
-	if (depth > 3)
-	{
-		return;
-	}
-
-	Color color = Color::Intensity;
-
-	int renderOrder = Debug::RenderOrder() - 4;
-
-
-	// 현재 노드 경계 그리기
-	char element[2] = { '.', '\0' };
-	// 1. 윗변과 아랫변 그리기 (현재 영역의 너비 사용)
-	for (int ix = x; ix < x + w; ++ix)
-	{
-		renderer.WriteToBuffer({ ix, y }, element, color, renderOrder);
-		renderer.WriteToBuffer({ ix, y + h }, element, color, renderOrder);
-	}
-
-	// 2. 왼쪽 변과 오른쪽 변 그리기 (현재 영역의 높이 사용)
-	for (int iy = y; iy < y + h; ++iy)
-	{
-		renderer.WriteToBuffer({ x, iy }, element, color, renderOrder);
-		renderer.WriteToBuffer({ x + w, iy }, element, color, renderOrder);
-	}
-
-	int halfWidth = w / 2;
-	int halfHeight = h / 2;
-
-	// 1사분면 (우상단)
-	DrawGrids(renderer, x + halfWidth, y, halfWidth, halfHeight, depth + 1);
-
-	// 2사분면 (좌상단)
-	DrawGrids(renderer, x, y, halfWidth, halfHeight, depth + 1);
-
-	// 3사분면 (좌하단)
-	DrawGrids(renderer, x, y + halfHeight, halfWidth, halfHeight, depth + 1);
-
-	// 4사분면 (우하단)
-	DrawGrids(renderer, x + halfWidth, y + halfHeight, halfWidth, halfHeight, depth + 1);
 }

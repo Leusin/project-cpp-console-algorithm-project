@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
+#include "Debug/Debug.h"
 
 int QuadTree::maxDepth = 3;
 
@@ -99,6 +100,8 @@ bool QuadTree::Query(const Bounds& targetBounds, std::vector<class QEntity*>& in
 
 void QuadTree::DrawBounds(Renderer& renderer)
 {
+	DrawGrids(renderer, 0, 0, Engine::Width() - 1, Engine::Height() - 1);
+
 	if (root)
 	{
 		root->DrawBounds(renderer);
@@ -111,4 +114,47 @@ void QuadTree::CreateRoot()
 	{
 		root = new QNode({ 0, 0, Engine::Width() - 1, Engine::Height() -1 });
 	}
+}
+
+void QuadTree::DrawGrids(Renderer& renderer, int x, int y, int w, int h, int depth)
+{
+	if (depth > maxDepth)
+	{
+		return;
+	}
+
+	Color color = Color::Intensity;
+
+	int renderOrder = Debug::RenderOrder() - 4;
+
+	// 현재 노드 경계 그리기
+	char element[2] = { '.', '\0' };
+	// 1. 윗변과 아랫변 그리기 (현재 영역의 너비 사용)
+	for (int ix = x; ix < x + w; ++ix)
+	{
+		renderer.WriteToBuffer({ ix, y }, element, color, renderOrder);
+		renderer.WriteToBuffer({ ix, y + h }, element, color, renderOrder);
+	}
+
+	// 2. 왼쪽 변과 오른쪽 변 그리기 (현재 영역의 높이 사용)
+	for (int iy = y; iy < y + h; ++iy)
+	{
+		renderer.WriteToBuffer({ x, iy }, element, color, renderOrder);
+		renderer.WriteToBuffer({ x + w, iy }, element, color, renderOrder);
+	}
+
+	int halfWidth = w / 2;
+	int halfHeight = h / 2;
+
+	// 1사분면 (우상단)
+	DrawGrids(renderer, x + halfWidth, y, halfWidth, halfHeight, depth + 1);
+
+	// 2사분면 (좌상단)
+	DrawGrids(renderer, x, y, halfWidth, halfHeight, depth + 1);
+
+	// 3사분면 (좌하단)
+	DrawGrids(renderer, x, y + halfHeight, halfWidth, halfHeight, depth + 1);
+
+	// 4사분면 (우하단)
+	DrawGrids(renderer, x + halfWidth, y + halfHeight, halfWidth, halfHeight, depth + 1);
 }

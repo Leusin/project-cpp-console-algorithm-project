@@ -28,7 +28,12 @@ public:
 	static int maxDepth;
 
 private: // METHOD
+
+	// 엔진에서 너비 높이를 가져와 루트 생성
 	void CreateRoot();
+
+	// 디버깅을 위한 
+	void DrawGrids(class Renderer& renderer, int x, int y, int w, int h, int depth = 0);
 
 private:
 	class QNode* root = nullptr;
