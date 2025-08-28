@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 #include "Math/Vector2I.h"
 
 class AStar
@@ -55,10 +56,10 @@ private: // METHOD
 	std::vector<class ANode*> openList;
 
 	// 닫힌 리스트: 방문된 노드 목록
-	std::vector<class ANode*> closedList;
+	std::unordered_map<Vector2I, class ANode*, Vector2IHash> closedList;
 
 	// 메모리 관리를 위해 모든 노드를 저장하는
-	std::vector<class  ANode*> allNodes;
+	std::vector<class ANode*> allNodes;
 
 	// 시작
 	class ANode* startNode;

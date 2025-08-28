@@ -86,7 +86,7 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 
 		// 5. 이웃 노드 탐색
 		bool isNodeInList = false;
-		for (ANode* node : closedList)
+		for (auto& [pos, node] : closedList)
 		{
 			if (*node == *current)
 			{
@@ -94,6 +94,7 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 				break;
 			}
 		}
+		
 
 		// 방문했으면 아래 단계 건너뜀
 		if (isNodeInList)
@@ -101,7 +102,8 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 			continue;
 		}
 
-		closedList.emplace_back(current);
+		// 닫힌 리스트에 삽입
+		closedList[current->position] = current;
 
 		// 이웃 노드 방문
 		for (const Direction& direction : directions)
@@ -235,21 +237,21 @@ bool AStar::HasVisited(int x, int y, float gCost)
 	}
 
 	// 닫힌 리스트에 있는지 검사
-	for (size_t i = 0; i < closedList.size(); ++i)
+	auto it = closedList.find({ x, y });
+	// 같은 위치의 노드 찾기
+	if (it != closedList.end())
 	{
-		ANode* node = closedList[i];
-		if (node->position.x == x && node->position.y == y)
+		ANode* node = it->second;
+
+		// 비용이 더 높은 경우
+		if (node->gCost <= gCost)
 		{
-			// 위치는 같으나 비용이 더 높은 경우
-			if (node->gCost < gCost)
-			{
-				return true;
-			}
-			// 위치는 같으나 비용이 작다면 
-			else if (node->gCost > gCost)
-			{
-				closedList.erase(closedList.begin() + i);
-			}
+			return true;
+		}
+		// 비용이 작다면 해당 노드 지우기
+		else if (node->gCost > gCost)
+		{
+			closedList.erase(it);
 		}
 	}
 
