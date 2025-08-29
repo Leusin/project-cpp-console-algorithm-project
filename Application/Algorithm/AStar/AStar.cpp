@@ -40,19 +40,19 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 	allNodes.emplace_back(goalNode);
 
 	// 상화좌우, 대각선 방향 및 비용
-	std::vector<Direction> directions =
+	Vector2I directions[8] =
 	{
 		// 상하좌우 (화면 좌표계 기준)
-		{0, -1, 1.0f},  // 상
-		{0,  1, 1.0f},  // 하
-		{-1, 0, 1.0f},  // 좌
-		{1,  0, 1.0f},  // 우
+		{0, -1,},  // 상
+		{0,  1,},  // 하
+		{-1, 0,},  // 좌
+		{1,  0,},  // 우
 
 		// 대각선
-		{-1, -1, 1.414f}, // 좌상
-		{1,  -1, 1.414f}, // 우상
-		{-1,  1, 1.414f}, // 좌하
-		{1,   1, 1.414f}  // 우하
+		{-1, -1}, // 좌상
+		{1,  -1}, // 우상
+		{-1,  1}, // 좌하
+		{1,   1}  // 우하
 	};
 
 	// 1. 초기화
@@ -68,7 +68,7 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 		for (ANode* node : openList)
 		{
 			// 종합 비용(f)이 훨씬 낮은 경우 || 종합 비용(f)이 같지만 추정치 값이 더 높은 경우
-			if (node->FCost() < current->FCost() || 
+			if (node->FCost() < current->FCost() ||
 				node->FCost() == current->FCost() && node->hCost < current->hCost)
 			{
 				current = node;
@@ -115,7 +115,7 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 		closedList[current->position] = current;
 
 		// 이웃 노드 방문
-		for (const Direction& direction : directions)
+		for (const Vector2I& direction : directions)
 		{
 			// 다음에 이동할 위치 설정
 			int newX = current->position.x + direction.x;
@@ -129,8 +129,15 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 				continue;
 			}
 
+			// 이동 배용
+			float stepCost = 1.0f;
+			//float stepCost = (direction.x != 0 && direction.y != 0) ? 1.414f : 1.0f;
+
+			// TODO: 지형에 따라 이동비용 추가
+			//  stepCost *= map[newY][newX]
+
 			// 이미 방문했는지 확인
-			float gCost = current->gCost + direction.cost;
+			float gCost = current->gCost + stepCost;
 			if (HasVisited(newX, newY, gCost, current))
 			{
 				continue;
@@ -141,11 +148,12 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 			// 메모리 관리를 위한 컨테이너에 등록
 			allNodes.emplace_back(neighbor);
 			// 비용도 계산
-			neighbor->gCost = current->gCost + direction.cost;
+			neighbor->gCost = gCost;
 
 			// 휴리스틱 비용 계산
 			neighbor->hCost = CalculateHeuristic(neighbor, goalNode);
 
+			// openListNode 에 이웃 노드가 있는지 검사
 			ANode* openListNode = nullptr;
 			for (ANode* node : openList)
 			{
@@ -176,15 +184,16 @@ void AStar::DrawMapData(Renderer& renderer, const std::vector<std::vector<float>
 	{
 		for (int x = 0; x < map[y].size(); ++x)
 		{
-			char buffer[2]; 
+			char buffer[4];
 
 			// 이동 가능 여부
 			bool canMove = (int)CanMove({ x, y }, map);
 
 			// 이동 가능 여부에 따른 색깔
-			Color color = canMove ? Color::LightBlue  : Color::LightRed ;
+			Color color = canMove ? Color::LightBlue : Color::LightRed;
 
-			sprintf_s(buffer, sizeof(buffer), "%d", (int)map[y][x]);
+			int data = (int)map[y][x];
+			sprintf_s(buffer, sizeof(buffer), "%d", data);
 			renderer.WriteToBuffer({ x, y }, buffer, color, 2);
 		}
 	}
@@ -253,7 +262,7 @@ bool AStar::HasVisited(int x, int y, float gCost, ANode* parent)
 			{
 				return true;
 			}
-			
+
 			// 더 나은 경로 발견했다면 갱신
 			node->gCost = gCost;
 			node->parent = parent;
@@ -278,11 +287,11 @@ bool AStar::HasVisited(int x, int y, float gCost, ANode* parent)
 			node->hCost = CalculateHeuristic(node, goalNode);
 			openList.emplace_back(node);
 
-			return true;
+			return false;
 		}
-		
+
 		// 기존 경로가 더 낫다면 방문 처리
-		return false;
+		return true;
 	}
 
 	return false;
@@ -290,10 +299,24 @@ bool AStar::HasVisited(int x, int y, float gCost, ANode* parent)
 
 float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 {
-	Vector2I diff = *current - *goal;
+	Vector2F diff { *current - *goal };
 
-	// 유클리드로 
-	return (float)std::sqrt(diff.x * diff.x + diff.y * diff.y);
+	diff.Abs();
+
+	// 채비쇼프 거리로
+	/*
+	* 체비쇼프 거리(Chebyshev distance)란
+	* - 체스판 거리(chessboard distance) 라고도 불fla
+	* - 두 점이 있을 때 각 좌표의 차이 중 더 큰 값을 취함
+	*/
+	if (diff.x > diff.y)
+	{
+		return diff.x;
+	}
+	else
+	{
+		return diff.y;
+	}
 
 	// 휴리스틱 종류
 	/*
@@ -303,9 +326,11 @@ float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 	// 유클리드 거리 (대각선 허용 시)
 	return std::sqrt(diff.x * diff.x + diff.y * diff.y);
 
-	// Chebyshev 거리 (대각선 허용 + 대각선 비용을 1로 취급할 때)
+	// 채비쇼프Chebyshev 거리 (대각선 허용 + 대각선 비용을 1로 취급할 때)
 	return (float)std::max(std::abs(diff.x), std::abs(diff.y));
 
+	// 디아고널(diagonal) 거리 휴리스틱
+	return (float)(diff.x + diff.y) + (1.414f - 2.0f) * std::min(dx, dy);
 	*/
 }
 

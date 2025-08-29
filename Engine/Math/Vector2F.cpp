@@ -85,6 +85,17 @@ float Vector2F::SqrMagnitude() const
 	return (x * x + y * y);
 }
 
+void Vector2F::Abs()
+{
+	x = std::abs(x);
+	y = std::abs(y);
+}
+
+Vector2F Vector2F::GetAbs() const
+{
+	return { std::abs(x), std::abs(y) };
+}
+
 const char* Vector2F::ToString()
 {
 	if (value == nullptr)

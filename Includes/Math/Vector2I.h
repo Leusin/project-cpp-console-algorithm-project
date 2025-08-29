@@ -21,6 +21,10 @@ struct Engine_API Vector2I
     operator Vector2F();
     operator Vector2F() const;
 
+    // 성분들을 절댓값으로 만드는 함수
+    void Abs();
+    Vector2I GetAbs() const;
+
     // 직교 좌표계에서의 방향 벡터
     static Vector2I Zero;
     static Vector2I One;

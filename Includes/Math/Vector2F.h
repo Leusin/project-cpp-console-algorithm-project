@@ -28,6 +28,10 @@ public:
 	/// </summary>
 	float SqrMagnitude() const;
 
+	// 성분들을 절댓값으로 만드는 함수
+	void Abs();
+	Vector2F GetAbs() const;
+
 	const char* ToString();
 
 	// 직교 좌표계에서의 방향 벡터

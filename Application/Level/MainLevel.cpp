@@ -151,7 +151,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	std::vector<char> debugText(bufferSize);
 	int line = Engine::Height();
 
-	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG [0]All [1]QT [2]A* [3]next / IDX:%d", (int)debug.mode);
+	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG/[0]All [1]QT [2]A* [3]next/IDX:%d", (int)debug.mode);
 	int firstOffset = Engine::Width() - firstLength;
 	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 

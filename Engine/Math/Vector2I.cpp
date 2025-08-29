@@ -59,3 +59,16 @@ Vector2I::operator Vector2F() const
 {
 	return { (float)x, (float)y };
 }
+
+void Vector2I::Abs()
+{
+	x = std::abs(x);
+	y = std::abs(y);
+}
+
+Vector2I Vector2I::GetAbs() const
+{
+	return { std::abs(x), std::abs(y) };
+}
+
+

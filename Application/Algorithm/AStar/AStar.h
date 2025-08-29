@@ -6,16 +6,6 @@
 
 class AStar
 {
-	struct Direction
-	{
-		// 위치
-		int x = 0;
-		int y = 0;
-
-		// 이동 비용
-		float cost = 0.0f;
-	};
-
 public: // RAII
 
 	AStar();

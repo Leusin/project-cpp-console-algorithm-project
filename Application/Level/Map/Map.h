@@ -21,7 +21,7 @@ class Map
 		1.0f, // Grass
 		1.5f, // Road
 		0.5f, // Swamp
-		0.7f  // Forest
+		0.7f,  // Forest
 		- 1.f  // Mountain
 	};
 
