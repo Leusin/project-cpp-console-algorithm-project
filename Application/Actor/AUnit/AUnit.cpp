@@ -5,7 +5,7 @@
 #include "Input.h"
 #include "Engine.h"
 #include "AStar/AStar.h"
-#include "Game/DebugMode.h"
+#include "Game/DebugManage.h"
 #include "Render/Renderer.h"
 
 AUnit::AUnit(const Vector2I& spawnPosition)
@@ -46,19 +46,19 @@ void AUnit::Draw(Renderer& renderer)
 	{
 		for (int i = currentWaypointIndex; i < path.size(); ++i)
 		{
-			renderer.WriteToBuffer(path[i], "*", Color::White, DebugMode::RenderOrder() + 1);
+			renderer.WriteToBuffer(path[i], "*", Color::White, DebugManage::RenderOrder() + 1);
 		}
 
-		renderer.WriteToBuffer(path.back(), "X", unitColor, DebugMode::RenderOrder() + 2);
+		renderer.WriteToBuffer(path.back(), "X", unitColor, DebugManage::RenderOrder() + 2);
 	}
 
 	// 디버그 정보 랜더
-	if (DebugMode::IsDebugMode())
+	if (DebugManage::IsDebugMode())
 	{
 		// 현 위치
 		char debugMouse[16];
 		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);
-		renderer.WriteToBuffer({ Position().x, Position().y + 1 }, debugMouse, Color::LightGreen, DebugMode::RenderOrder() + 3);
+		renderer.WriteToBuffer({ Position().x, Position().y + 1 }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 3);
 	}
 }
 

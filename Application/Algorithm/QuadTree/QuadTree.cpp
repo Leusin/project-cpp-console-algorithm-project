@@ -6,7 +6,7 @@
 #include "Engine.h"
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
-#include "Game/DebugMode.h"
+#include "Game/DebugManage.h"
 
 int QuadTree::maxDepth = 3;
 
@@ -101,7 +101,7 @@ bool QuadTree::Query(const Bounds& targetBounds, std::vector<class QEntity*>& in
 
 void QuadTree::DrawBounds(Renderer& renderer)
 {
-	DrawGrids(renderer, 0, 0, Engine::Width() - 1, Engine::Height() - 1);
+	//DrawGrids(renderer, 0, 0, Engine::Width() - 1, Engine::Height() - 1);
 
 	if (root)
 	{
@@ -126,7 +126,7 @@ void QuadTree::DrawGrids(Renderer& renderer, int x, int y, int w, int h, int dep
 
 	Color color = Color::White;
 
-	int renderOrder = DebugMode::RenderOrder() - 4;
+	int renderOrder = DebugManage::RenderOrder() - 4;
 
 	// 현재 노드 경계 그리기
 	char element[2] = { '.', '\0' };

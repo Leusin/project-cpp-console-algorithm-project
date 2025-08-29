@@ -45,12 +45,6 @@ void MainLevel::Tick(float deltaTime)
 
 	// 유닛 선택 해제
 	MoveSelectedUnits();
-
-	// 틸트'~' 키를 눌렀을 때 디버그 모드를 토글
-	if (Input::Get().GetKeyDown(VK_OEM_3))
-	{
-		debug.ToggleDebugMode();
-	}
 }
 
 void MainLevel::SlowTick(float deltaTime)
@@ -90,7 +84,7 @@ void MainLevel::Draw(Renderer& renderer)
 	DrawDebug(renderer);
 
 	// 마우스 랜더
-	if (!DebugMode::IsDebugMode())
+	if (!DebugManage::IsDebugMode())
 	{
 		renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, "+", Color::Green, 500);
 	}
@@ -111,26 +105,87 @@ void MainLevel::UpdateQuadTree()
 
 void MainLevel::DrawDebug(Renderer& renderer)
 {
-	if (!DebugMode::IsDebugMode())
+	// 틸트'~' 키를 눌렀을 때 디버그 모드를 토글
+	if (Input::Get().GetKeyUp(VK_OEM_3))
+	{
+		debug.ToggleDebugMode();
+	}
+
+	if (!DebugManage::IsDebugMode())
 	{
 		return;
 	}
 
-	// AStar 가 가지고 있는 맵 데이터
-	aStar.DrawMapData(renderer, map.GetWeightMap());
-
-	static bool drawGreed = true;
-	if (Input::Get().GetKeyDown('1')) { drawGreed = !drawGreed; }
-	if (drawGreed)
+	// 키 입력 처리
+	// 디버그 모드일 경우 모드 인덱스 순서 번호 키누르면 해당 모드로
+	for (int i = 0; i < DebugManage::Mode::SIZE; ++i)
 	{
-		// 현재 쿼드 트리 정보 그리기
-		quadTree.DrawBounds(renderer);
+		char key = (char)(i + '0');
+		if (Input::Get().GetKeyUp(key))
+		{
+			debug.mode = static_cast<DebugManage::Mode>(i);
+		}
 	}
+	if (Input::Get().GetKeyUp( '0' + (char)DebugManage::Mode::SIZE))
+	{
+		int modeSize = (int)DebugManage::Mode::SIZE;
+		debug.mode = static_cast<DebugManage::Mode>(((int)(debug.mode) + 1) % modeSize);
+	}
+
+	//
+	// 모드와 상관없이 그려지는 것들
+	// General Debug Information
+	//
 
 	// 마우스 위치
 	char debugMouse[100];
 	sprintf_s(debugMouse, sizeof(debugMouse), "M(%d,%d)", Input::Get().GetMouseX(), Input::Get().GetMouseY());
-	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, DebugMode::RenderOrder() + 2);
+	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 2);
+
+	//
+	// 모드에 따라 그려지는 것들
+	//
+
+	// 우하단에 쓰여질 설명들
+	const static int bufferSize = Engine::Width();
+	std::vector<char> debugText(bufferSize);
+	int line = Engine::Height();
+
+	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG [0]All [1]QT [2]A* [3]next / IDX:%d", (int)debug.mode);
+	int firstOffset = Engine::Width() - firstLength;
+	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
+
+	//int secondLength = sprintf_s(debugText.data(), bufferSize, "(Current:%d)", (int)debug.mode);
+	//int secondOffset = Engine::Width() - secondLength;
+	//renderer.WriteToBuffer({ secondOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
+
+	switch (debug.mode)
+	{
+	case DebugManage::Mode::QuadTree:
+	{
+		// 현재 쿼드 트리 정보 그리기
+		quadTree.DrawBounds(renderer);
+	}
+	break;
+	case DebugManage::Mode::AStar:
+	{
+		// AStar 가 가지고 있는 맵 데이터
+		aStar.DrawMapData(renderer, map.GetWeightMap());
+	}
+	break;
+	case DebugManage::Mode::ALL:
+	{
+		// AStar 가 가지고 있는 맵 데이터
+		aStar.DrawMapData(renderer, map.GetWeightMap());
+
+		// 현재 쿼드 트리 정보 그리기
+		quadTree.DrawBounds(renderer);
+	}
+	// break; // 일부러 안 넣음
+	default:
+		break;
+	}
+
 }
 
 void MainLevel::MoveSelectedUnits()

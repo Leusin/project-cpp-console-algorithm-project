@@ -6,7 +6,7 @@
 #include "QuadTree/QuadTree.h"
 #include "QuadTree/QNode.h"
 #include "Actor/AUnit/AUnit.h"
-#include "Game/DebugMode.h"
+#include "Game/DebugManage.h"
 
 
 DragBox::DragBox(QuadTree& quadTree, std::vector<AUnit*>& selectedUnit)
@@ -106,7 +106,7 @@ void DragBox::Draw(Renderer& renderer)
 
 	bounds.Draw(renderer);
 
-	if (DebugMode::IsDebugMode())
+	if (DebugManage::IsDebugMode())
 	{
 		char buffer[32];
 		sprintf_s(buffer, sizeof(buffer), "B(%d/%d/%d/%d)", bounds.GetX(), bounds.GetY(), bounds.GetWidth(), bounds.GetHeight());

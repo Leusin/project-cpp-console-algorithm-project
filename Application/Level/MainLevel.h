@@ -3,7 +3,7 @@
 #include "Level/level.h"
 #include "QuadTree/QuadTree.h"
 #include "AStar/AStar.h"
-#include "Game/DebugMode.h"
+#include "Game/DebugManage.h"
 #include "DragBox/DragBox.h"
 #include "Map/Map.h"
 
@@ -37,7 +37,7 @@ private: // METHOD
 private: // FILD
 
 	// 디버그
-	DebugMode debug;
+	DebugManage debug;
 
 	// 마우스 드래그
 	DragBox dragBox;

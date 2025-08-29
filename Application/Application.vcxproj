@@ -170,7 +170,7 @@
     <ClCompile Include="Actor\AUnit\AUnit.cpp" />
     <ClCompile Include="Algorithm\AStar\AStar.cpp" />
     <ClCompile Include="DragBox\DragBox.cpp" />
-    <ClCompile Include="Game\DebugMode.cpp" />
+    <ClCompile Include="Game\DebugManage.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Level\MainLevel.cpp" />
     <ClCompile Include="Level\MainLevel.h" />
@@ -187,7 +187,7 @@
     <ClInclude Include="Algorithm\AStar\ANode.h" />
     <ClInclude Include="Algorithm\AStar\AStar.h" />
     <ClInclude Include="DragBox\DragBox.h" />
-    <ClInclude Include="Game\DebugMode.h" />
+    <ClInclude Include="Game\DebugManage.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Algorithm\QuadTree\Bounds.h" />
     <ClInclude Include="Algorithm\QuadTree\QNode.h" />
