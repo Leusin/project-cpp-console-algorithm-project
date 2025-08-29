@@ -27,5 +27,6 @@
     <ClInclude Include="Algorithm\QuadTree\QuadTree.h" />
     <ClInclude Include="Game\DebugManage.h" />
     <ClInclude Include="Level\Map\Map.h" />
+    <ClInclude Include="Actor\AUnit\ProcessResult.h" />
   </ItemGroup>
 </Project>

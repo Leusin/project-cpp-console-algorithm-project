@@ -50,6 +50,11 @@ Vector2F Vector2F::operator*(const float& scalar) const
 	return Vector2F(x * scalar, y * scalar);
 }
 
+Vector2F Vector2F::operator/(const float& scalar) const
+{
+	return Vector2F(x / scalar, y / scalar);
+}
+
 /*
 bool Vector2::operator==(const Vector2& other) const
 {

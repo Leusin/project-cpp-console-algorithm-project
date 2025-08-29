@@ -181,6 +181,7 @@
     <ClCompile Include="Algorithm\QuadTree\QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor\AUnit\ProcessResult.h" />
     <ClInclude Include="Actor\QEntity\QEntity.h" />
     <ClInclude Include="Actor\AUnit\AUnit.h" />
     <ClInclude Include="Actor\AUnit\UnitStats.h" />

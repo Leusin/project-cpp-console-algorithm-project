@@ -5,6 +5,7 @@
 #include <vector>
 #include "QuadTree/Bounds.h"
 #include "UnitStats.h"
+#include "ProcessResult.h"
 
 enum class AUnitState
 {
@@ -17,10 +18,17 @@ enum class AUnitState
 /// </summary>
 class AUnit : public QEntity
 {
+	enum class PathResult
+	{
+		InProgress, // 계속 진행 중
+		Success,    // 최종 목적지 도착
+		Failed      // 이동 불가
+	};
+
 	RTTI_DECLARATIONS(AUnit, QEntity)
 
 public: // RAII
-	AUnit(const Vector2I& spawnPosition);
+	AUnit(const Vector2I& spawnPosition, class Map& map, class AStar& aStar);
 	virtual ~AUnit();
 
 public: // EVENT
@@ -35,11 +43,11 @@ public: // GET SET
 	Vector2I GetCurrentPosition() const;
 	void SetIsSelected(bool val) { isSeleted = val; }
 
-	void SetMove(const Vector2I& targetPos, class AStar& aStar, const std::vector<std::vector<float>>& map);
+	void SetMove(const Vector2I& targetPos, class AStar& aStar, const class Map& map);
 
 private: // METHOD
 
-	bool FollowPath(float deltaTime);
+	ProcessResult FollowPath(float deltaTime);
 
 private: // FILD
 
@@ -54,6 +62,7 @@ private: // FILD
 	// 길찾기 경로
 	std::vector<Vector2I> path;
 	int currentWaypointIndex = 0;
+	Vector2I lastTarget; // 최종 목적지
 
 	// 선택 되었는지
 	bool isSeleted = false;
@@ -63,4 +72,7 @@ private: // FILD
 
 	// 원래 색
 	Color unitColor = Color::White;
+
+	class Map& map;
+	class AStar& aStar;
 };

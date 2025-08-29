@@ -5,12 +5,15 @@
 #include "Input.h"
 #include "Engine.h"
 #include "AStar/AStar.h"
+#include "Level/Map/Map.h"
 #include "Game/DebugManage.h"
 #include "Render/Renderer.h"
 
-AUnit::AUnit(const Vector2I& spawnPosition)
+AUnit::AUnit(const Vector2I& spawnPosition, Map& map, AStar& aStar)
 	: QEntity(spawnPosition, Color::White, "U")
 	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
+	, map{ map }
+	, aStar{ aStar }
 {
 	SetSortingOrder(200);
 }
@@ -30,7 +33,16 @@ void AUnit::Tick(float deltaTime)
 	// 유닛 이동
 	if (state == AUnitState::Move)
 	{
-		FollowPath(deltaTime);
+		// 경로를 따라 이동 시도
+		ProcessResult result = FollowPath(deltaTime);
+		if (result == ProcessResult::Success)
+		{
+			state = AUnitState::Idle;
+		}
+		else if (result == ProcessResult::Failed)
+		{
+			aStar.FindPath(Position(), lastTarget, map);
+		}
 	}
 }
 
@@ -67,9 +79,12 @@ Vector2I AUnit::GetCurrentPosition() const
 	return Vector2I((int)round(currentPosition.x), (int)round(currentPosition.y));
 }
 
-void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const std::vector<std::vector<float>>& map)
+void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const Map& map)
 {
 	state = AUnitState::Move;
+
+	lastTarget = targetPos;   // 기억
+
 	path.clear();
 	path = aStar.FindPath(GetCurrentPosition(), targetPos, map);
 
@@ -77,54 +92,66 @@ void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const std::vector<s
 	currentWaypointIndex = 0;
 }
 
-bool AUnit::FollowPath(float deltaTime)
+ProcessResult AUnit::FollowPath(float deltaTime)
 {
 	if (state != AUnitState::Move || path.empty())
 	{
-		return false;
+		return ProcessResult::Failed;
 	}
 
-	// 이동 목표
-	Vector2F target = path[currentWaypointIndex];
+	Vector2F fTarget = path[currentWaypointIndex];
+	Vector2F toTarget = fTarget - currentPosition;
+	float dist = toTarget.Magnitude();
 
-	// 이미 도착했다면
-	if (path[currentWaypointIndex] == Position())
+	// 목표 도착 체크 (정수 == 비교 대신 거리 기반)
+	if (dist < 0.001f)
 	{
-		// 다음 목표로
 		++currentWaypointIndex;
-
-		// 도착지인지 확인(그리고 인덱스 밖인지 확인)
 		if (currentWaypointIndex >= path.size())
 		{
-			currentPosition.x = (float)Position().x;
-			currentPosition.y = (float)Position().y;
-
-			state = AUnitState::Idle;
-			currentWaypointIndex = 0;
-			return true;
+			return ProcessResult::Success; // 최종 목적지 도착
 		}
-
-		target = path[currentWaypointIndex];
+		fTarget = path[currentWaypointIndex];
+		toTarget = fTarget - currentPosition;
+		dist = toTarget.Magnitude();
 	}
 
-	// 본격적인 이동 처리
+	// 이미 도착
+	if (dist < 1e-6f)
+	{
+		return ProcessResult::Success;
+	}
 
-	// 이동 방향
-	Vector2F toTarget = target - Position();
+	// 이동 속도 계산
+	Vector2I iPosition = Position();
+	float terrainWeight = map.GetWeightMap()[iPosition.y][iPosition.x];
+	if (terrainWeight <= 0.0f)
+	{
+		return ProcessResult::Failed; // 이동 불가
+	}
 
-	// 이동 거리
-	Vector2F movement = toTarget.Normalize() * stats.speed * deltaTime;
+	float finalSpeed = terrainWeight * stats.speed;
+	if (finalSpeed < 0.01f) finalSpeed = 0.01f; // 최소 속도 보정
 
-	//  TODO: 이동 가능한지(장애물이 있는지) 처리
+	// 이동량 계산 (목표를 지나치지 않도록 보정)
+	Vector2F movement = (toTarget / dist) * finalSpeed * deltaTime;
+	if (movement.Magnitude() > dist)
+	{
+		movement = toTarget; // 목표까지만 이동
+	}
 
-	// 이동
-	currentPosition = currentPosition + movement;
+	// 최종 좌표 업데이트
+	Vector2F fNextPos = currentPosition + movement;
+	Vector2I iNextPos((int)fNextPos.x, (int)fNextPos.y);
 
-	// 그려질 위치 업데이트
-	SetPosition({ (int)currentPosition.x, (int)currentPosition.y });
+	if (!map.CanMove(iNextPos))
+	{
+		return ProcessResult::Failed;
+	}
 
-	// 바운드 상자 위치 업데이트
+	currentPosition = fNextPos;
+	SetPosition(iNextPos);
 	bounds.SetPosition(GetCurrentPosition());
 
-	return true;
+	return ProcessResult::InProgress;
 }

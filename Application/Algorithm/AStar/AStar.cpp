@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "ANode.h"
 #include "Render/Renderer.h"
+#include "Level/Map/Map.h"
 
 
 AStar::AStar()
@@ -17,14 +18,9 @@ AStar::~AStar()
 	Clear();
 }
 
-std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goal, const std::vector<std::vector<float>>& map)
+std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goal, const Map& map)
 {
-	if (map.empty()) // 맵 데이터가 없는 채임
-	{
-		__debugbreak();
-	}
-
-	if (!CanMove(goal, map))
+	if (!map.CanMove(goal))
 	{
 		return std::vector<Vector2I>();
 	}
@@ -33,7 +29,7 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 	Clear();
 
 	startNode = new ANode(start.x, start.y);
-	Vector2I clampedGoal = { std::clamp(goal.x, 0, (int)map[0].size() - 1), std::clamp(goal.y, 0, (int)map.size() - 1) };
+	Vector2I clampedGoal = { std::clamp(goal.x, 0, map.Width()), std::clamp(goal.y, 0, map.Height()) };
 	goalNode = new ANode(clampedGoal.x, clampedGoal.y);
 
 	allNodes.emplace_back(startNode);
@@ -124,17 +120,31 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 
 			// (옵션) 장애물인지 확인 
 			// 여기선 값이 0.0f 이하일 경우 장애물
-			if (!CanMove({ newX , newY }, map))
+			if (!map.CanMove({ newX , newY }))
 			{
 				continue;
 			}
+
+			// 대모서리 끼임 문제 해결
+			// 이동 방향이 대각선일 경우
+			if (direction.x != 0 && direction.y != 0)
+			{
+				// 둘 다 열려 있어야 대각선 허용
+				if (!map.CanMove({ current->position.x + direction.x, current->position.y }) ||
+					!map.CanMove({ current->position.x, current->position.y + direction.y }))
+				{
+					continue;
+				}
+					
+			}
+
 
 			// 이동 배용
 			float stepCost = 1.0f;
 			//float stepCost = (direction.x != 0 && direction.y != 0) ? 1.414f : 1.0f;
 
 			// TODO: 지형에 따라 이동비용 추가
-			//  stepCost *= map[newY][newX]
+			// stepCost *= map[newY][newX]
 
 			// 이미 방문했는지 확인
 			float gCost = current->gCost + stepCost;
@@ -178,27 +188,6 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 	return std::vector<Vector2I>();
 }
 
-void AStar::DrawMapData(Renderer& renderer, const std::vector<std::vector<float>>& map)
-{
-	for (int y = 0; y < map.size(); ++y)
-	{
-		for (int x = 0; x < map[y].size(); ++x)
-		{
-			char buffer[4];
-
-			// 이동 가능 여부
-			bool canMove = (int)CanMove({ x, y }, map);
-
-			// 이동 가능 여부에 따른 색깔
-			Color color = canMove ? Color::LightBlue : Color::LightRed;
-
-			int data = (int)map[y][x];
-			sprintf_s(buffer, sizeof(buffer), "%d", data);
-			renderer.WriteToBuffer({ x, y }, buffer, color, 2);
-		}
-	}
-}
-
 void AStar::Clear()
 {
 	// 모든 노드 리스트 비우기
@@ -232,20 +221,6 @@ bool AStar::IsDestination(const ANode* node)
 	return *node == *goalNode;
 }
 
-bool AStar::IsInRange(int x, int y, const std::vector<std::vector<float>>& map)
-{
-	if (map.empty())
-	{
-		return false;
-	}
-
-	if (x < 0 || y < 0 || x >= (int)map[0].size() || y >= (int)map.size())
-	{
-		return false;
-	}
-
-	return true;
-}
 
 bool AStar::HasVisited(int x, int y, float gCost, ANode* parent)
 {
@@ -332,15 +307,4 @@ float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 	// 디아고널(diagonal) 거리 휴리스틱
 	return (float)(diff.x + diff.y) + (1.414f - 2.0f) * std::min(dx, dy);
 	*/
-}
-
-bool AStar::CanMove(const Vector2I& pos, const std::vector<std::vector<float>>& map)
-{
-
-	if (IsInRange(pos.x, pos.y, map))
-	{
-		return map[pos.y][pos.x] > 0.0f;
-	}
-
-	return false;
 }

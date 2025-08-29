@@ -14,9 +14,7 @@ public: // RAII
 public: // MESSAGE
 
 	// 경로 탐색
-	std::vector<Vector2I> FindPath(const Vector2I& start, const Vector2I& goal, const std::vector<std::vector<float>>& map);
-
-	void DrawMapData(class Renderer& renderer, const std::vector<std::vector<float>>& map);
+	std::vector<Vector2I> FindPath(const Vector2I& start, const Vector2I& goal, const class Map& map);
 
 private: // METHOD
 
@@ -37,9 +35,6 @@ private: // METHOD
 
 	// 휴리스틱 계산
 	float CalculateHeuristic(class ANode* current, class ANode* goal);
-
-	// 이동 가능한지
-	bool CanMove(const Vector2I& pos, const std::vector<std::vector<float>>& map);
 
 private: // METHOD
 

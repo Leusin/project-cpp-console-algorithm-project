@@ -12,6 +12,7 @@ public:
 	Vector2F operator+(const Vector2F& other) const;
 	Vector2F operator-(const Vector2F& other) const;
 	Vector2F operator*(const float& scalar) const;
+	Vector2F operator/(const float& scalar) const;
 
 	/// <summary>
 	/// 벡터 정규화 취소.

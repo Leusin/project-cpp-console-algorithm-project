@@ -1,6 +1,7 @@
 #include "Map.h"
 
 #include "Engine.h"
+#include "Math/Vector2I.h"
 #include "Render/Renderer.h"
 
 Map::Map()
@@ -122,4 +123,36 @@ void Map::Draw(Renderer& renderer)
 			}
 		}
 	}
+}
+
+void Map::DrawWeight(Renderer& renderer)
+{
+	for (int y = 0; y < Height(); ++y)
+	{
+		for (int x = 0; x <Width(); ++x)
+		{
+			char buffer[4];
+
+			// 이동 가능 여부
+			bool canMove = CanMove({ x, y });
+
+			// 이동 가능 여부에 따른 색깔
+			Color color = canMove ? Color::LightBlue : Color::LightRed;
+
+			int data = (int)GetWeightMap()[y][x];
+			sprintf_s(buffer, sizeof(buffer), "%d", data);
+			renderer.WriteToBuffer({ x, y }, buffer, color, 2);
+		}
+	}
+}
+
+bool Map::CanMove(const Vector2I& position) const
+{
+	if (position.x < 0 || position.y < 0 ||
+		position.x >= Width() || position.y >= Height())
+	{
+		return false;
+	}
+
+	return !(weight[position.y][position.x] < 0.0f);
 }

@@ -38,9 +38,17 @@ public: // MESSAGE
 	// 배경 그리기
 	void Draw(class Renderer& renderer);
 
+	void DrawWeight(class Renderer& renderer);
+
+	bool CanMove(const struct Vector2I& position) const;
+
+
 public: // GET SET
 
-	const std::vector<std::vector<float>>& GetWeightMap() { return weight; }
+	const std::vector<std::vector<float>>& GetWeightMap() const { return weight; }
+
+	int Width() const { return (int)map[0].size(); }
+	int Height() const { return (int)map.size(); }
 
 private: // MESSAGE
 

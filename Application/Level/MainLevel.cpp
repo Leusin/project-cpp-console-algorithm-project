@@ -13,12 +13,13 @@ MainLevel::MainLevel()
 {
 	// 맵 데이터 로드
 	//map
+	map.Initialize();
 
-	AddActor(new AUnit({ 0, 0 }));
-	AddActor(new AUnit({ 1, 5 }));
-	AddActor(new AUnit({ 4, 10 }));
-	AddActor(new AUnit({ 30, 15 }));
-	AddActor(new AUnit({ 36, 25 }));
+	AddActor(new AUnit({ 0, 0 }, map, aStar));
+	AddActor(new AUnit({ 1, 5 }, map, aStar));
+	AddActor(new AUnit({ 4, 10 }, map, aStar));
+	AddActor(new AUnit({ 30, 15 }, map, aStar));
+	AddActor(new AUnit({ 36, 25 }, map, aStar));
 
 	// TODO: 마무리 할 떄쯤 아래 디버그 켜기 함수 지우기
 	debug.ToggleDebugMode();
@@ -71,8 +72,6 @@ void MainLevel::SlowTick(float deltaTime)
 void MainLevel::Draw(Renderer& renderer)
 {
 	super::Draw(renderer);
-
-	map.Initialize();
 
 	// 맵
 	map.Draw(renderer);
@@ -151,7 +150,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	std::vector<char> debugText(bufferSize);
 	int line = Engine::Height();
 
-	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG/[0]All [1]QT [2]A* [3]next/IDX:%d", (int)debug.mode);
+	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG/[0]All [1]QT [2]weight [3]next/IDX:%d", (int)debug.mode);
 	int firstOffset = Engine::Width() - firstLength;
 	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
@@ -169,14 +168,14 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	break;
 	case DebugManage::Mode::AStar:
 	{
-		// AStar 가 가지고 있는 맵 데이터
-		aStar.DrawMapData(renderer, map.GetWeightMap());
+		// 맵 가중치 데이터
+		map.DrawWeight(renderer);
 	}
 	break;
 	case DebugManage::Mode::ALL:
 	{
-		// AStar 가 가지고 있는 맵 데이터
-		aStar.DrawMapData(renderer, map.GetWeightMap());
+		// 맵 가중치 데이터
+		map.DrawWeight(renderer);
 
 		// 현재 쿼드 트리 정보 그리기
 		quadTree.DrawBounds(renderer);
@@ -228,7 +227,7 @@ void MainLevel::MoveSelectedUnits()
 				mouseDestination.y + (gridY * offsetFactor) - groupOffsetY
 			};
 
-			unit->SetMove(finalDestination, aStar, map.GetWeightMap());
+			unit->SetMove(finalDestination, aStar, map);
 
 		}
 	}
