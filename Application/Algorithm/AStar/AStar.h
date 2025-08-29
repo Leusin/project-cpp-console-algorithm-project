@@ -27,9 +27,6 @@ private: // METHOD
 	// 탐색하려는 노드가 목표 노드인지 검사
 	bool IsDestination(const ANode* node);
 
-	// 범위가 유효한지 확인
-	bool IsInRange(int x, int y, const std::vector<std::vector<float>>& map);
-
 	// 이미 방문했는지 확인
 	bool HasVisited(int x, int y, float gCost, ANode* parent);
 

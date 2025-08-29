@@ -63,6 +63,7 @@ private: // FILD
 	std::vector<Vector2I> path;
 	int currentWaypointIndex = 0;
 	Vector2I lastTarget; // 최종 목적지
+	int tryCount = 0;
 
 	// 선택 되었는지
 	bool isSeleted = false;
@@ -74,5 +75,6 @@ private: // FILD
 	Color unitColor = Color::White;
 
 	class Map& map;
+
 	class AStar& aStar;
 };

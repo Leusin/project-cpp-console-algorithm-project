@@ -2,7 +2,6 @@
 
 #include <vector>
 
-
 class Map
 {
 	enum class TerrainType
@@ -20,8 +19,8 @@ class Map
 	{
 		1.0f, // Grass
 		1.5f, // Road
-		0.5f, // Swamp
-		0.7f,  // Forest
+		0.2f, // Swamp
+		0.8f,  // Forest
 		- 1.f  // Mountain
 	};
 
@@ -38,14 +37,19 @@ public: // MESSAGE
 	// 배경 그리기
 	void Draw(class Renderer& renderer);
 
+	// 디버그용 이동 가중치
 	void DrawWeight(class Renderer& renderer);
 
+	// 이동 가능 
 	bool CanMove(const struct Vector2I& position) const;
-
 
 public: // GET SET
 
 	const std::vector<std::vector<float>>& GetWeightMap() const { return weight; }
+	float GetWeightMap(const struct Vector2I& position) const;
+
+	const std::vector<std::vector<bool>>& GetOccupiedMap() const { return occupied; }
+	void SetOccupiedMap(const struct Vector2I& position, bool value);
 
 	int Width() const { return (int)map[0].size(); }
 	int Height() const { return (int)map.size(); }
@@ -54,6 +58,8 @@ private: // MESSAGE
 
 private: // FILD
 
+	int weightMultiple = 1.0f;
 	std::vector<std::vector<TerrainType>> map;
 	std::vector<std::vector<float>> weight;
+	std::vector<std::vector<bool>> occupied;
 };

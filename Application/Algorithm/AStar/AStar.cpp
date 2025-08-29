@@ -138,13 +138,12 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 					
 			}
 
-
 			// 이동 배용
-			float stepCost = 1.0f;
-			//float stepCost = (direction.x != 0 && direction.y != 0) ? 1.414f : 1.0f;
+			//float stepCost = 1.0f;
+			float stepCost = (direction.x != 0 && direction.y != 0) ? 1.414f : 1.0f;
 
-			// TODO: 지형에 따라 이동비용 추가
-			// stepCost *= map[newY][newX]
+			// 맵 가중치 적용 (별차이 없는 느낌이다)
+			stepCost += stepCost * map.GetWeightMap({ newX , newY});
 
 			// 이미 방문했는지 확인
 			float gCost = current->gCost + stepCost;
@@ -220,7 +219,6 @@ bool AStar::IsDestination(const ANode* node)
 {
 	return *node == *goalNode;
 }
-
 
 bool AStar::HasVisited(int x, int y, float gCost, ANode* parent)
 {

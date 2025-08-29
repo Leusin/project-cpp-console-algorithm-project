@@ -16,6 +16,7 @@ AUnit::AUnit(const Vector2I& spawnPosition, Map& map, AStar& aStar)
 	, aStar{ aStar }
 {
 	SetSortingOrder(200);
+	map.SetOccupiedMap(spawnPosition, true);
 }
 
 AUnit::~AUnit()
@@ -39,9 +40,10 @@ void AUnit::Tick(float deltaTime)
 		{
 			state = AUnitState::Idle;
 		}
-		else if (result == ProcessResult::Failed)
+		else if (result == ProcessResult::Failed && tryCount > 0)
 		{
 			aStar.FindPath(Position(), lastTarget, map);
+			--tryCount;
 		}
 	}
 }
@@ -88,6 +90,9 @@ void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const Map& map)
 	path.clear();
 	path = aStar.FindPath(GetCurrentPosition(), targetPos, map);
 
+	// 길찾기 실패 시 시도 횟수
+	tryCount = path.size();
+
 	// 새로운 경로를 받았기 때문에 인덱스 초기화
 	currentWaypointIndex = 0;
 }
@@ -124,7 +129,7 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 
 	// 이동 속도 계산
 	Vector2I iPosition = Position();
-	float terrainWeight = map.GetWeightMap()[iPosition.y][iPosition.x];
+	float terrainWeight = map.GetWeightMap(iPosition);
 	if (terrainWeight <= 0.0f)
 	{
 		return ProcessResult::Failed; // 이동 불가
@@ -144,13 +149,15 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	Vector2F fNextPos = currentPosition + movement;
 	Vector2I iNextPos((int)fNextPos.x, (int)fNextPos.y);
 
-	if (!map.CanMove(iNextPos))
+	if (iPosition != iNextPos && !map.CanMove(iNextPos))
 	{
 		return ProcessResult::Failed;
 	}
 
 	currentPosition = fNextPos;
 	SetPosition(iNextPos);
+	map.SetOccupiedMap(iPosition, false);
+	map.SetOccupiedMap(iNextPos, true);
 	bounds.SetPosition(GetCurrentPosition());
 
 	return ProcessResult::InProgress;

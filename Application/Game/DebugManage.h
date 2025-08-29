@@ -8,7 +8,8 @@ public:
 	{
 		ALL = 0,
 		QuadTree,
-		AStar,
+		Map,
+		Weight,
 		SIZE
 	};
 

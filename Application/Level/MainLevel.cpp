@@ -166,7 +166,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 		quadTree.DrawBounds(renderer);
 	}
 	break;
-	case DebugManage::Mode::AStar:
+	case DebugManage::Mode::Weight:
 	{
 		// 맵 가중치 데이터
 		map.DrawWeight(renderer);
@@ -207,7 +207,7 @@ void MainLevel::MoveSelectedUnits()
 
 		// 최종 너비 개산. 유닛이 5보다 적으면 n 열로
 		int groupWidth = (unitCount < gridWidth) ? unitCount : gridWidth;
-		int groupHeight = (unitCount /*+ gridWidth - 1*/) / gridWidth;
+		int groupHeight = (unitCount) / gridWidth;
 
 		// 최종 너비에 따른 오프셋 적용
 		int groupOffsetX = (groupWidth - 1) * offsetFactor / 2;

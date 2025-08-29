@@ -7,6 +7,7 @@
 Map::Map()
 	: map(Engine::Height(), std::vector<TerrainType>(Engine::Width(), TerrainType::Grass))
 	, weight(Engine::Height(), std::vector<float>(Engine::Width(), speedMultipliers[0]))
+	, occupied(Engine::Height(), std::vector<bool>(Engine::Width(), false))
 {
 }
 
@@ -139,7 +140,7 @@ void Map::DrawWeight(Renderer& renderer)
 			// 이동 가능 여부에 따른 색깔
 			Color color = canMove ? Color::LightBlue : Color::LightRed;
 
-			int data = (int)GetWeightMap()[y][x];
+			int data = (int)(GetWeightMap({x, y}) * 2);
 			sprintf_s(buffer, sizeof(buffer), "%d", data);
 			renderer.WriteToBuffer({ x, y }, buffer, color, 2);
 		}
@@ -154,5 +155,18 @@ bool Map::CanMove(const Vector2I& position) const
 		return false;
 	}
 
-	return !(weight[position.y][position.x] < 0.0f);
+	bool isBlocked = occupied[position.y][position.x];
+	bool canMove = !(weight[position.y][position.x] < 0.0f);
+
+	return !isBlocked && canMove;
+}
+
+float Map::GetWeightMap(const Vector2I& position) const
+{
+	return weightMultiple* weight[position.y][position.x];
+}
+
+void Map::SetOccupiedMap(const Vector2I& position, bool value)
+{
+	occupied[position.y][position.x] = value;
 }
