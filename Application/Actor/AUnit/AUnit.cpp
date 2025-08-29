@@ -14,9 +14,11 @@
 AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& aStar, QuadTree& qTree)
 	: QEntity(spawnPosition, team.color, team.img)
 	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
+	, minSpeed{ 0.01f }
 	, unitColor{ team.color }
 	, currentWaypointIndex{ 0 }
 	, tryCount{ 0 }
+	, tolerance{ 1e-6f } // 0.000001
 	, minTry{ 3 }
 	, map{ map }
 	, aStar{ aStar }
@@ -136,8 +138,8 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	Vector2F toTarget = fTarget - currentPosition;
 	float dist = toTarget.Magnitude();
 
-	// 목표 도착 체크 (정수 == 비교 대신 거리 기반)
-	if (dist < 1e-6f)
+	// 목표 도착 체크
+	if (dist < tolerance)
 	{
 		++currentWaypointIndex;
 		if (currentWaypointIndex >= path.size())
@@ -150,7 +152,7 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	}
 
 	// 이미 도착
-	if (dist < 1e-6f) // 0.000001
+	if (dist < tolerance) 
 	{
 		return ProcessResult::Success;
 	}
@@ -163,8 +165,14 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 		return ProcessResult::Failed; // 이동 불가
 	}
 
+	// 최종 이속
 	float finalSpeed = terrainWeight * team.speed;
-	if (finalSpeed < 0.01f) finalSpeed = 0.01f; // 최소 속도 보정
+
+	// 최소 속도 보정
+	if (finalSpeed < minSpeed)
+	{
+		finalSpeed = minSpeed;
+	}
 
 	// 이동량 계산 (목표를 지나치지 않도록 보정)
 	Vector2F movement = (toTarget / dist)/* = toTarget.Normaize*/ * finalSpeed * deltaTime;

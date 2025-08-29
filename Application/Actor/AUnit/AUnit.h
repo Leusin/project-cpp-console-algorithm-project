@@ -58,12 +58,16 @@ private: // FILD
 	// 현재 위치(실수 좌표) - 내보낼땐 정수 좌표로 변환
 	Vector2F currentPosition;
 
+	// 최소한의 속도
+	const float minSpeed;
+
 	// 길찾기 경로
 	std::vector<Vector2I> path;
-	int currentWaypointIndex;
-	Vector2I lastTarget; // 최종 목적지
-	int tryCount;
-	const int minTry;
+	int currentWaypointIndex; // 현재 탐색중인 인덱스
+	Vector2I lastTarget; // 최근 목적지
+	const float tolerance;
+	int tryCount; // 현재 길찾기 시도 횟수
+	const int minTry; // 최소 시도 횟수
 	Timer blockedTimer;
 
 	// 선택 되었는지
