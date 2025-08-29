@@ -14,9 +14,6 @@ MainLevel::MainLevel()
 	// 맵 데이터 로드
 	//map
 
-	// aStar
-	aStar.SetMap(map.GetWeightMap());
-
 	AddActor(new AUnit({ 0, 0 }));
 	AddActor(new AUnit({ 1, 5 }));
 	AddActor(new AUnit({ 4, 10 }));
@@ -119,9 +116,8 @@ void MainLevel::DrawDebug(Renderer& renderer)
 		return;
 	}
 
-
 	// AStar 가 가지고 있는 맵 데이터
-	aStar.DrawMapData(renderer);
+	aStar.DrawMapData(renderer, map.GetWeightMap());
 
 	static bool drawGreed = true;
 	if (Input::Get().GetKeyDown('1')) { drawGreed = !drawGreed; }
@@ -177,7 +173,7 @@ void MainLevel::MoveSelectedUnits()
 				mouseDestination.y + (gridY * offsetFactor) - groupOffsetY
 			};
 
-			unit->SetMove(finalDestination, aStar);
+			unit->SetMove(finalDestination, aStar, map.GetWeightMap());
 
 		}
 	}

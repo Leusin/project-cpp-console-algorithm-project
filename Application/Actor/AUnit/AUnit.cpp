@@ -67,11 +67,11 @@ Vector2I AUnit::GetCurrentPosition() const
 	return Vector2I((int)round(currentPosition.x), (int)round(currentPosition.y));
 }
 
-void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar)
+void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const std::vector<std::vector<float>>& map)
 {
 	state = AUnitState::Move;
 	path.clear();
-	path = aStar.FindPath(GetCurrentPosition(), targetPos);
+	path = aStar.FindPath(GetCurrentPosition(), targetPos, map);
 
 	// 새로운 경로를 받았기 때문에 인덱스 초기화
 	currentWaypointIndex = 0;
