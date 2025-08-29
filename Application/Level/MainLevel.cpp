@@ -5,20 +5,23 @@
 #include "Actor/AUnit/AUnit.h"
 #include "Math/Vector2I.h"
 #include "Render/Renderer.h"
-#include "Actor/AUnit/AUnit.h"
+#include "QuadTree/QuadTree.h"
+#include "AStar/AStar.h"
 
 MainLevel::MainLevel()
-	: map(Engine::Height(), std::vector<int>(Engine::Width(), 0))
-	, dragBox{ quadTree, selectedUnits }
+	: dragBox{ quadTree, selectedUnits }
 {
-	// aStar
-	aStar.SetMap(map);
+	// 맵 데이터 로드
+	//map
 
-	AddActor(new AUnit({ 0, 0 }, aStar));
-	AddActor(new AUnit({ 1, 5 }, aStar));
-	AddActor(new AUnit({ 4, 10 }, aStar));
-	AddActor(new AUnit({ 30, 15 }, aStar));
-	AddActor(new AUnit({ 36, 25 }, aStar));
+	// aStar
+	aStar.SetMap(map.GetWeightMap());
+
+	AddActor(new AUnit({ 0, 0 }));
+	AddActor(new AUnit({ 1, 5 }));
+	AddActor(new AUnit({ 4, 10 }));
+	AddActor(new AUnit({ 30, 15 }));
+	AddActor(new AUnit({ 36, 25 }));
 
 	// TODO: 마무리 할 떄쯤 아래 디버그 켜기 함수 지우기
 	debug.ToggleDebugMode();
@@ -44,7 +47,7 @@ void MainLevel::Tick(float deltaTime)
 	UpdateQuadTree();
 
 	// 유닛 선택 해제
-	MoveUnits();
+	MoveSelectedUnits();
 
 	// 틸트'~' 키를 눌렀을 때 디버그 모드를 토글
 	if (Input::Get().GetKeyDown(VK_OEM_3))
@@ -78,13 +81,19 @@ void MainLevel::Draw(Renderer& renderer)
 {
 	super::Draw(renderer);
 
+	map.Initialize();
+
+	// 맵
+	map.Draw(renderer);
+
+	// 드래그 박스
 	dragBox.Draw(renderer);
 
 	// 디버그 정보 랜더
 	DrawDebug(renderer);
 
 	// 마우스 랜더
-	if (!Debug::IsDebugMode())
+	if (!DebugMode::IsDebugMode())
 	{
 		renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, "+", Color::Green, 500);
 	}
@@ -96,7 +105,7 @@ void MainLevel::UpdateQuadTree()
 	auto actors = GetActors();
 	for (const Actor* actor : actors)
 	{
-		if (actor->As<AUnit>())
+		if (!actor->IsExpired() && actor->As<AUnit>())
 		{
 			quadTree.Insert((AUnit*)actor);
 		}
@@ -105,7 +114,7 @@ void MainLevel::UpdateQuadTree()
 
 void MainLevel::DrawDebug(Renderer& renderer)
 {
-	if (!Debug::IsDebugMode())
+	if (!DebugMode::IsDebugMode())
 	{
 		return;
 	}
@@ -120,37 +129,52 @@ void MainLevel::DrawDebug(Renderer& renderer)
 
 	// 마우스 위치
 	char debugMouse[100];
-	sprintf_s(debugMouse, sizeof(debugMouse), "M ( %d , %d )", Input::Get().GetMouseX(), Input::Get().GetMouseY());
-	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, Debug::RenderOrder() + 2);
+	sprintf_s(debugMouse, sizeof(debugMouse), "M(%d,%d)", Input::Get().GetMouseX(), Input::Get().GetMouseY());
+	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, DebugMode::RenderOrder() + 2);
 }
 
-void MainLevel::MoveUnits()
+void MainLevel::MoveSelectedUnits()
 {
 	if (Input::Get().GetMouseUp(MounseButton::Right))
 	{
-		//auto timeStamp1 = timeGetTime();
 		if (selectedUnits.empty())
 		{
 			return;
 		}
 
-		//auto outerTimeStamp1 = timeGetTime();
-		for (AUnit* unit : selectedUnits)
+		int unitCount = (int)selectedUnits.size();
+
+		// 최종 위치
+		Vector2I mouseDestination{ Input::Get().GetMouseX(), Input::Get().GetMouseY() };
+
+		// 유닛들을 5x5 그리드로 분산시키기 위한 오프셋 계산
+		const int offsetFactor = 1;
+		const int gridWidth = 5;
+
+		// 최종 너비 개산. 유닛이 5보다 적으면 n 열로
+		int groupWidth = (unitCount < gridWidth) ? unitCount : gridWidth;
+		int groupHeight = (unitCount /*+ gridWidth - 1*/) / gridWidth;
+
+		// 최종 너비에 따른 오프셋 적용
+		int groupOffsetX = (groupWidth - 1) * offsetFactor / 2;
+		int groupOffsetY = (groupHeight - 1) * offsetFactor / 2;
+
+		for (int i = 0; i < unitCount; ++i)
 		{
-			//auto timeStamp2 = timeGetTime();
+			AUnit* unit = selectedUnits[i];
 
-			unit->SetMove({ Input::Get().GetMouseX(), Input::Get().GetMouseY() });
+			// 그리드 위치 계산
+			int gridX = i % gridWidth;
+			int gridY = i / gridWidth;
 
-			/* auto timeStamp3 = timeGetTime();
+			// 최종 목적지에 오프셋 적용
+			Vector2I finalDestination = {
+				mouseDestination.x + (gridX * offsetFactor) - groupOffsetX,
+				mouseDestination.y + (gridY * offsetFactor) - groupOffsetY
+			};
 
-			char buffer[256] = {};
-			sprintf_s(buffer, 256, "Period1: %f\n", (float)(timeStamp3 - timeStamp2) / (float)1000.0f);
-			OutputDebugStringA(buffer);*/
+			unit->SetMove(finalDestination, aStar);
+
 		}
-
-		/*auto outerTimeStamp2 = timeGetTime();
-		char buffer2[256] = {};
-		sprintf_s(buffer2, 256, "Total: %f\n", (float)(outerTimeStamp2 - outerTimeStamp1) / (float)1000.0f);
-		OutputDebugStringA(buffer2);*/
 	}
 }

@@ -6,7 +6,7 @@
 #include "Engine.h"
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
-#include "Debug/Debug.h"
+#include "Game/DebugMode.h"
 
 int QuadTree::maxDepth = 3;
 
@@ -124,9 +124,9 @@ void QuadTree::DrawGrids(Renderer& renderer, int x, int y, int w, int h, int dep
 		return;
 	}
 
-	Color color = Color::Intensity;
+	Color color = Color::White;
 
-	int renderOrder = Debug::RenderOrder() - 4;
+	int renderOrder = DebugMode::RenderOrder() - 4;
 
 	// 현재 노드 경계 그리기
 	char element[2] = { '.', '\0' };

@@ -17,9 +17,14 @@ AStar::~AStar()
 
 std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goal)
 {
-	if (!map) // 맵 데이터가 없는 채임
+	if (!map || map->empty()) // 맵 데이터가 없는 채임
 	{
 		__debugbreak();
+	}
+
+	if (!CanMove(goal))
+	{
+		return std::vector<Vector2I>();
 	}
 
 	// 이전 작업이 있다면 비우기
@@ -112,15 +117,10 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 			int newX = current->position.x + direction.x;
 			int newY = current->position.y + direction.y;
 
-			// 범위 밖인지 확인
-			if (!IsInRange(newX, newY))
-			{
-				continue;
-			}
 
 			// (옵션) 장애물인지 확인
-			// 여기선 값이 1일 경우 장애물
-			if ((*map)[newY][newX] == -1)
+			// 여기선 값이 0 이하일 경우 장애물
+			if (!CanMove({ newX , newY }))
 			{
 				continue;
 			}
@@ -264,4 +264,15 @@ float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 
 	// 유클리드로 
 	return (float)std::sqrt(diff.x * diff.x + diff.y * diff.y);
+}
+
+bool AStar::CanMove(const Vector2I& pos)
+{
+
+	if (IsInRange(pos.x, pos.y))
+	{
+		return (*map)[pos.y][pos.x] > 0.0f;
+	}
+
+	return false;
 }

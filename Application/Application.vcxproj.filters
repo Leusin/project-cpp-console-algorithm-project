@@ -1,87 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="Actor\AUnit\AUnit.cpp" />
+    <ClCompile Include="Algorithm\AStar\AStar.cpp" />
+    <ClCompile Include="DragBox\DragBox.cpp" />
+    <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Level\MainLevel.cpp" />
+    <ClCompile Include="Level\MainLevel.h" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Algorithm\QuadTree\Bounds.cpp" />
+    <ClCompile Include="Algorithm\QuadTree\QNode.cpp" />
+    <ClCompile Include="Algorithm\QuadTree\QuadTree.cpp" />
+    <ClCompile Include="Game\DebugMode.cpp" />
+    <ClCompile Include="Level\Map\Map.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Game.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Level\MainLevel.h">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Level\MainLevel.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Actor\AUnit\AUnit.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="QuadTree\QuadTree.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="QuadTree\Bounds.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="QuadTree\QNode.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="AStar\AStar.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Debug\Debug.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DragBox\DragBox.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Game\Game.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Actor\AUnit\AUnit.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="QuadTree\QuadTree.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="QuadTree\Bounds.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="QuadTree\QNode.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Actor\AUnit\UnitStats.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Actor\QEntity\QEntity.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="AStar\ANode.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="AStar\AStar.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Debug\Debug.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DragBox\DragBox.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
+    <ClInclude Include="Actor\QEntity\QEntity.h" />
+    <ClInclude Include="Actor\AUnit\AUnit.h" />
+    <ClInclude Include="Actor\AUnit\UnitStats.h" />
+    <ClInclude Include="Algorithm\AStar\ANode.h" />
+    <ClInclude Include="Algorithm\AStar\AStar.h" />
+    <ClInclude Include="Debug\Debug.h" />
+    <ClInclude Include="DragBox\DragBox.h" />
+    <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Algorithm\QuadTree\Bounds.h" />
+    <ClInclude Include="Algorithm\QuadTree\QNode.h" />
+    <ClInclude Include="Algorithm\QuadTree\QuadTree.h" />
+    <ClInclude Include="Game\DebugMode.h" />
+    <ClInclude Include="Level\Map\Map.h" />
   </ItemGroup>
 </Project>
