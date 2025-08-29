@@ -30,6 +30,8 @@ public: // SET
 
 	void SetMap(const std::vector<std::vector<float>>& map) { this->map = &map; }
 
+	void DrawMapData(class Renderer& renderer);
+
 private: // METHOD
 
 	void Clear();
@@ -45,7 +47,7 @@ private: // METHOD
 	bool IsInRange(int x, int y);
 
 	// 이미 방문했는지 확인
-	bool HasVisited(int x, int y, float gCost);
+	bool HasVisited(int x, int y, float gCost, ANode* parent);
 
 	// 휴리스틱 계산
 	float CalculateHeuristic(class ANode* current, class ANode* goal);

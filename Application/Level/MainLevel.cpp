@@ -119,6 +119,10 @@ void MainLevel::DrawDebug(Renderer& renderer)
 		return;
 	}
 
+
+	// AStar 가 가지고 있는 맵 데이터
+	aStar.DrawMapData(renderer);
+
 	static bool drawGreed = true;
 	if (Input::Get().GetKeyDown('1')) { drawGreed = !drawGreed; }
 	if (drawGreed)

@@ -3,6 +3,8 @@
 #include <cmath>
 #include <algorithm>
 #include "ANode.h"
+#include "Render/Renderer.h"
+
 
 AStar::AStar()
 	: startNode{ nullptr }, goalNode{ nullptr }, map{ nullptr }
@@ -65,7 +67,9 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 
 		for (ANode* node : openList)
 		{
-			if (node->FCost() < current->FCost())
+			// 종합 비용(f)이 훨씬 낮은 경우 || 종합 비용(f)이 같지만 추정치 값이 더 높은 경우
+			if (node->FCost() < current->FCost() || 
+				node->FCost() == current->FCost() && node->hCost < current->hCost)
 			{
 				current = node;
 			}
@@ -81,6 +85,7 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 		// 4. 닫힌 리스트로 이동 (열린 리스트에선 제거)
 		for (size_t i = 0; i < openList.size(); ++i)
 		{
+			// 위치 비교
 			if (*openList[i] == *current)
 			{
 				// i 번째 노드 제거
@@ -99,7 +104,6 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 				break;
 			}
 		}
-		
 
 		// 방문했으면 아래 단계 건너뜀
 		if (isNodeInList)
@@ -118,8 +122,8 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 			int newY = current->position.y + direction.y;
 
 
-			// (옵션) 장애물인지 확인
-			// 여기선 값이 0 이하일 경우 장애물
+			// (옵션) 장애물인지 확인 
+			// 여기선 값이 0.0f 이하일 경우 장애물
 			if (!CanMove({ newX , newY }))
 			{
 				continue;
@@ -127,15 +131,16 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 
 			// 이미 방문했는지 확인
 			float gCost = current->gCost + direction.cost;
-			if (HasVisited(newX, newY, gCost))
+			if (HasVisited(newX, newY, gCost, current))
 			{
 				continue;
 			}
 
 			// 방문을 위한 노드 생성
 			ANode* neighbor = new ANode(newX, newY, current);
+			// 메모리 관리를 위한 컨테이너에 등록
 			allNodes.emplace_back(neighbor);
-
+			// 비용도 계산
 			neighbor->gCost = current->gCost + direction.cost;
 
 			// 휴리스틱 비용 계산
@@ -163,6 +168,26 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 	} // While END
 
 	return std::vector<Vector2I>();
+}
+
+void AStar::DrawMapData(Renderer& renderer)
+{
+	for (int y = 0; y < (*map).size(); ++y)
+	{
+		for (int x = 0; x < (*map)[y].size(); ++x)
+		{
+			char buffer[2]; 
+
+			// 이동 가능 여부
+			bool canMove = (int)CanMove({ x, y });
+
+			// 이동 가능 여부에 따른 색깔
+			Color color = canMove ? Color::LightBlue  : Color::LightRed ;
+
+			sprintf_s(buffer, sizeof(buffer), "%d", (int)(*map)[y][x]);
+			renderer.WriteToBuffer({ x, y }, buffer, color, 2);
+		}
+	}
 }
 
 void AStar::Clear()
@@ -213,46 +238,51 @@ bool AStar::IsInRange(int x, int y)
 	return true;
 }
 
-bool AStar::HasVisited(int x, int y, float gCost)
+bool AStar::HasVisited(int x, int y, float gCost, ANode* parent)
 {
 	// 열린 리스트 또는 닫힌 리스트에 해당 노드가 있으면 방문 한 것으로 판단
 
-	// 열린 리스트에 있는지 검사
+	// 1. 열린 리스트에 있는지 검사
 	for (size_t i = 0; i < openList.size(); ++i)
 	{
 		ANode* node = openList[i];
 		if (node->position.x == x && node->position.y == y)
 		{
-			// 위치는 같으나 비용이 더 높은 경우
-			if (node->gCost < gCost)
+			// 이미 더 좋은 경로가 있음
+			if (node->gCost <= gCost)
 			{
 				return true;
 			}
-			// 위치는 같으나 비용이 작다면 
-			else if (node->gCost > gCost)
-			{
-				openList.erase(openList.begin() + i);
-			}
+			
+			// 더 나은 경로 발견했다면 갱신
+			node->gCost = gCost;
+			node->parent = parent;
+			node->hCost = CalculateHeuristic(node, goalNode);
+
+			return false;
 		}
 	}
 
-	// 닫힌 리스트에 있는지 검사
+	//2. 닫힌 리스트에 있는지 검사
 	auto it = closedList.find({ x, y });
-	// 같은 위치의 노드 찾기
 	if (it != closedList.end())
 	{
 		ANode* node = it->second;
 
-		// 비용이 더 높은 경우
-		if (node->gCost <= gCost)
-		{
-			return true;
-		}
-		// 비용이 작다면 해당 노드 지우기
-		else if (node->gCost > gCost)
+		// 더 좋은 경로가 있다면 닫힌 리스트에서 제거하고 다시 탐색
+		if (gCost < node->gCost)
 		{
 			closedList.erase(it);
+			node->gCost = gCost;
+			node->parent = parent;
+			node->hCost = CalculateHeuristic(node, goalNode);
+			openList.emplace_back(node);
+
+			return true;
 		}
+		
+		// 기존 경로가 더 낫다면 방문 처리
+		return false;
 	}
 
 	return false;
@@ -264,6 +294,19 @@ float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 
 	// 유클리드로 
 	return (float)std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+	// 휴리스틱 종류
+	/*
+	// 맨해튼 거리 (직교 전용)
+	return (float)(std::abs(diff.x) + std::abs(diff.y));
+
+	// 유클리드 거리 (대각선 허용 시)
+	return std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+	// Chebyshev 거리 (대각선 허용 + 대각선 비용을 1로 취급할 때)
+	return (float)std::max(std::abs(diff.x), std::abs(diff.y));
+
+	*/
 }
 
 bool AStar::CanMove(const Vector2I& pos)

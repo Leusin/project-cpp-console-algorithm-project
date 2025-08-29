@@ -186,7 +186,6 @@
     <ClInclude Include="Actor\AUnit\UnitStats.h" />
     <ClInclude Include="Algorithm\AStar\ANode.h" />
     <ClInclude Include="Algorithm\AStar\AStar.h" />
-    <ClInclude Include="Debug\Debug.h" />
     <ClInclude Include="DragBox\DragBox.h" />
     <ClInclude Include="Game\DebugMode.h" />
     <ClInclude Include="Game\Game.h" />
