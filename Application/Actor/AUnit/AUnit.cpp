@@ -41,20 +41,20 @@ void AUnit::Draw(Renderer& renderer)
 
 	super::Draw(renderer);
 
+	// 이동 경로
+	if (state == AUnitState::Move && !path.empty())
+	{
+		for (int i = currentWaypointIndex; i < path.size(); ++i)
+		{
+			renderer.WriteToBuffer(path[i], "*", Color::White, DebugMode::RenderOrder() + 1);
+		}
+
+		renderer.WriteToBuffer(path.back(), "X", unitColor, DebugMode::RenderOrder() + 2);
+	}
+
 	// 디버그 정보 랜더
 	if (DebugMode::IsDebugMode())
 	{
-		// 이동 경로
-		if (state == AUnitState::Move && !path.empty())
-		{
-			for (int i = currentWaypointIndex; i < path.size(); ++i)
-			{
-				renderer.WriteToBuffer(path[i], "*", Color::LightWhite, DebugMode::RenderOrder() + 1);
-			}
-
-			renderer.WriteToBuffer(path.back(), "X", Color::LightRed, DebugMode::RenderOrder() + 2);
-		}
-
 		// 현 위치
 		char debugMouse[16];
 		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);

@@ -42,6 +42,8 @@ public: // GET SET
 
 	const std::vector<std::vector<float>>& GetWeightMap() { return weight; }
 
+private: // MESSAGE
+
 private: // FILD
 
 	std::vector<std::vector<TerrainType>> map;
