@@ -6,6 +6,7 @@
 #include "QuadTree/Bounds.h"
 #include "ProcessResult.h"
 #include "Team.h"
+#include "Utils/Timer.h"
 
 enum class AUnitState
 {
@@ -22,13 +23,13 @@ class AUnit : public QEntity
 	{
 		InProgress, // 계속 진행 중
 		Success,    // 최종 목적지 도착
-		Failed      // 이동 불가
+		Blocked      // 이동 불가
 	};
 
 	RTTI_DECLARATIONS(AUnit, QEntity)
 
 public: // RAII
-	AUnit(const Vector2I& spawnPosition, const Team& team, class Map& map, class AStar& aStar);
+	AUnit(const Vector2I& spawnPosition, const Team& team, class Map& map, class AStar& aStar, class QuadTree& qTree);
 	virtual ~AUnit() = default;
 
 public: // EVENT
@@ -59,9 +60,11 @@ private: // FILD
 
 	// 길찾기 경로
 	std::vector<Vector2I> path;
-	int currentWaypointIndex = 0;
+	int currentWaypointIndex;
 	Vector2I lastTarget; // 최종 목적지
-	int tryCount = 0;
+	int tryCount;
+	const int minTry;
+	Timer blockedTimer;
 
 	// 선택 되었는지
 	bool isSeleted = false;
@@ -75,6 +78,8 @@ private: // FILD
 	class Map& map;
 
 	class AStar& aStar;
+
+	class QuadTree& qTree;
 
 	Team team;
 };

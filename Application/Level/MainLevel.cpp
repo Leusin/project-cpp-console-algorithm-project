@@ -17,10 +17,20 @@ MainLevel::MainLevel()
 	map.Initialize();
 
 	AddActor(unitFactory.CreatUnit({0, 0}));
+	AddActor(unitFactory.CreatUnit({1, 0}));
+	AddActor(unitFactory.CreatUnit({2, 0}));
 	AddActor(unitFactory.CreatUnit({1, 5}, Team::Type::T));
+	AddActor(unitFactory.CreatUnit({2, 5}, Team::Type::T));
+	AddActor(unitFactory.CreatUnit({3, 5}, Team::Type::T));
 	AddActor(unitFactory.CreatUnit({4, 10}, Team::Type::Z));
+	AddActor(unitFactory.CreatUnit({5, 10}, Team::Type::Z));
+	AddActor(unitFactory.CreatUnit({6, 10}, Team::Type::Z));
 	AddActor(unitFactory.CreatUnit({30, 15}, Team::Type::Z));
+	AddActor(unitFactory.CreatUnit({31, 15}, Team::Type::Z));
+	AddActor(unitFactory.CreatUnit({32, 15}, Team::Type::Z));
 	AddActor(unitFactory.CreatUnit({36, 25}, Team::Type::P));
+	AddActor(unitFactory.CreatUnit({37, 25}, Team::Type::P));
+	AddActor(unitFactory.CreatUnit({38, 25}, Team::Type::P));
 
 	// TODO: 마무리 할 떄쯤 아래 디버그 켜기 함수 지우기
 	debug.ToggleDebugMode();

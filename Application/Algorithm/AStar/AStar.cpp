@@ -20,17 +20,23 @@ AStar::~AStar()
 
 std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goal, const Map& map)
 {
-	if (!map.CanMove(goal))
-	{
-		return std::vector<Vector2I>();
-	}
-
 	// 이전 작업이 있다면 비우기
 	Clear();
 
+	Vector2I finalgoal{ goal };
+	if (!map.CanMove(goal))
+	{
+		finalgoal = FindNearbyValidSpot(goal, map);
+
+		if (finalgoal == goal)
+		{
+			return std::vector<Vector2I>();
+
+		}
+	}
+
 	startNode = new ANode(start.x, start.y);
-	Vector2I clampedGoal = { std::clamp(goal.x, 0, map.Width()), std::clamp(goal.y, 0, map.Height()) };
-	goalNode = new ANode(clampedGoal.x, clampedGoal.y);
+	goalNode = new ANode(finalgoal.x, finalgoal.y);
 
 	allNodes.emplace_back(startNode);
 	allNodes.emplace_back(goalNode);
@@ -141,7 +147,7 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 			float stepCost = (direction.x != 0 && direction.y != 0) ? 1.414f : 1.0f;
 
 			// 맵 가중치 적용 (별차이 없는 느낌이다)
-			stepCost += stepCost * map.GetWeightMap({ newX , newY});
+			stepCost += stepCost * map.GetWeightMap({ newX , newY });
 
 			// 이미 방문했는지 확인
 			float gCost = current->gCost + stepCost;
@@ -270,7 +276,7 @@ bool AStar::HasVisited(int x, int y, float gCost, ANode* parent)
 
 float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 {
-	Vector2F diff { *current - *goal };
+	Vector2F diff{ *current - *goal };
 
 	diff.Abs();
 
@@ -282,11 +288,11 @@ float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 	*/
 	if (diff.x > diff.y)
 	{
-		return diff.x;
+		return (diff.x + diff.y) + (1.414f - 2.0f) * diff.y;
 	}
 	else
 	{
-		return diff.y;
+		return (diff.x + diff.y) + (1.414f - 2.0f) * diff.x;
 	}
 
 	// 휴리스틱 종류
@@ -303,4 +309,25 @@ float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 	// 디아고널(diagonal) 거리 휴리스틱
 	return (float)(diff.x + diff.y) + (1.414f - 2.0f) * std::min(dx, dy);
 	*/
+}
+
+Vector2I AStar::FindNearbyValidSpot(const Vector2I& target, const Map& map)
+{
+	Vector2I directions[24] =
+	{
+		{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, -1}, {-1, 1},
+		{0, 2}, {0, -2}, {2, 0}, {-2, 0}, {2, 1}, {2, -1}, {-2, -1}, {-2, 1}, 
+		{1, 2}, {1, -2}, {-1, -2}, {-1, 2}, {2, 2}, {2, -2}, {-2, -2}, {-2, 2},
+	};
+
+	for (const Vector2I& direction : directions)
+	{
+		Vector2I newTarget = { target + direction };
+		if (map.CanMove(newTarget))
+		{
+			return newTarget;
+		}
+	}
+
+	return target;
 }

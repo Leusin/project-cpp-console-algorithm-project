@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include "Engine.h"
+#include "Vector2I.h"
 
 // 전역 변수 초기화.
 Vector2F Vector2F::Zero = Vector2F(0.f, 0.f);
@@ -99,6 +100,11 @@ void Vector2F::Abs()
 Vector2F Vector2F::GetAbs() const
 {
 	return { std::abs(x), std::abs(y) };
+}
+
+void Vector2F::RoundToVector2I(Vector2I& out) const
+{
+	out = { (int)round(x), (int)round(y) };
 }
 
 const char* Vector2F::ToString()

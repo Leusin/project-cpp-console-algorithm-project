@@ -4,6 +4,9 @@
 #include <unordered_map>
 #include "Math/Vector2I.h"
 
+/// <summary>
+/// 목표지점에 갈 수 없으면 가까운 지점까지라도 간다.(약 거리 2)
+/// </summary>
 class AStar
 {
 public: // RAII
@@ -25,13 +28,15 @@ private: // METHOD
 	std::vector<Vector2I> ConstructPath(class ANode* node);
 
 	// 탐색하려는 노드가 목표 노드인지 검사
-	bool IsDestination(const ANode* node);
+	bool IsDestination(const class ANode* node);
 
 	// 이미 방문했는지 확인
-	bool HasVisited(int x, int y, float gCost, ANode* parent);
+	bool HasVisited(int x, int y, float gCost, class ANode* parent);
 
 	// 휴리스틱 계산
 	float CalculateHeuristic(class ANode* current, class ANode* goal);
+
+	Vector2I FindNearbyValidSpot(const Vector2I& target, const class Map& map);
 
 private: // METHOD
 

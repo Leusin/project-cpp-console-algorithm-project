@@ -7,21 +7,30 @@
 #include "AStar/AStar.h"
 #include "Level/Map/Map.h"
 #include "Render/Renderer.h"
+#include "QuadTree/QuadTree.h"
 #include "Utils/DebugManage.h"
 
 
-AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& aStar)
+AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& aStar, QuadTree& qTree)
 	: QEntity(spawnPosition, team.color, team.img)
 	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
 	, unitColor{ team.color }
+	, currentWaypointIndex{ 0 }
+	, tryCount{ 0 }
+	, minTry{ 3 }
 	, map{ map }
 	, aStar{ aStar }
+	, qTree{ qTree }
 	, team{ team }
 {
 	SetSortingOrder(200);
-	map.SetOccupiedMap(spawnPosition, true);
-}
 
+	// 현위치 표시
+	map.SetOccupiedMap(spawnPosition, true);
+
+	// 길가다 막히면 잠시 기달림
+	blockedTimer.SetTargetTime(0.1f);
+}
 
 void AUnit::BeginPlay()
 {
@@ -44,14 +53,26 @@ void AUnit::Tick(float deltaTime)
 		{
 			if (tryCount > 0)
 			{
-				aStar.FindPath(Position(), lastTarget, map);
-				--tryCount;
+				blockedTimer.Tick(deltaTime);
+
+				if (blockedTimer.IsTimeout())
+				{
+					SetMove(lastTarget, aStar, map);
+
+					--tryCount;
+
+					blockedTimer.Reset();
+				}
 			}
 			else
 			{
 				state = AUnitState::Idle;
 			}
 		}
+	}
+	else if (state == AUnitState::Idle)
+	{
+		map.SetOccupiedMap(Position(), true);
 	}
 }
 
@@ -98,7 +119,7 @@ void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const Map& map)
 	path = aStar.FindPath(GetCurrentPosition(), targetPos, map);
 
 	// 길찾기 실패 시 시도 횟수
-	tryCount = (int)path.size();
+	tryCount = (int)path.size() * minTry;
 
 	// 새로운 경로를 받았기 때문에 인덱스 초기화
 	currentWaypointIndex = 0;
@@ -116,7 +137,7 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	float dist = toTarget.Magnitude();
 
 	// 목표 도착 체크 (정수 == 비교 대신 거리 기반)
-	if (dist < 0.001f)
+	if (dist < 1e-6f)
 	{
 		++currentWaypointIndex;
 		if (currentWaypointIndex >= path.size())
@@ -129,7 +150,7 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	}
 
 	// 이미 도착
-	if (dist < 1e-6f)
+	if (dist < 1e-6f) // 0.000001
 	{
 		return ProcessResult::Success;
 	}
@@ -146,7 +167,7 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	if (finalSpeed < 0.01f) finalSpeed = 0.01f; // 최소 속도 보정
 
 	// 이동량 계산 (목표를 지나치지 않도록 보정)
-	Vector2F movement = (toTarget / dist) * finalSpeed * deltaTime;
+	Vector2F movement = (toTarget / dist)/* = toTarget.Normaize*/ * finalSpeed * deltaTime;
 	if (movement.Magnitude() > dist)
 	{
 		movement = toTarget; // 목표까지만 이동
@@ -154,7 +175,8 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 
 	// 최종 좌표 업데이트
 	Vector2F fNextPos = currentPosition + movement;
-	Vector2I iNextPos((int)fNextPos.x, (int)fNextPos.y);
+	Vector2I iNextPos((int)round(fNextPos.x), (int)round(fNextPos.y));
+	fNextPos.RoundToVector2I(iNextPos);
 
 	if (iPosition != iNextPos && !map.CanMove(iNextPos))
 	{

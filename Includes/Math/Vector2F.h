@@ -3,7 +3,7 @@
 #include <windows.h>
 #include "Core.h"
 
-class Engine_API Vector2F
+struct Engine_API Vector2F
 {
 public:
 	Vector2F(float x = 0.f, float y = 0.f);
@@ -32,6 +32,9 @@ public:
 	// 성분들을 절댓값으로 만드는 함수
 	void Abs();
 	Vector2F GetAbs() const;
+
+	// 정수 성분 벡터로 반올림 시키는 함수
+	void RoundToVector2I(struct Vector2I& out) const;
 
 	const char* ToString();
 
