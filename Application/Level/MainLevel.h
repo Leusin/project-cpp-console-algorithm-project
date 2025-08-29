@@ -3,9 +3,10 @@
 #include "Level/level.h"
 #include "QuadTree/QuadTree.h"
 #include "AStar/AStar.h"
-#include "Game/DebugManage.h"
 #include "DragBox/DragBox.h"
 #include "Map/Map.h"
+#include "Utils/DebugManage.h"
+#include "Actor/AUnit/UnitFactory.h"
 
 class MainLevel : public Level
 {
@@ -53,4 +54,6 @@ private: // FILD
 
 	// 드래그로 선택된 유닛들
 	std::vector<class AUnit*> selectedUnits;
+
+	UnitFactory unitFactory;
 };

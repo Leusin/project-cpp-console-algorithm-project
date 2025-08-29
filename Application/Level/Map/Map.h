@@ -58,7 +58,7 @@ private: // MESSAGE
 
 private: // FILD
 
-	int weightMultiple = 1.0f;
+	float weightMultiple = 1.0f;
 	std::vector<std::vector<TerrainType>> map;
 	std::vector<std::vector<float>> weight;
 	std::vector<std::vector<bool>> occupied;

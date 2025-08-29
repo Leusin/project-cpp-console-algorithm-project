@@ -10,16 +10,17 @@
 
 MainLevel::MainLevel()
 	: dragBox{ quadTree, selectedUnits }
+	, unitFactory{ aStar, map, quadTree }
 {
 	// 맵 데이터 로드
 	//map
 	map.Initialize();
 
-	AddActor(new AUnit({ 0, 0 }, map, aStar));
-	AddActor(new AUnit({ 1, 5 }, map, aStar));
-	AddActor(new AUnit({ 4, 10 }, map, aStar));
-	AddActor(new AUnit({ 30, 15 }, map, aStar));
-	AddActor(new AUnit({ 36, 25 }, map, aStar));
+	AddActor(unitFactory.CreatUnit({0, 0}));
+	AddActor(unitFactory.CreatUnit({1, 5}, Team::Type::T));
+	AddActor(unitFactory.CreatUnit({4, 10}, Team::Type::Z));
+	AddActor(unitFactory.CreatUnit({30, 15}, Team::Type::Z));
+	AddActor(unitFactory.CreatUnit({36, 25}, Team::Type::P));
 
 	// TODO: 마무리 할 떄쯤 아래 디버그 켜기 함수 지우기
 	debug.ToggleDebugMode();
@@ -125,7 +126,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 			debug.mode = static_cast<DebugManage::Mode>(i);
 		}
 	}
-	if (Input::Get().GetKeyUp( '0' + (char)DebugManage::Mode::SIZE))
+	if (Input::Get().GetKeyUp('0' + (char)DebugManage::Mode::SIZE))
 	{
 		int modeSize = (int)DebugManage::Mode::SIZE;
 		debug.mode = static_cast<DebugManage::Mode>(((int)(debug.mode) + 1) % modeSize);

@@ -4,8 +4,8 @@
 
 #include <vector>
 #include "QuadTree/Bounds.h"
-#include "UnitStats.h"
 #include "ProcessResult.h"
+#include "Team.h"
 
 enum class AUnitState
 {
@@ -28,8 +28,8 @@ class AUnit : public QEntity
 	RTTI_DECLARATIONS(AUnit, QEntity)
 
 public: // RAII
-	AUnit(const Vector2I& spawnPosition, class Map& map, class AStar& aStar);
-	virtual ~AUnit();
+	AUnit(const Vector2I& spawnPosition, const Team& team, class Map& map, class AStar& aStar);
+	virtual ~AUnit() = default;
 
 public: // EVENT
 	virtual void BeginPlay() override;
@@ -54,8 +54,6 @@ private: // FILD
 	// 유닛의 현재 상태
 	AUnitState state = AUnitState::Idle;
 
-	UnitStats stats;
-	
 	// 현재 위치(실수 좌표) - 내보낼땐 정수 좌표로 변환
 	Vector2F currentPosition;
 
@@ -77,4 +75,6 @@ private: // FILD
 	class Map& map;
 
 	class AStar& aStar;
+
+	Team team;
 };

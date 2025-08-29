@@ -11,13 +11,14 @@
     <ClCompile Include="Algorithm\QuadTree\Bounds.cpp" />
     <ClCompile Include="Algorithm\QuadTree\QNode.cpp" />
     <ClCompile Include="Algorithm\QuadTree\QuadTree.cpp" />
-    <ClCompile Include="Game\DebugManage.cpp" />
+    <ClCompile Include="Utils\DebugManage.cpp" />
     <ClCompile Include="Level\Map\Map.cpp" />
+    <ClCompile Include="Actor\AUnit\UnitFactory.cpp" />
+    <ClCompile Include="Utils\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor\QEntity\QEntity.h" />
     <ClInclude Include="Actor\AUnit\AUnit.h" />
-    <ClInclude Include="Actor\AUnit\UnitStats.h" />
     <ClInclude Include="Algorithm\AStar\ANode.h" />
     <ClInclude Include="Algorithm\AStar\AStar.h" />
     <ClInclude Include="DragBox\DragBox.h" />
@@ -25,8 +26,11 @@
     <ClInclude Include="Algorithm\QuadTree\Bounds.h" />
     <ClInclude Include="Algorithm\QuadTree\QNode.h" />
     <ClInclude Include="Algorithm\QuadTree\QuadTree.h" />
-    <ClInclude Include="Game\DebugManage.h" />
+    <ClInclude Include="Utils\DebugManage.h" />
     <ClInclude Include="Level\Map\Map.h" />
     <ClInclude Include="Actor\AUnit\ProcessResult.h" />
+    <ClInclude Include="Actor\AUnit\UnitFactory.h" />
+    <ClInclude Include="Actor\AUnit\Team.h" />
+    <ClInclude Include="Utils\Timer.h" />
   </ItemGroup>
 </Project>

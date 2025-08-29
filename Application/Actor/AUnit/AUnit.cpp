@@ -6,22 +6,22 @@
 #include "Engine.h"
 #include "AStar/AStar.h"
 #include "Level/Map/Map.h"
-#include "Game/DebugManage.h"
 #include "Render/Renderer.h"
+#include "Utils/DebugManage.h"
 
-AUnit::AUnit(const Vector2I& spawnPosition, Map& map, AStar& aStar)
-	: QEntity(spawnPosition, Color::White, "U")
+
+AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& aStar)
+	: QEntity(spawnPosition, team.color, team.img)
 	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
+	, unitColor{ team.color }
 	, map{ map }
 	, aStar{ aStar }
+	, team{ team }
 {
 	SetSortingOrder(200);
 	map.SetOccupiedMap(spawnPosition, true);
 }
 
-AUnit::~AUnit()
-{
-}
 
 void AUnit::BeginPlay()
 {
@@ -40,10 +40,17 @@ void AUnit::Tick(float deltaTime)
 		{
 			state = AUnitState::Idle;
 		}
-		else if (result == ProcessResult::Failed && tryCount > 0)
+		else if (result == ProcessResult::Failed)
 		{
-			aStar.FindPath(Position(), lastTarget, map);
-			--tryCount;
+			if (tryCount > 0)
+			{
+				aStar.FindPath(Position(), lastTarget, map);
+				--tryCount;
+			}
+			else
+			{
+				state = AUnitState::Idle;
+			}
 		}
 	}
 }
@@ -91,7 +98,7 @@ void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const Map& map)
 	path = aStar.FindPath(GetCurrentPosition(), targetPos, map);
 
 	// 길찾기 실패 시 시도 횟수
-	tryCount = path.size();
+	tryCount = (int)path.size();
 
 	// 새로운 경로를 받았기 때문에 인덱스 초기화
 	currentWaypointIndex = 0;
@@ -135,7 +142,7 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 		return ProcessResult::Failed; // 이동 불가
 	}
 
-	float finalSpeed = terrainWeight * stats.speed;
+	float finalSpeed = terrainWeight * team.speed;
 	if (finalSpeed < 0.01f) finalSpeed = 0.01f; // 최소 속도 보정
 
 	// 이동량 계산 (목표를 지나치지 않도록 보정)

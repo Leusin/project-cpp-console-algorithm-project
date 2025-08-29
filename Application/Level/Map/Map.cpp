@@ -18,7 +18,6 @@ Map::~Map()
 void Map::Initialize()
 {
 	/*
-	*/
 	std::vector<std::vector<int>> data =
 	{
 		{1, 1, 1, 1, 1, 1, 1, 1 },
@@ -30,6 +29,7 @@ void Map::Initialize()
 		{1, 4, 4, 0, 0, 4, 4, 1},
 		{1, 1, 1, 1, 1, 1, 1, 1}
 	};
+	*/
 
 	/*
 	std::vector<std::vector<int>> data =
@@ -52,12 +52,12 @@ void Map::Initialize()
 	};*/
 
 	/*
+	*/
 	std::vector<std::vector<int>> data =
 	{
 		{0, 1},
 		{3, 4}
 	};
-	*/
 
 	if (data.empty())
 	{

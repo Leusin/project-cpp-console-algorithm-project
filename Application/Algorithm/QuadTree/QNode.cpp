@@ -4,7 +4,7 @@
 #include "Core.h"
 #include "Actor/QEntity/QEntity.h"
 #include "Render/Renderer.h"
-#include "Game/DebugManage.h"
+#include "Utils/DebugManage.h"
 
 QNode::QNode(const Bounds& bounds, int depth)
 	:bounds{ bounds }, depth{ depth }

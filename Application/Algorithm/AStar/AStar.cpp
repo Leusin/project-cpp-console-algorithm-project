@@ -117,9 +117,8 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 			int newX = current->position.x + direction.x;
 			int newY = current->position.y + direction.y;
 
-
-			// (옵션) 장애물인지 확인 
-			// 여기선 값이 0.0f 이하일 경우 장애물
+			// 장애물 확인
+			// 맵 가중치가 음수이거나 다른 유닛이 차지한 구역
 			if (!map.CanMove({ newX , newY }))
 			{
 				continue;
@@ -135,10 +134,9 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 				{
 					continue;
 				}
-					
 			}
 
-			// 이동 배용
+			// 이동 비용
 			//float stepCost = 1.0f;
 			float stepCost = (direction.x != 0 && direction.y != 0) ? 1.414f : 1.0f;
 
