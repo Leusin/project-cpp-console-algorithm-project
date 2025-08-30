@@ -1,6 +1,7 @@
 #include "AUnit.h"
 
 #include <cmath>
+#include "Team.h"
 #include "Core.h"
 #include "Input.h"
 #include "Engine.h"
@@ -13,10 +14,10 @@
 
 
 AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& aStar, QuadTree& qTree)
-	: QEntity(spawnPosition, team.color, team.img)
+	: QEntity(spawnPosition, team.GetTeamColor(), team.img)
 	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
 	, minSpeed{ 0.01f }
-	, unitColor{ team.color }
+	, unitColor{ team.GetTeamColor() }
 	, currentWaypointIndex{ 0 }
 	, tryCount{ 0 }
 	, maxWiatTime{ 0.125f }
@@ -97,7 +98,7 @@ void AUnit::Draw(Renderer& renderer)
 	// 이동 경로
 	if (state == AUnitState::Move && !path.empty())
 	{
-		int pathDrawIndex = currentWaypointIndex +(int)(effectTimer.GetElapsedTime() * team.speed);
+		int pathDrawIndex = currentWaypointIndex +(int)(effectTimer.GetElapsedTime() * team.speed * 2.f);
 		for (int i = pathDrawIndex; i < path.size(); ++i)
 		{
 			renderer.WriteToBuffer(path[i], "#", Color::White, DebugManage::RenderOrder() + 1);

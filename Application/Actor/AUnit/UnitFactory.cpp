@@ -8,10 +8,10 @@
 #include "QuadTree/QuadTree.h"
 
 UnitFactory::UnitFactory(class AStar& aStar, class Map& map, class QuadTree& qTree)
-	: none{}
-	, zerg{ Team::Type::Z, Color::Magenta , "Z", 13.5f }
-	, terran{ Team::Type::Z, Color::Cyan, "T", 13.0f }
-	, protoss{ Team::Type::Z, Color::Yellow, "P", 12.8f }
+	: none{ Team::Type::NONE , "U" ,  13.0f }
+	, zerg{ Team::Type::Z, "Z", 13.5f }
+	, terran{ Team::Type::T, "T", 13.0f }
+	, protoss{ Team::Type::P, "P", 12.8f }
 	, aStar{ aStar }
 	, map{ map }
 	, qTree{ qTree }

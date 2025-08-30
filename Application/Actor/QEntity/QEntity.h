@@ -14,9 +14,9 @@ class QEntity : public Actor
 
 public: // RAII
 
-	QEntity(const Vector2I& position, Color color = Color::White, const char* image = "U")
+	QEntity(const Vector2I& position, Color color = Color::White, const char* image = "U", const Vector2I& size = Vector2I::Zero)
 		: Actor(position, color, image)
-		, bounds{ position , 0, 0}
+		, bounds{ position , size.x, size.x }
 	{
 	}
 
@@ -25,6 +25,7 @@ public: // RAII
 public: // GET SET
 
 	Bounds GetBounds() const { return bounds; }
+	void SetBounds(const Bounds& bounds) { this->bounds = bounds; }
 
 protected: // FILD
 

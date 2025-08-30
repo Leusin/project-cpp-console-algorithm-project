@@ -5,7 +5,6 @@
 #include <vector>
 #include "QuadTree/Bounds.h"
 #include "ProcessResult.h"
-#include "Team.h"
 #include "Utils/Timer.h"
 
 enum class AUnitState
@@ -29,7 +28,7 @@ class AUnit : public QEntity
 	RTTI_DECLARATIONS(AUnit, QEntity)
 
 public: // RAII
-	AUnit(const Vector2I& spawnPosition, const Team& team, class Map& map, class AStar& aStar, class QuadTree& qTree);
+	AUnit(const Vector2I& spawnPosition, const struct Team& team, class Map& map, class AStar& aStar, class QuadTree& qTree);
 	virtual ~AUnit() = default;
 
 public: // EVENT
@@ -90,5 +89,5 @@ private: // FILD
 
 	class QuadTree& qTree;
 
-	Team team;
+	const struct Team& team;
 };

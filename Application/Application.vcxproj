@@ -168,10 +168,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Actor\AUnit\AUnit.cpp" />
+    <ClCompile Include="Actor\AUnit\Team.cpp" />
     <ClCompile Include="Actor\AUnit\UnitFactory.cpp" />
     <ClCompile Include="Actor\AUnit\UnitSpawner.cpp" />
     <ClCompile Include="Algorithm\AStar\AStar.cpp" />
     <ClCompile Include="DragBox\DragBox.cpp" />
+    <ClCompile Include="Actor\Territory\Territory.cpp" />
     <ClCompile Include="Utils\DebugManage.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Level\MainLevel.cpp" />
@@ -193,6 +195,7 @@
     <ClInclude Include="Algorithm\AStar\ANode.h" />
     <ClInclude Include="Algorithm\AStar\AStar.h" />
     <ClInclude Include="DragBox\DragBox.h" />
+    <ClInclude Include="Actor\Territory\Territory.h" />
     <ClInclude Include="Utils\DebugManage.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Algorithm\QuadTree\Bounds.h" />

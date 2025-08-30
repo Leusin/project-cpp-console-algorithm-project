@@ -7,14 +7,24 @@
 #include "Render/Renderer.h"
 #include "QuadTree/QuadTree.h"
 #include "AStar/AStar.h"
+#include "Actor/Territory/Territory.h"
 
 MainLevel::MainLevel()
 	: dragBox{ quadTree, selectedUnits }
 	, unitFactory{ aStar, map, quadTree }
 {
 	// 맵 데이터 로드
-	//map
 	map.Initialize();
+
+	// 땅따먹기 영역 만들기
+	if (std::vector<Territory*> terrs; map.CreateTerritory(quadTree, terrs))
+	{
+		for (Territory* terr : terrs)
+		{
+			AddActor(terr);
+		}
+		terrs.clear();
+	}
 
 	AddActor(unitFactory.CreatUnit({0, 0}));
 	AddActor(unitFactory.CreatUnit({1, 0}));
@@ -52,16 +62,14 @@ void MainLevel::Tick(float deltaTime)
 	// 드래그 박스 업데이트
 	dragBox.Tick();
 
-	// 쿼드트리 업데이트
-	UpdateQuadTree();
-
 	// 유닛 선택 해제
 	MoveSelectedUnits();
 }
 
 void MainLevel::SlowTick(float deltaTime)
 {
-
+	// 쿼드트리 업데이트
+	UpdateQuadTree();
 }
 
 /*
@@ -79,6 +87,9 @@ void MainLevel::SlowTick(float deltaTime)
 * 98 - 쿼드 트리그리드(depth 1)
 * 97 - 쿼드 트리그리드(depth 0)
 * 96 - 기본 그리드
+* 
+* 2 - 땅따먹기영역
+* 1 - 맵
 */
 void MainLevel::Draw(Renderer& renderer)
 {

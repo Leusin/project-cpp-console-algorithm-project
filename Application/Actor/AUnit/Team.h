@@ -10,8 +10,13 @@ struct Team
 		T, Z, P, NONE
 	};
 
-	Type type = Type::NONE;
-	Color color = Color::White;
-	const char* img = "U";
-	float speed = 13.0f;
+	Team(Type type, const char* img, const float& speed);
+
+	Type type;
+	const char* img;
+	float speed;
+	
+	Color GetTeamColor() const { return GetTeamColor(type); }
+
+	Color static GetTeamColor(Type type);
 };

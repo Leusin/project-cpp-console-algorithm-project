@@ -6,11 +6,11 @@ class Map
 {
 	enum class TerrainType
 	{
-		Grass = 0, // 잔디밭
+		Ground = 0, // 잔디밭
 		Road, // 도로
 		Swamp, // 늪지대
-		Forest, // 숲
-		Mountain, // 산
+		Territory, // 땅따먹기
+		Pit, // 산
 		Size
 	};
 
@@ -20,7 +20,7 @@ class Map
 		1.0f, // Grass
 		1.5f, // Road
 		0.2f, // Swamp
-		0.8f,  // Forest
+		1.0f,  // Territory
 		- 1.f  // Mountain
 	};
 
@@ -33,6 +33,7 @@ public: // MESSAGE
 
 	// 초기화
 	void Initialize();
+	bool CreateTerritory(const class QuadTree& qTree, std::vector<class Territory*>& territorys);
 
 	// 배경 그리기
 	void Draw(class Renderer& renderer);
@@ -54,6 +55,8 @@ public: // GET SET
 	int Width() const { return (int)map[0].size(); }
 	int Height() const { return (int)map.size(); }
 
+	const std::vector<std::vector<int>>& GetOriginalData() const { return data; }
+
 private: // MESSAGE
 
 private: // FILD
@@ -62,4 +65,6 @@ private: // FILD
 	std::vector<std::vector<TerrainType>> map;
 	std::vector<std::vector<float>> weight;
 	std::vector<std::vector<bool>> occupied;
+
+	std::vector<std::vector<int>> data;
 };
