@@ -3,8 +3,9 @@
 #include "Engine.h"
 #include "Math/Vector2I.h"
 #include "Render/Renderer.h"
-#include "Actor/Territory/Territory.h"
 #include "QuadTree/QuadTree.h"
+#include "Actor/Territory/Territory.h"
+#include "Actor/Territory/SpawnPool.h"
 
 
 Map::Map()
@@ -24,44 +25,15 @@ void Map::Initialize()
 	*/
 	data =
 	{
-		{1, 1, 1, 1, 1, 1, 1, 1 },
-		{1, 4, 4, 0, 0, 4, 4, 1},
-		{1, 4, 3, 3, 3, 3, 4, 1},
-		{1, 0, 3, 2, 2, 3, 0, 1},
-		{1, 0, 3, 2, 2, 3, 0, 1},
-		{1, 4, 3, 3, 3, 3, 4, 1},
-		{1, 4, 4, 0, 0, 4, 4, 1},
-		{1, 1, 1, 1, 1, 1, 1, 1}
+		{5, 1, 1, 1, 1, 1, 1, 5},
+		{1, 3, 3, 0, 0, 3, 3, 1},
+		{1, 3, 4, 4, 4, 4, 3, 1},
+		{1, 0, 4, 2, 2, 4, 0, 1},
+		{1, 0, 4, 2, 2, 4, 0, 1},
+		{1, 3, 4, 4, 4, 4, 3, 1},
+		{1, 3, 3, 0, 0, 3, 3, 1},
+		{5, 1, 1, 1, 1, 1, 1, 1}
 	};
-
-	/*
-	data =
-	{
-		{4, 4, 4, 4, 4, 4, 4, 4},
-		{4, 3, 3, 0, 0, 3, 3, 4},
-		{4, 3, 2, 2, 2, 2, 3, 4},
-		{4, 0, 2, 1, 1, 2, 0, 4},
-		{4, 0, 2, 1, 1, 2, 0, 4},
-		{4, 3, 2, 2, 2, 2, 3, 4},
-		{4, 3, 3, 0, 0, 3, 3, 4},
-		{4, 4, 4, 4, 4, 4, 4, 4}
-	};
-	*/
-
-	/*
-	data =
-	{
-		{0, 1, 2},
-		{3, 4, 5}
-	};*/
-
-	/*
-	data =
-	{
-		{0, 1},
-		{3, 4}
-	};
-	*/
 
 	if (data.empty())
 	{
@@ -162,8 +134,80 @@ bool Map::CreateTerritory(QuadTree& qTree, std::vector<Territory*>& territorys)
 			// 새로운 지형 만들기
 			if (!find)
 			{
-				Territory* terr = new Territory(key, Vector2I{ x, y }, Vector2I::Zero, qTree);
+				Territory* terr = new Territory(key, Vector2I{ x, y }, Vector2I::Zero, qTree, Team::Type::NONE);
 				territorys.emplace_back(terr);
+			}
+		}
+	}
+
+	return true;
+}
+
+bool Map::CreateSpawnPool(QuadTree& qTree, const UnitFactory& factory, std::vector<SpawnPool*>& SpawnPools)
+{
+	if (data.empty())
+	{
+		return false;
+	}
+
+	int dataWidth = (int)data[0].size();
+	int dataHeight = (int)data.size();
+
+	int mapWidth = (int)map[0].size();
+	int mapHeight = (int)map.size();
+
+	// 홀수값 오차를 위해 1 더한다
+	int offsetX = (mapWidth + 1) / dataWidth;
+	int offsetY = (mapHeight + 1) / dataHeight;
+
+	for (int y = 0; y < mapHeight; ++y)
+	{
+		for (int x = 0; x < mapWidth; ++x)
+		{
+			int dataX = y / offsetY;
+			int dataY = x / offsetX;
+
+			// 인덱스 범위로 검사 및 클리핑
+			dataX = (dataX >= dataWidth) ? dataWidth - 1 : dataX;
+			dataY = (dataY >= dataHeight) ? dataHeight - 1 : dataY;
+
+			int terrainIndex = data[dataX][dataY];
+			terrainIndex %= (int)TerrainType::Size;
+
+			TerrainType type = static_cast<TerrainType>(terrainIndex);
+
+			//
+			// 영역 생성
+			//
+
+			if (type != TerrainType::SpawnPool)
+			{
+				continue;
+			}
+
+			int key = dataY * dataHeight + dataX;
+
+			// 같은 아이디를 가진 지형 찾기
+			bool find = false;
+			for (SpawnPool* terr : SpawnPools)
+			{
+				if (terr->GetId() == key)
+				{
+					// 지형 너비 업데이트 하기
+					Bounds bounds = terr->GetBounds();
+					bounds.SetSize({ x - bounds.GetX(), y - bounds.GetY() });
+					terr->SetBounds(bounds);
+
+					find = true;
+					break;
+				}
+			}
+
+			// 새로운 지형 만들기
+			if (!find)
+			{
+				SpawnPool* terr = new SpawnPool(key, Vector2I{ x, y }, Vector2I::Zero, qTree, *this, factory);
+				SpawnPools.emplace_back(terr);
 			}
 		}
 	}
@@ -181,7 +225,18 @@ void Map::Draw(Renderer& renderer)
 
 			switch (type) {
 			case TerrainType::Ground:
-				renderer.WriteToBuffer({ x, y }, ".", Color::Intensity);
+				{
+
+					if (x % 2 == 0)
+					{
+						renderer.WriteToBuffer({ x, y }, ".", Color::Intensity);
+					}
+					else
+					{
+						renderer.WriteToBuffer({ x, y }, "`", Color::Intensity);
+					}
+
+				}
 				break;
 			case TerrainType::Road:
 			{

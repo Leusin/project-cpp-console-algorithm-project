@@ -39,6 +39,11 @@ void QuadTree::Clear()
 
 bool QuadTree::Query(const QEntity* targetUnit, std::vector<QNode*>& possibleNode)
 {
+	if (!root)
+	{
+		return false;
+	}
+
 	possibleNode.clear();
 
 	// 겹침 가능성이 있는 영역 확인
@@ -76,6 +81,11 @@ bool QuadTree::Query(const QEntity* targetUnit, std::vector<QNode*>& possibleNod
 bool QuadTree::Query(const Bounds& targetBounds, std::vector<class QEntity*>& intersects)
 {
 	std::vector<QNode*> possibleNode;
+
+	if (!root)
+	{
+		return false;
+	}
 
 	// 겹침 가능성이 있는 영역 확인
 	root->Query(targetBounds, possibleNode);

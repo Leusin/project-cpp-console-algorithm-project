@@ -18,7 +18,7 @@ UnitFactory::UnitFactory(class AStar& aStar, class Map& map, class QuadTree& qTr
 {
 }
 
-AUnit* UnitFactory::CreatUnit(const Vector2I& spawnPos, Team::Type type)
+AUnit* UnitFactory::CreatUnit(const Vector2I& spawnPos, Team::Type type) const
 {
 	switch (type)
 	{

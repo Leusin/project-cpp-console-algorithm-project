@@ -15,7 +15,7 @@
     <ClCompile Include="Level\Map\Map.cpp" />
     <ClCompile Include="Actor\AUnit\UnitFactory.cpp" />
     <ClCompile Include="Utils\Timer.cpp" />
-    <ClCompile Include="Actor\AUnit\UnitSpawner.cpp" />
+    <ClCompile Include="Actor\Territory\SpawnPool.cpp" />
     <ClCompile Include="Actor\Territory\Territory.cpp" />
     <ClCompile Include="Actor\AUnit\Team.cpp" />
   </ItemGroup>
@@ -35,7 +35,7 @@
     <ClInclude Include="Actor\AUnit\UnitFactory.h" />
     <ClInclude Include="Actor\AUnit\Team.h" />
     <ClInclude Include="Utils\Timer.h" />
-    <ClInclude Include="Actor\AUnit\UnitSpawner.h" />
+    <ClInclude Include="Actor\Territory\SpawnPool.h" />
     <ClInclude Include="Actor\Territory\Territory.h" />
   </ItemGroup>
 </Project>

@@ -18,7 +18,7 @@ public:
 	// 겹침 행성 판정 함수.
 	bool Intersects(const Bounds& other) const;
 
-	void Draw(class Renderer& renderer, const char* img = "#", Color color = Color::Green);
+	void Draw(class Renderer& renderer, const char* img = "#", Color color = Color::Green, int renderOrder = 300);
 
 public: // GET SET
 

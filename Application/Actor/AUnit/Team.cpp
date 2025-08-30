@@ -17,9 +17,8 @@ Color Team::GetTeamColor(Type type)
 		return Color::Magenta;
 	case Team::Type::P:
 		return Color::Yellow;
-	case Team::Type::NONE:
-		return Color::Intensity;
 	default:
+		return Color::White;
 		break;
 	}
 }

@@ -6,11 +6,12 @@
 #include "Actor/AUnit/AUnit.h"
 
 Territory::Territory(int id, Vector2I position, Vector2I size, QuadTree& qTree, Team::Type initialOwner)
-	: QEntity(position, Team::GetTeamColor(initialOwner), "$", size)
+	: QEntity(position, Team::GetTeamColor(initialOwner), "x", size)
 	, id{ id }
 	, isContested{ false }
 	, qTree{ qTree }
 	, owner{ initialOwner }
+	, boundsImg{ "X" }
 {
 
 }
@@ -27,7 +28,7 @@ void Territory::Tick(float deltaTime)
 {
 	super::Tick(deltaTime);
 
-	// 1. QuadTree를 이용해 현재 영토 내의 모든 유닛을 찾rl
+	// 1. QuadTree를 이용해 현재 영토 내의 모든 유닛을 찾기
 	CheckUnits();
 	UpdateCaptureLogic(deltaTime);
 }
@@ -40,12 +41,14 @@ void Territory::Draw(Renderer& renderer)
 	{
 		for (int y = bounds.GetY(); y <= bounds.MaxY(); ++y)
 		{
-			renderer.WriteToBuffer({ x, y }, GetImage(), (Color)((int)color | (int)Color::Intensity), 2);
+			renderer.WriteToBuffer({ x, y }, GetImage(), color, 2);
 		}
 	}
+
+	bounds.Draw(renderer, boundsImg, (Color)((int)color | (int)Color::Intensity), 2);
 }
 
-void Territory::SetOwner(const Team::Type& type)
+void Territory::SetOwnerTeam(const Team::Type& type)
 {
 	color = Team::GetTeamColor(type);
 	owner = type;
@@ -122,7 +125,7 @@ void Territory::UpdateCaptureLogic(float deltaTime)
 	// 타임 아웃이면 주인 바뀜
 	if (captureTimer.IsTimeout())
 	{
-		SetOwner(majorityTeam);
+		SetOwnerTeam(majorityTeam);
 	}
 
 }

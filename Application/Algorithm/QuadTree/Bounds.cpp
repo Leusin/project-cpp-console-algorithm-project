@@ -41,9 +41,8 @@ bool Bounds::Intersects(const Bounds& other) const
 	return true;
 }
 
-void Bounds::Draw(Renderer& renderer, const char* img, Color color)
+void Bounds::Draw(Renderer& renderer, const char* img, Color color, int renderOrder)
 {
-	int renderOrder = 300;
 
 	// 현재 노드 경계 그리기
 	for (int ix = 0; ix <= width; ++ix)

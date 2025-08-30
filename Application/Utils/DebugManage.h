@@ -8,23 +8,24 @@ public:
 	{
 		ALL = 0,
 		QuadTree,
-		Map,
 		Weight,
-		SIZE
+		Position,
+		NONE
 	};
 
 public:
 
 	void ToggleDebugMode() { isDebugMode = !isDebugMode; }
-	static bool IsDebugMode();
+
 	static int RenderOrder();
+
+	static Mode GetMode();
+
+	static void SetMode(Mode val);
 
 public:
 
-	Mode mode = Mode::ALL;
-
-private:
-
+	static Mode mode;
 	static bool isDebugMode;
 	static int renderOrder;
 };

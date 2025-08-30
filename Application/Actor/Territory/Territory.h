@@ -18,7 +18,7 @@ class Territory : public QEntity
 public: // RAII
 
 	Territory(int id, Vector2I position, Vector2I size, class QuadTree& qTree, Team::Type initialOwner = Team::Type::NONE);
-	
+	virtual ~Territory() = default;
 public: // EVENT
 
 	virtual void BeginPlay() override;
@@ -28,12 +28,18 @@ public: // EVENT
 
 public: // GET SET
 
-	void SetOwner(const Team::Type& type);
 	const int& GetId() const { return id; }
+
+	const Team::Type& GetOwnerTeam() const { return owner; }
+	void SetOwnerTeam(const Team::Type& type);
 
 private: // METHOD
 
 	void CheckUnits();
+
+protected: // FILD
+
+	const char* boundsImg;
 
 private: // FILD
 	const int id;

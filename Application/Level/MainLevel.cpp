@@ -8,6 +8,7 @@
 #include "QuadTree/QuadTree.h"
 #include "AStar/AStar.h"
 #include "Actor/Territory/Territory.h"
+#include "Actor/Territory/SpawnPool.h"
 
 MainLevel::MainLevel()
 	: dragBox{ quadTree, selectedUnits }
@@ -26,6 +27,17 @@ MainLevel::MainLevel()
 		terrs.clear();
 	}
 
+	// 스폰 영역 만들기
+	if (std::vector<SpawnPool*> pools; map.CreateSpawnPool(quadTree, unitFactory, pools))
+	{
+		for (SpawnPool* pool : pools)
+		{
+			AddActor(pool);
+		}
+		pools.clear();
+	}
+
+	/*
 	AddActor(unitFactory.CreatUnit({1, 5}, Team::Type::T));
 	AddActor(unitFactory.CreatUnit({2, 5}, Team::Type::T));
 	AddActor(unitFactory.CreatUnit({3, 5}, Team::Type::T));
@@ -38,6 +50,7 @@ MainLevel::MainLevel()
 	AddActor(unitFactory.CreatUnit({36, 25}, Team::Type::P));
 	AddActor(unitFactory.CreatUnit({37, 25}, Team::Type::P));
 	AddActor(unitFactory.CreatUnit({38, 25}, Team::Type::P));
+	*/
 
 	// TODO: 마무리 할 떄쯤 아래 디버그 켜기 함수 지우기
 	debug.ToggleDebugMode();
@@ -84,7 +97,7 @@ void MainLevel::SlowTick(float deltaTime)
 * 98 - 쿼드 트리그리드(depth 1)
 * 97 - 쿼드 트리그리드(depth 0)
 * 96 - 기본 그리드
-* 
+*
 * 2 - 땅따먹기영역
 * 1 - 맵
 */
@@ -102,10 +115,7 @@ void MainLevel::Draw(Renderer& renderer)
 	DrawDebug(renderer);
 
 	// 마우스 랜더
-	if (!DebugManage::IsDebugMode())
-	{
-		renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, "+", Color::Green, 500);
-	}
+	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, "+", Color::Green, 500);
 }
 
 void MainLevel::UpdateQuadTree()
@@ -129,25 +139,28 @@ void MainLevel::DrawDebug(Renderer& renderer)
 		debug.ToggleDebugMode();
 	}
 
-	if (!DebugManage::IsDebugMode())
+	if (DebugManage::GetMode() == DebugManage::Mode::NONE)
 	{
 		return;
 	}
 
 	// 키 입력 처리
 	// 디버그 모드일 경우 모드 인덱스 순서 번호 키누르면 해당 모드로
-	for (int i = 0; i < DebugManage::Mode::SIZE; ++i)
+	int debugIndexSize = (int)DebugManage::Mode::NONE;
+	for (int i = 0; i < debugIndexSize; ++i)
 	{
 		char key = (char)(i + '0');
 		if (Input::Get().GetKeyUp(key))
 		{
-			debug.mode = static_cast<DebugManage::Mode>(i);
+			DebugManage::Mode next = static_cast<DebugManage::Mode>(i);
+			DebugManage::SetMode(next);
 		}
 	}
-	if (Input::Get().GetKeyUp('0' + (char)DebugManage::Mode::SIZE))
+	if (Input::Get().GetKeyUp('0' + (char)debugIndexSize))
 	{
-		int modeSize = (int)DebugManage::Mode::SIZE;
-		debug.mode = static_cast<DebugManage::Mode>(((int)(debug.mode) + 1) % modeSize);
+		int modeSize = debugIndexSize;
+		DebugManage::Mode next = static_cast<DebugManage::Mode>(((int)(debug.mode) + 1) % modeSize);
+		DebugManage::SetMode(next);
 	}
 
 	//
@@ -155,17 +168,12 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	// General Debug Information
 	//
 
-	// 마우스 위치
-	char debugMouse[100];
-	sprintf_s(debugMouse, sizeof(debugMouse), "M(%d,%d)", Input::Get().GetMouseX(), Input::Get().GetMouseY());
-	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 2);
-
 	// 우하단에 쓰여질 설명들
 	const static int bufferSize = Engine::Width();
 	std::vector<char> debugText(bufferSize);
 	int line = Engine::Height();
 
-	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG/[0]All [1]QT [2]weight [3]next/IDX:%d", (int)debug.mode);
+	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG/[0]All [1]QT [2]weight [3]Pos [4]next/IDX:%d", (int)debug.mode);
 	int firstOffset = Engine::Width() - firstLength;
 	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
@@ -177,7 +185,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	// 모드에 따라 그려지는 것들
 	//
 
-	switch (debug.mode)
+	switch (DebugManage::GetMode())
 	{
 	case DebugManage::Mode::QuadTree:
 	{
@@ -191,6 +199,14 @@ void MainLevel::DrawDebug(Renderer& renderer)
 		map.DrawWeight(renderer);
 	}
 	break;
+	case DebugManage::Mode::Position:
+	{
+		// 마우스 위치
+		char debugMouse[100];
+		sprintf_s(debugMouse, sizeof(debugMouse), "M(%d,%d)", Input::Get().GetMouseX(), Input::Get().GetMouseY());
+		renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 2);
+	}
+	break;
 	case DebugManage::Mode::ALL:
 	{
 		// 맵 가중치 데이터
@@ -198,6 +214,11 @@ void MainLevel::DrawDebug(Renderer& renderer)
 
 		// 현재 쿼드 트리 정보 그리기
 		quadTree.DrawBounds(renderer);
+
+		// 마우스 위치
+		char debugMouse[100];
+		sprintf_s(debugMouse, sizeof(debugMouse), "M(%d,%d)", Input::Get().GetMouseX(), Input::Get().GetMouseY());
+		renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 2);
 	}
 	// break; // 일부러 안 넣음
 	default:

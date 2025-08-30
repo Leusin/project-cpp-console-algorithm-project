@@ -106,7 +106,8 @@ void DragBox::Draw(Renderer& renderer)
 
 	bounds.Draw(renderer);
 
-	if (DebugManage::IsDebugMode())
+	DebugManage::Mode mode = DebugManage::GetMode();
+	if (mode == DebugManage::Mode::Position || mode == DebugManage::Mode::ALL)
 	{
 		char buffer[32];
 		sprintf_s(buffer, sizeof(buffer), "B(%d/%d/%d/%d)", bounds.GetX(), bounds.GetY(), bounds.GetWidth(), bounds.GetHeight());

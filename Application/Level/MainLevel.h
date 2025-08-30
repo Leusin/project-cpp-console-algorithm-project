@@ -37,7 +37,6 @@ private: // METHOD
 
 private: // FILD
 
-	// 디버그
 	DebugManage debug;
 
 	// 마우스 드래그

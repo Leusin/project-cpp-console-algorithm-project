@@ -43,7 +43,7 @@ void AUnit::BeginPlay()
 
 void AUnit::Tick(float deltaTime)
 {
-	super::Tick(deltaTime);	
+	super::Tick(deltaTime);
 
 	// 유닛 이동
 	if (state == AUnitState::Move)
@@ -97,7 +97,7 @@ void AUnit::Draw(Renderer& renderer)
 	// 이동 경로
 	if (state == AUnitState::Move && !path.empty())
 	{
-		int pathDrawIndex = currentWaypointIndex +(int)(effectTimer.GetElapsedTime() * team.speed * 2.f);
+		int pathDrawIndex = currentWaypointIndex + (int)(effectTimer.GetElapsedTime() * team.speed * 2.f);
 		for (int i = pathDrawIndex; i < path.size(); ++i)
 		{
 			renderer.WriteToBuffer(path[i], "#", Color::White, DebugManage::RenderOrder() + 1);
@@ -107,7 +107,8 @@ void AUnit::Draw(Renderer& renderer)
 	}
 
 	// 디버그 정보 랜더
-	if (DebugManage::IsDebugMode())
+	DebugManage::Mode mode = DebugManage::GetMode();
+	if (mode == DebugManage::Mode::Position || mode == DebugManage::Mode::ALL)
 	{
 		// 현 위치
 		char debugMouse[16];
@@ -163,7 +164,7 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	}
 
 	// 이미 도착
-	if (dist < tolerance) 
+	if (dist < tolerance)
 	{
 		return ProcessResult::Success;
 	}
