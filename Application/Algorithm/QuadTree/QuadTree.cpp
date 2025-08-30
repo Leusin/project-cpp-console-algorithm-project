@@ -105,8 +105,6 @@ bool QuadTree::Query(const Bounds& targetBounds, std::vector<class QEntity*>& in
 
 void QuadTree::DrawBounds(Renderer& renderer)
 {
-	//DrawGrids(renderer, 0, 0, Engine::Width() - 1, Engine::Height() - 1);
-
 	if (root)
 	{
 		root->DrawBounds(renderer);

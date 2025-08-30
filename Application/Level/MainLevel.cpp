@@ -26,9 +26,6 @@ MainLevel::MainLevel()
 		terrs.clear();
 	}
 
-	AddActor(unitFactory.CreatUnit({0, 0}));
-	AddActor(unitFactory.CreatUnit({1, 0}));
-	AddActor(unitFactory.CreatUnit({2, 0}));
 	AddActor(unitFactory.CreatUnit({1, 5}, Team::Type::T));
 	AddActor(unitFactory.CreatUnit({2, 5}, Team::Type::T));
 	AddActor(unitFactory.CreatUnit({3, 5}, Team::Type::T));

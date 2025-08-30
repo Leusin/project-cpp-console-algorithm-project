@@ -8,6 +8,11 @@ Timer::Timer(float targetTime)
 void Timer::Tick(float deltaTime)
 {
     elapsedTime += deltaTime;
+
+    if (elapsedTime < 0.0f)
+    {
+        Reset();
+    }
 }
 
 void Timer::Reset()

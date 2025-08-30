@@ -11,7 +11,7 @@ public: // RAII
 
 public: // MESSAGE
 
-	class AUnit* CreatUnit(const struct Vector2I& spawnPos, Team::Type type = Team::Type::NONE);
+	class AUnit* CreatUnit(const struct Vector2I& spawnPos, Team::Type type);
 
 private:
 

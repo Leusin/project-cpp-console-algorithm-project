@@ -99,7 +99,7 @@ void Map::Initialize()
 	}
 }
 
-bool Map::CreateTerritory(const QuadTree& qTree, std::vector<Territory*>& territorys)
+bool Map::CreateTerritory(QuadTree& qTree, std::vector<Territory*>& territorys)
 {
 	if (data.empty())
 	{
@@ -143,16 +143,27 @@ bool Map::CreateTerritory(const QuadTree& qTree, std::vector<Territory*>& territ
 
 			int key = dataY * dataHeight + dataX;
 
-			if (territorys.empty() || territorys.back()->GetId() != key)
+			// 같은 아이디를 가진 지형 찾기
+			bool find = false;
+			for (Territory* terr: territorys)
+			{
+				if (terr->GetId() == key)
+				{
+					// 지형 너비 업데이트 하기
+					Bounds bounds = terr->GetBounds();
+					bounds.SetSize({ x - bounds.GetX(), y - bounds.GetY() });
+					terr->SetBounds(bounds);
+
+					find = true;
+					break;
+				}
+			}
+			
+			// 새로운 지형 만들기
+			if (!find)
 			{
 				Territory* terr = new Territory(key, Vector2I{ x, y }, Vector2I::Zero, qTree);
 				territorys.emplace_back(terr);
-			}
-			else
-			{
-				Bounds bounds = territorys.back()->GetBounds();
-				bounds.SetSize({ x - bounds.GetX(), y - bounds.GetY() });
-				territorys.back()->SetBounds(bounds);
 			}
 		}
 	}

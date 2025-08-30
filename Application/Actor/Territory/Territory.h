@@ -1,7 +1,9 @@
 #pragma once
 
+#include <vector>
 #include "Actor/QEntity/QEntity.h"
 #include "Actor/AUnit/Team.h"
+#include "Utils/Timer.h"
 
 /// <summary>
 /// 땅따먹기 가능 영역
@@ -15,22 +17,36 @@ class Territory : public QEntity
 
 public: // RAII
 
-	Territory(int id, Vector2I position, Vector2I size, const class QuadTree& qTree, Team::Type initialOwner = Team::Type::NONE);
+	Territory(int id, Vector2I position, Vector2I size, class QuadTree& qTree, Team::Type initialOwner = Team::Type::NONE);
 	
+public: // EVENT
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTime) override;
+	void UpdateCaptureLogic(float deltaTime);
+	virtual void Draw(class Renderer& renderer) override;
+
 public: // GET SET
 
 	void SetOwner(const Team::Type& type);
 	const int& GetId() const { return id; }
 
-public: // EVENT
+private: // METHOD
 
-	virtual void Draw(class Renderer& renderer) override;
+	void CheckUnits();
 
 private: // FILD
 	const int id;
 
+	bool isContested;
+
 	Team::Type owner;
 
-	const class QuadTree& qTree;
+	Timer captureTimer;
+
+	class QuadTree& qTree;
+
+	std::vector<class AUnit*> nearbyUnits;
+
 };
 

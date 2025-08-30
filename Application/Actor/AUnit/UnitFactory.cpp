@@ -32,7 +32,7 @@ AUnit* UnitFactory::CreatUnit(const Vector2I& spawnPos, Team::Type type)
 		return new AUnit(spawnPos, protoss, map, aStar, qTree);
 		break;
 	default:
-		return new AUnit(spawnPos, none, map, aStar, qTree);
+		return nullptr;
 		break;
 	}
 

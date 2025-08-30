@@ -1,7 +1,6 @@
 #include "AUnit.h"
 
 #include <cmath>
-#include "Team.h"
 #include "Core.h"
 #include "Input.h"
 #include "Engine.h"

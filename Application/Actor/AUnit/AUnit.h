@@ -3,9 +3,10 @@
 #include "Actor/QEntity/QEntity.h"
 
 #include <vector>
-#include "QuadTree/Bounds.h"
-#include "ProcessResult.h"
+#include "Team.h"
 #include "Utils/Timer.h"
+#include "ProcessResult.h"
+#include "QuadTree/Bounds.h"
 
 enum class AUnitState
 {
@@ -44,6 +45,8 @@ public: // GET SET
 	void SetIsSelected(bool val) { isSeleted = val; }
 
 	void SetMove(const Vector2I& targetPos);
+
+	Team::Type GetTeamType() const { return team.type; }
 
 private: // METHOD
 
@@ -89,5 +92,5 @@ private: // FILD
 
 	class QuadTree& qTree;
 
-	const struct Team& team;
+	const Team& team;
 };

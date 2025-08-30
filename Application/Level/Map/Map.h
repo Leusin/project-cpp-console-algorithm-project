@@ -33,7 +33,7 @@ public: // MESSAGE
 
 	// 초기화
 	void Initialize();
-	bool CreateTerritory(const class QuadTree& qTree, std::vector<class Territory*>& territorys);
+	bool CreateTerritory(class QuadTree& qTree, std::vector<class Territory*>& territorys);
 
 	// 배경 그리기
 	void Draw(class Renderer& renderer);
