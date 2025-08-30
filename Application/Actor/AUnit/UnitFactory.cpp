@@ -9,9 +9,9 @@
 
 UnitFactory::UnitFactory(class AStar& aStar, class Map& map, class QuadTree& qTree)
 	: none{}
-	, zerg{ Team::Type::Z, Color::Magenta , "Z", 10.f }
-	, terran{ Team::Type::Z, Color::Cyan, "T", 8.f }
-	, protoss{ Team::Type::Z, Color::Yellow, "P", 7.f }
+	, zerg{ Team::Type::Z, Color::Magenta , "Z", 13.5f }
+	, terran{ Team::Type::Z, Color::Cyan, "T", 13.0f }
+	, protoss{ Team::Type::Z, Color::Yellow, "P", 12.8f }
 	, aStar{ aStar }
 	, map{ map }
 	, qTree{ qTree }

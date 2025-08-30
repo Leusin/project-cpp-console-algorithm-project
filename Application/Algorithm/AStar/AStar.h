@@ -36,7 +36,7 @@ private: // METHOD
 	// 휴리스틱 계산
 	float CalculateHeuristic(class ANode* current, class ANode* goal);
 
-	Vector2I FindNearbyValidSpot(const Vector2I& target, const class Map& map);
+	bool FindNearbyValidSpot(Vector2I& target, const class Map& map);
 
 private: // METHOD
 

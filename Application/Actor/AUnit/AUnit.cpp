@@ -9,6 +9,7 @@
 #include "Render/Renderer.h"
 #include "QuadTree/QuadTree.h"
 #include "Utils/DebugManage.h"
+#include "Utils/Utils.h"
 
 
 AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& aStar, QuadTree& qTree)
@@ -18,6 +19,8 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& a
 	, unitColor{ team.color }
 	, currentWaypointIndex{ 0 }
 	, tryCount{ 0 }
+	, maxWiatTime{ 0.08f }
+	, minWiatTime{ 0.001f }
 	, tolerance{ 1e-6f } // 0.000001
 	, minTry{ 3 }
 	, map{ map }
@@ -31,7 +34,7 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& a
 	map.SetOccupiedMap(spawnPosition, true);
 
 	// 길가다 막히면 잠시 기달림
-	blockedTimer.SetTargetTime(0.1f);
+	blockedTimer.SetTargetTime(Utils::RandomFloat(maxWiatTime, minWiatTime));
 }
 
 void AUnit::BeginPlay()
@@ -40,11 +43,14 @@ void AUnit::BeginPlay()
 
 void AUnit::Tick(float deltaTime)
 {
-	super::Tick(deltaTime);
+	super::Tick(deltaTime);	
 
 	// 유닛 이동
 	if (state == AUnitState::Move)
 	{
+		// 이동 이펙트 타이머
+		effectTimer.Tick(deltaTime);
+
 		// 경로를 따라 이동 시도
 		ProcessResult result = FollowPath(deltaTime);
 		if (result == ProcessResult::Success)
@@ -62,6 +68,9 @@ void AUnit::Tick(float deltaTime)
 					SetMove(lastTarget, aStar, map);
 
 					--tryCount;
+
+					// 기다리는 시간 재설정
+					blockedTimer.SetTargetTime(Utils::RandomFloat(maxWiatTime, minWiatTime));
 
 					blockedTimer.Reset();
 				}
@@ -88,9 +97,10 @@ void AUnit::Draw(Renderer& renderer)
 	// 이동 경로
 	if (state == AUnitState::Move && !path.empty())
 	{
-		for (int i = currentWaypointIndex; i < path.size(); ++i)
+		int pathDrawIndex = currentWaypointIndex + (int)(effectTimer.GetElapsedTime() * team.speed);
+		for (int i = pathDrawIndex; i < path.size(); ++i)
 		{
-			renderer.WriteToBuffer(path[i], "*", Color::White, DebugManage::RenderOrder() + 1);
+			renderer.WriteToBuffer(path[i], "#", Color::White, DebugManage::RenderOrder() + 1);
 		}
 
 		renderer.WriteToBuffer(path.back(), "X", unitColor, DebugManage::RenderOrder() + 2);
@@ -125,6 +135,8 @@ void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const Map& map)
 
 	// 새로운 경로를 받았기 때문에 인덱스 초기화
 	currentWaypointIndex = 0;
+
+	effectTimer.Reset();
 }
 
 ProcessResult AUnit::FollowPath(float deltaTime)

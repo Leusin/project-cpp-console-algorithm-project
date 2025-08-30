@@ -14,6 +14,7 @@ public: // MESSAGE
 	class AUnit* CreatUnit(const struct Vector2I& spawnPos, Team::Type type = Team::Type::NONE);
 
 private:
+
 	const Team none;
 	const Team zerg;
 	const Team terran;
@@ -22,4 +23,5 @@ private:
 	class AStar& aStar;
 	class Map& map;
 	class QuadTree& qTree;
+
 };

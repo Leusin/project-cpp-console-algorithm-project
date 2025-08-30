@@ -13,5 +13,5 @@ struct Team
 	Type type = Type::NONE;
 	Color color = Color::White;
 	const char* img = "U";
-	float speed = 10.0f;
+	float speed = 13.0f;
 };

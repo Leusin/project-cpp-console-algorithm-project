@@ -24,11 +24,10 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 	Clear();
 
 	Vector2I finalgoal{ goal };
+
 	if (!map.CanMove(goal))
 	{
-		finalgoal = FindNearbyValidSpot(goal, map);
-
-		if (finalgoal == goal)
+		if (!FindNearbyValidSpot(finalgoal, map))
 		{
 			return std::vector<Vector2I>();
 
@@ -311,23 +310,29 @@ float AStar::CalculateHeuristic(ANode* current, ANode* goal)
 	*/
 }
 
-Vector2I AStar::FindNearbyValidSpot(const Vector2I& target, const Map& map)
+bool AStar::FindNearbyValidSpot(Vector2I& target, const Map& map)
 {
-	Vector2I directions[24] =
+	for (int radius = 1; radius <= 5; ++radius)
 	{
-		{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, -1}, {-1, 1},
-		{0, 2}, {0, -2}, {2, 0}, {-2, 0}, {2, 1}, {2, -1}, {-2, -1}, {-2, 1}, 
-		{1, 2}, {1, -2}, {-1, -2}, {-1, 2}, {2, 2}, {2, -2}, {-2, -2}, {-2, 2},
-	};
-
-	for (const Vector2I& direction : directions)
-	{
-		Vector2I newTarget = { target + direction };
-		if (map.CanMove(newTarget))
+		// y
+		for (int y = target.y - radius; y <= target.y + radius; ++y)
 		{
-			return newTarget;
+			// x
+			for (int x = target.x - radius; x <= target.x + radius; ++x)
+			{
+				if (x == target.x - radius || x == target.x + radius ||
+					y == target.y - radius || y == target.y + radius)
+				{
+					Vector2I newTarget{ x, y };
+					if (map.CanMove(newTarget))
+					{
+						target = newTarget;
+
+						return true;
+					}
+				}
+			}
 		}
 	}
-
-	return target;
+	return false;
 }
