@@ -19,7 +19,7 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& a
 	, unitColor{ team.color }
 	, currentWaypointIndex{ 0 }
 	, tryCount{ 0 }
-	, maxWiatTime{ 0.08f }
+	, maxWiatTime{ 0.125f }
 	, minWiatTime{ 0.001f }
 	, tolerance{ 1e-6f } // 0.000001
 	, minTry{ 3 }
@@ -65,7 +65,7 @@ void AUnit::Tick(float deltaTime)
 
 				if (blockedTimer.IsTimeout())
 				{
-					SetMove(lastTarget, aStar, map);
+					SetNewPath(lastTarget);
 
 					--tryCount;
 
@@ -97,7 +97,7 @@ void AUnit::Draw(Renderer& renderer)
 	// 이동 경로
 	if (state == AUnitState::Move && !path.empty())
 	{
-		int pathDrawIndex = currentWaypointIndex + (int)(effectTimer.GetElapsedTime() * team.speed);
+		int pathDrawIndex = currentWaypointIndex +(int)(effectTimer.GetElapsedTime() * team.speed);
 		for (int i = pathDrawIndex; i < path.size(); ++i)
 		{
 			renderer.WriteToBuffer(path[i], "#", Color::White, DebugManage::RenderOrder() + 1);
@@ -121,27 +121,26 @@ Vector2I AUnit::GetCurrentPosition() const
 	return Vector2I((int)round(currentPosition.x), (int)round(currentPosition.y));
 }
 
-void AUnit::SetMove(const Vector2I& targetPos, AStar& aStar, const Map& map)
+void AUnit::SetMove(const Vector2I& targetPos)
 {
 	state = AUnitState::Move;
+	lastTarget = targetPos;
 
-	lastTarget = targetPos;   // 기억
+	SetNewPath(targetPos);
 
-	path.clear();
-	path = aStar.FindPath(GetCurrentPosition(), targetPos, map);
-
-	// 길찾기 실패 시 시도 횟수
-	tryCount = (int)path.size() * minTry;
-
-	// 새로운 경로를 받았기 때문에 인덱스 초기화
-	currentWaypointIndex = 0;
-
-	effectTimer.Reset();
+	if (path.empty())
+	{
+		tryCount = minTry;
+	}
+	else
+	{
+		tryCount = minTry;
+	}
 }
 
 ProcessResult AUnit::FollowPath(float deltaTime)
 {
-	if (state != AUnitState::Move || path.empty())
+	if (path.empty())
 	{
 		return ProcessResult::Failed;
 	}
@@ -210,4 +209,13 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	bounds.SetPosition(GetCurrentPosition());
 
 	return ProcessResult::InProgress;
+}
+
+void AUnit::SetNewPath(const Vector2I& targetPos)
+{
+	path.clear();
+	path = aStar.FindPath(GetCurrentPosition(), targetPos, map);
+
+	currentWaypointIndex = 0;
+	effectTimer.Reset();
 }

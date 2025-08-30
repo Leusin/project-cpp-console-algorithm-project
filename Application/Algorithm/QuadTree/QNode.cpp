@@ -147,8 +147,8 @@ void QNode::DrawBounds(Renderer& renderer)
 	renderer.WriteToBuffer({ x, maxY }, "+", color, renderOrder); // Bottom-left
 	renderer.WriteToBuffer({ maxX , maxY }, "+", color, renderOrder); // Bottom-right
 
-	char buffer[2];
-	sprintf_s(buffer, sizeof(buffer), "%d", depth);
+	char buffer[8];
+	sprintf_s(buffer, sizeof(buffer), "%d(%d)", depth, (int)points.size());
 	renderer.WriteToBuffer({ x + 1 , y + 1 }, buffer, color, renderOrder); // Bottom-right
 
 	for (int ix = x + 1; ix < maxX; ++ix)

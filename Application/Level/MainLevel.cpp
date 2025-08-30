@@ -152,10 +152,6 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	sprintf_s(debugMouse, sizeof(debugMouse), "M(%d,%d)", Input::Get().GetMouseX(), Input::Get().GetMouseY());
 	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 2);
 
-	//
-	// 모드에 따라 그려지는 것들
-	//
-
 	// 우하단에 쓰여질 설명들
 	const static int bufferSize = Engine::Width();
 	std::vector<char> debugText(bufferSize);
@@ -165,9 +161,13 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	int firstOffset = Engine::Width() - firstLength;
 	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
-	//int secondLength = sprintf_s(debugText.data(), bufferSize, "(Current:%d)", (int)debug.mode);
-	//int secondOffset = Engine::Width() - secondLength;
-	//renderer.WriteToBuffer({ secondOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
+	int secondLength = sprintf_s(debugText.data(), bufferSize, "ManagedQEntity:%d|A*Call:%d", quadTree.GetEntityCount(), aStar.GetCalled());
+	int secondOffset = Engine::Width() - secondLength;
+	renderer.WriteToBuffer({ secondOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
+
+	//
+	// 모드에 따라 그려지는 것들
+	//
 
 	switch (debug.mode)
 	{
@@ -238,7 +238,7 @@ void MainLevel::MoveSelectedUnits()
 				mouseDestination.y + (gridY * offsetFactor) - groupOffsetY
 			};
 
-			unit->SetMove(finalDestination, aStar, map);
+			unit->SetMove(finalDestination);
 
 		}
 	}

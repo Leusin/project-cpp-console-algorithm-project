@@ -19,6 +19,8 @@ public: // MESSAGE
 	// 경로 탐색
 	std::vector<Vector2I> FindPath(const Vector2I& start, const Vector2I& goal, const class Map& map);
 
+	const int& GetCalled()const { return called; }
+
 private: // METHOD
 
 	void Clear();
@@ -54,4 +56,6 @@ private: // METHOD
 
 	// 목표
 	class ANode* goalNode;
+
+	int called;
 };

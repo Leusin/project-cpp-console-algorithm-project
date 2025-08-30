@@ -8,7 +8,9 @@
 
 
 AStar::AStar()
-	: startNode{ nullptr }, goalNode{ nullptr }
+	: startNode{ nullptr }
+	, goalNode{ nullptr }
+	, called{ 0 }
 {
 }
 
@@ -20,6 +22,8 @@ AStar::~AStar()
 
 std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goal, const Map& map)
 {
+	++called; // 디버깅용
+
 	// 이전 작업이 있다면 비우기
 	Clear();
 

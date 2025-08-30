@@ -44,11 +44,13 @@ public: // GET SET
 	Vector2I GetCurrentPosition() const;
 	void SetIsSelected(bool val) { isSeleted = val; }
 
-	void SetMove(const Vector2I& targetPos, class AStar& aStar, const class Map& map);
+	void SetMove(const Vector2I& targetPos);
 
 private: // METHOD
 
 	ProcessResult FollowPath(float deltaTime);
+
+	void SetNewPath(const Vector2I& targetPos);
 
 private: // FILD
 

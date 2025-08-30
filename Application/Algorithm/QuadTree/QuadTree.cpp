@@ -12,6 +12,7 @@ int QuadTree::maxDepth = 3;
 
 QuadTree::QuadTree()
 	: root{ nullptr }
+	, managedEntityCount{ 0 }
 {
 	CreateRoot();
 }
@@ -26,11 +27,14 @@ void QuadTree::Insert(QEntity* unit)
 	CreateRoot();
 
 	root->Insert(unit);
+
+	++managedEntityCount;
 }
 
 void QuadTree::Clear()
 {
 	SafeDelete(root);
+	managedEntityCount = 0;
 }
 
 bool QuadTree::Query(const QEntity* targetUnit, std::vector<QNode*>& possibleNode)
@@ -113,7 +117,7 @@ void QuadTree::CreateRoot()
 {
 	if (!root)
 	{
-		root = new QNode({ 0, 0, Engine::Width() - 1, Engine::Height() -1 });
+		root = new QNode({ 0, 0, Engine::Width() - 1, Engine::Height() - 1 });
 	}
 }
 

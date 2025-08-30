@@ -24,6 +24,8 @@ public:
 
 	void DrawBounds(class Renderer& renderer);
 
+	const int& GetEntityCount() { return managedEntityCount; }
+
 public:
 	static int maxDepth;
 
@@ -37,4 +39,6 @@ private: // METHOD
 
 private:
 	class QNode* root = nullptr;
+
+	int managedEntityCount;
 };
