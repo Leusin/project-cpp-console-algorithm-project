@@ -129,14 +129,7 @@ void AUnit::SetMove(const Vector2I& targetPos)
 
 	SetNewPath(targetPos);
 
-	if (path.empty())
-	{
-		tryCount = minTry;
-	}
-	else
-	{
-		tryCount = minTry;
-	}
+	tryCount = minTry;
 }
 
 ProcessResult AUnit::FollowPath(float deltaTime)

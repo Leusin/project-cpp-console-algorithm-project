@@ -6,12 +6,12 @@
 #include "Actor/AUnit/AUnit.h"
 
 Territory::Territory(int id, Vector2I position, Vector2I size, QuadTree& qTree, Team::Type initialOwner)
-	: QEntity(position, Team::GetTeamColor(initialOwner), "x", size)
+	: QEntity(position, Team::GetTeamColor(initialOwner), "X", size)
 	, id{ id }
 	, isContested{ false }
 	, qTree{ qTree }
 	, owner{ initialOwner }
-	, boundsImg{ "X" }
+	, boundsImg{ "x" }
 {
 
 }
@@ -41,11 +41,13 @@ void Territory::Draw(Renderer& renderer)
 	{
 		for (int y = bounds.GetY(); y <= bounds.MaxY(); ++y)
 		{
-			renderer.WriteToBuffer({ x, y }, GetImage(), color, 2);
+			//renderer.WriteToBuffer({ x, y }, GetImage(), color, 2);
+			renderer.WriteToBuffer({ x, y }, GetImage(), (Color)((int)color | (int)Color::Intensity), 2);
 		}
 	}
 
-	bounds.Draw(renderer, boundsImg, (Color)((int)color | (int)Color::Intensity), 2);
+	bounds.Draw(renderer, boundsImg, color, 2);
+	//bounds.Draw(renderer, boundsImg, (Color)((int)color | (int)Color::Intensity), 2);
 }
 
 void Territory::SetOwnerTeam(const Team::Type& type)

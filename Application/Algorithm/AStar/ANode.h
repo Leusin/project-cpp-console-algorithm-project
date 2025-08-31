@@ -27,12 +27,12 @@ public: // OPERATOR
 
 public: // MESSAGE
 
-	float FCost() { return hCost + hCost; }
-
-public: // DATA
+	float FCost() const { return gCost + hCost; }
 
 	// 위치
-	Vector2I position;
+	const Vector2I position;
+
+public: // DATA
 
 	// 이동 비용
 	float gCost;
