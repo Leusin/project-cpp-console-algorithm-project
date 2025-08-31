@@ -56,6 +56,24 @@ void MainLevel::Tick(float deltaTime)
 	// 드래그 박스 업데이트
 	dragBox.Tick();
 
+	// 모든 유닛 선택 (Ctrl+A)
+	if (Input::Get().GetKey(VK_CONTROL) && Input::Get().GetKeyDown('A'))
+	{
+		selectedUnits.clear();
+		const auto& actors = GetActors();
+		for (Actor* actor : actors)
+		{
+			if (!actor->IsExpired())
+			{
+				if (AUnit* unit = actor->As<AUnit>())
+				{
+					unit->SetIsSelected(true);
+					selectedUnits.push_back(const_cast<AUnit*>(unit));
+				}
+			}
+		}
+	}
+
 	// 유닛 선택 해제
 	MoveSelectedUnits();
 
@@ -139,10 +157,18 @@ void MainLevel::MoveSelectedUnits()
 {
 	if (Input::Get().GetMouseUp(MounseButton::Right))
 	{
+		// 없으면 예외
 		if (selectedUnits.empty())
 		{
 			return;
 		}
+
+		// 유효하지 않는지 검사
+		auto condition = [](const AUnit* unit) { return unit == nullptr || unit->IsExpired(); };
+
+		// 유효하지 않은 포인터 제거
+		selectedUnits.erase(std::remove_if(selectedUnits.begin(), selectedUnits.end(), condition), selectedUnits.end());
+
 
 		int unitCount = (int)selectedUnits.size();
 
@@ -177,8 +203,8 @@ void MainLevel::MoveSelectedUnits()
 			// 최종 목적지에 오프셋 적용
 			Vector2I finalDestination =
 			{
-				mouseDestination.x + (gridX) - groupOffsetX,
-				mouseDestination.y + (gridY) - groupOffsetY
+				mouseDestination.x + (gridX)-groupOffsetX,
+				mouseDestination.y + (gridY)-groupOffsetY
 			};
 
 			unit->OnCommandToMove(finalDestination);
@@ -234,7 +260,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	int firstOffset = Engine::Width() - firstLength;
 	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
-	int secondLength = sprintf_s(debugText.data(), bufferSize, "AUnit:(%d/%d)|A*Call:%d|A*Request:%d", AUnit::GetCount(), AUnit::GetMaxCount(), aStar.GetCalled(), aStar.GetCurrentReQuest());
+	int secondLength = sprintf_s(debugText.data(), bufferSize, "AUnit:(%d/%d)|A*Request:%d|A*Call:%d", AUnit::GetCount(), AUnit::GetMaxCount(), aStar.GetCurrentReQuest(), aStar.GetCalled());
 	int secondOffset = Engine::Width() - secondLength;
 	renderer.WriteToBuffer({ secondOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 

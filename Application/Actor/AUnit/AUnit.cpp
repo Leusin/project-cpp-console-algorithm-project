@@ -180,6 +180,11 @@ void AUnit::OnDestroy()
 
 void AUnit::OnCommandToMove(const Vector2I& targetPos)
 {
+	if (IsDead())
+	{
+		return;
+	}
+
 	lastTarget = targetPos;
 	tryCount = minTry;
 	RequestPath(targetPos);
