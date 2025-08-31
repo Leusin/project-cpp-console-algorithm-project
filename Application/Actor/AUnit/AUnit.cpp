@@ -4,15 +4,15 @@
 #include "Core.h"
 #include "Input.h"
 #include "Engine.h"
-#include "AStar/AStar.h"
+#include "Utils/Utils.h"
 #include "Level/Map/Map.h"
 #include "Render/Renderer.h"
 #include "QuadTree/QuadTree.h"
 #include "Utils/DebugManage.h"
-#include "Utils/Utils.h"
+#include "AStar/PathfindingManager.h"
 
 
-AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& aStar, QuadTree& qTree)
+AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, PathfindingManager& aStar, QuadTree& qTree)
 	: QEntity(spawnPosition, team.GetTeamColor(), team.img)
 	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
 	, minSpeed{ 0.01f }
@@ -24,7 +24,7 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, AStar& a
 	, tolerance{ 1e-6f } // 0.000001
 	, minTry{ 3 }
 	, map{ map }
-	, aStar{ aStar }
+	, pathfindingManager{ aStar }
 	, qTree{ qTree }
 	, team{ team }
 {
@@ -106,6 +106,8 @@ void AUnit::Draw(Renderer& renderer)
 		renderer.WriteToBuffer(path.back(), "X", unitColor, DebugManage::RenderOrder() + 2);
 	}
 
+#ifdef _DEBUG
+
 	// 디버그 정보 랜더
 	DebugManage::Mode mode = DebugManage::GetMode();
 	if (mode == DebugManage::Mode::Position || mode == DebugManage::Mode::ALL)
@@ -115,6 +117,8 @@ void AUnit::Draw(Renderer& renderer)
 		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);
 		renderer.WriteToBuffer({ Position().x, Position().y + 1 }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 3);
 	}
+
+#endif
 }
 
 Vector2I AUnit::GetCurrentPosition() const
@@ -122,19 +126,23 @@ Vector2I AUnit::GetCurrentPosition() const
 	return Vector2I((int)round(currentPosition.x), (int)round(currentPosition.y));
 }
 
-void AUnit::SetMove(const Vector2I& targetPos)
+void AUnit::OnCommandToMove(const Vector2I& targetPos)
 {
-	state = AUnitState::Move;
 	lastTarget = targetPos;
+	tryCount = minTry;
 
 	SetNewPath(targetPos);
+}
 
-	tryCount = minTry;
+void AUnit::SetPath(std::vector<Vector2I> path)
+{
+	state = AUnitState::Move;
+	this->path = path;
 }
 
 ProcessResult AUnit::FollowPath(float deltaTime)
 {
-	if (path.empty())
+	if (path.empty() || currentWaypointIndex >= (int)path.size())
 	{
 		return ProcessResult::Failed;
 	}
@@ -208,8 +216,8 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 void AUnit::SetNewPath(const Vector2I& targetPos)
 {
 	path.clear();
-	path = aStar.FindPath(GetCurrentPosition(), targetPos, map);
+	pathfindingManager.AddRequest(this, GetCurrentPosition(), targetPos, map);
 
-	currentWaypointIndex = 0;
 	effectTimer.Reset();
+	currentWaypointIndex = 0;
 }

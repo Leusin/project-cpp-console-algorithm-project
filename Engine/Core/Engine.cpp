@@ -112,15 +112,6 @@ void Engine::Run()
 				SlowTick(slowUpdateAccumulator);
 			}
 
-#ifdef _DEBUG
-
-			// 제목에 FPS 출력
-			char title[50] = {};
-			sprintf_s(title, 50, "(h: %d, w: %d)FPS: %f", settings.height, settings.width, (1.f / deltaTime));
-			SetConsoleTitleA(title);
-
-#endif
-
 			// 이전 프레임 시간 갱신
 			previousTime = currentTime;
 

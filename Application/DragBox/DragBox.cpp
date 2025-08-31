@@ -6,7 +6,10 @@
 #include "QuadTree/QuadTree.h"
 #include "QuadTree/QNode.h"
 #include "Actor/AUnit/AUnit.h"
+
+#ifdef _DEBUG
 #include "Utils/DebugManage.h"
+#endif
 
 
 DragBox::DragBox(QuadTree& quadTree, std::vector<AUnit*>& selectedUnit)
@@ -106,6 +109,9 @@ void DragBox::Draw(Renderer& renderer)
 
 	bounds.Draw(renderer);
 
+#ifdef _DEBUG
+
+	// 디버그 정보 랜더
 	DebugManage::Mode mode = DebugManage::GetMode();
 	if (mode == DebugManage::Mode::Position || mode == DebugManage::Mode::ALL)
 	{
@@ -113,6 +119,8 @@ void DragBox::Draw(Renderer& renderer)
 		sprintf_s(buffer, sizeof(buffer), "B(%d/%d/%d/%d)", bounds.GetX(), bounds.GetY(), bounds.GetWidth(), bounds.GetHeight());
 		renderer.WriteToBuffer({ bounds.GetX(), bounds.GetY() - 1 }, buffer, Color::LightGreen, 300);
 	}
+
+#endif
 }
 
 std::vector<class Unit*> DragBox::GetSelectedUnits(const std::vector<Unit*>& allUnits)

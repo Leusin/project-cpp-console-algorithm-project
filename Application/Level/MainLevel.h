@@ -2,11 +2,16 @@
 
 #include "Level/level.h"
 #include "QuadTree/QuadTree.h"
-#include "AStar/AStar.h"
+#include "AStar/PathfindingManager.h"
 #include "DragBox/DragBox.h"
 #include "Map/Map.h"
-#include "Utils/DebugManage.h"
 #include "Actor/AUnit/UnitFactory.h"
+
+#ifdef _DEBUG
+
+#include "Utils/DebugManage.h"
+
+#endif
 
 class MainLevel : public Level
 {
@@ -25,25 +30,20 @@ public: // EVENT
 	virtual void Draw(class Renderer& renderer) override;
 
 private: // METHOD
-	
+
 	// 업데이트
 	void UpdateQuadTree();
-
-	// 디버깅 관련
-	void DrawDebug(class Renderer& renderer);
 
 	// 우클릭 시 선택된 유닛들 이동 처리
 	void MoveSelectedUnits();
 
 private: // FILD
 
-	DebugManage debug;
-
 	// 마우스 드래그
 	DragBox dragBox;
 
 	// 주요 알고리즘 : A*
-	AStar aStar;
+	PathfindingManager aStar;
 
 	// 주요 알고리즘 : 쿼드 트리
 	QuadTree quadTree;
@@ -55,4 +55,14 @@ private: // FILD
 	std::vector<class AUnit*> selectedUnits;
 
 	UnitFactory unitFactory;
+
+#ifdef _DEBUG
+
+private: // DEBUG
+
+	DebugManage debug;
+	float debugDeltaTime = 0;
+	void DrawDebug(class Renderer& renderer);
+
+#endif
 };

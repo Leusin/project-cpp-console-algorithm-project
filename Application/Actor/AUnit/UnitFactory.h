@@ -7,7 +7,7 @@ class UnitFactory
 {
 public: // RAII
 
-	UnitFactory(class AStar& aStar, class Map& map, class QuadTree& qTree);
+	UnitFactory(class PathfindingManager& aStar, class Map& map, class QuadTree& qTree);
 
 public: // MESSAGE
 
@@ -20,7 +20,7 @@ private:
 	const Team terran;
 	const Team protoss;
 
-	class AStar& aStar;
+	class PathfindingManager& aStar;
 	class Map& map;
 	class QuadTree& qTree;
 

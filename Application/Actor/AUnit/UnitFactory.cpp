@@ -3,11 +3,11 @@
 #include "Math/Vector2I.h"
 #include "Math/Color.h"
 #include "Actor/AUnit/AUnit.h"
-#include "AStar/AStar.h"
+#include "AStar/PathfindingManager.h"
 #include "Level/Map/Map.h"
 #include "QuadTree/QuadTree.h"
 
-UnitFactory::UnitFactory(class AStar& aStar, class Map& map, class QuadTree& qTree)
+UnitFactory::UnitFactory(PathfindingManager& aStar, Map& map, QuadTree& qTree)
 	: none{ Team::Type::NONE , "U" ,  13.0f }
 	, zerg{ Team::Type::Z, "Z", 13.5f }
 	, terran{ Team::Type::T, "T", 13.0f }

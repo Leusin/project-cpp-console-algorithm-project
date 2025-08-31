@@ -29,7 +29,7 @@ class AUnit : public QEntity
 	RTTI_DECLARATIONS(AUnit, QEntity)
 
 public: // RAII
-	AUnit(const Vector2I& spawnPosition, const struct Team& team, class Map& map, class AStar& aStar, class QuadTree& qTree);
+	AUnit(const Vector2I& spawnPosition, const struct Team& team, class Map& map, class PathfindingManager& aStar, class QuadTree& qTree);
 	virtual ~AUnit() = default;
 
 public: // EVENT
@@ -44,9 +44,11 @@ public: // GET SET
 	Vector2I GetCurrentPosition() const;
 	void SetIsSelected(bool val) { isSeleted = val; }
 
-	void SetMove(const Vector2I& targetPos);
+	void OnCommandToMove(const Vector2I& targetPos);
 
 	Team::Type GetTeamType() const { return team.type; }
+
+	void SetPath(std::vector<Vector2I> path);
 
 private: // METHOD
 
@@ -86,11 +88,9 @@ private: // FILD
 	// 원래 색
 	Color unitColor = Color::White;
 
+	// 의존성
 	class Map& map;
-
-	class AStar& aStar;
-
 	class QuadTree& qTree;
-
 	const Team& team;
+	class PathfindingManager& pathfindingManager;
 };

@@ -18,6 +18,7 @@
     <ClCompile Include="Actor\Territory\SpawnPool.cpp" />
     <ClCompile Include="Actor\Territory\Territory.cpp" />
     <ClCompile Include="Actor\AUnit\Team.cpp" />
+    <ClCompile Include="Algorithm\AStar\PathfindingManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor\QEntity\QEntity.h" />
@@ -37,5 +38,6 @@
     <ClInclude Include="Utils\Timer.h" />
     <ClInclude Include="Actor\Territory\SpawnPool.h" />
     <ClInclude Include="Actor\Territory\Territory.h" />
+    <ClInclude Include="Algorithm\AStar\PathfindingManager.h" />
   </ItemGroup>
 </Project>

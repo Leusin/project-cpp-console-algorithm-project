@@ -6,7 +6,6 @@
 #include "Math/Vector2I.h"
 #include "Render/Renderer.h"
 #include "QuadTree/QuadTree.h"
-#include "AStar/AStar.h"
 #include "Actor/Territory/Territory.h"
 #include "Actor/Territory/SpawnPool.h"
 
@@ -74,12 +73,21 @@ void MainLevel::Tick(float deltaTime)
 
 	// 유닛 선택 해제
 	MoveSelectedUnits();
+
+#ifdef _DEBUG
+
+	debugDeltaTime = deltaTime;
+
+#endif
 }
 
 void MainLevel::SlowTick(float deltaTime)
 {
 	// 쿼드트리 업데이트
 	UpdateQuadTree();
+
+	// 길찾기 요청 처리
+	aStar.Update();
 }
 
 /*
@@ -111,11 +119,15 @@ void MainLevel::Draw(Renderer& renderer)
 	// 드래그 박스
 	dragBox.Draw(renderer);
 
+	// 마우스 랜더
+	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, "+", Color::Green, 500);
+
+#ifdef _DEBUG
+
 	// 디버그 정보 랜더
 	DrawDebug(renderer);
 
-	// 마우스 랜더
-	renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, "+", Color::Green, 500);
+#endif
 }
 
 void MainLevel::UpdateQuadTree()
@@ -130,6 +142,55 @@ void MainLevel::UpdateQuadTree()
 		}
 	}
 }
+
+void MainLevel::MoveSelectedUnits()
+{
+	if (Input::Get().GetMouseUp(MounseButton::Right))
+	{
+		if (selectedUnits.empty())
+		{
+			return;
+		}
+
+		int unitCount = (int)selectedUnits.size();
+
+		// 최종 위치
+		Vector2I mouseDestination{ Input::Get().GetMouseX(), Input::Get().GetMouseY() };
+
+		// 유닛들을 6열로 분산시키기 위한 오프셋 계산
+		const int offsetFactor = 1;
+		const int gridWidth = 6;
+
+		// 최종 너비 개산. 유닛이 5보다 적으면 n 열로
+		int groupWidth = (unitCount < gridWidth) ? unitCount : gridWidth;
+		int groupHeight = (unitCount) / gridWidth;
+
+		// 최종 너비에 따른 오프셋 적용
+		int groupOffsetX = (groupWidth - 1) * offsetFactor / 2;
+		int groupOffsetY = (groupHeight - 1) * offsetFactor / 2;
+
+		for (int i = 0; i < unitCount; ++i)
+		{
+			AUnit* unit = selectedUnits[i];
+
+			// 그리드 위치 계산
+			int gridX = i % gridWidth;
+			int gridY = i / gridWidth;
+
+			// 최종 목적지에 오프셋 적용
+			Vector2I finalDestination =
+			{
+				mouseDestination.x + (gridX * offsetFactor) - groupOffsetX,
+				mouseDestination.y + (gridY * offsetFactor) - groupOffsetY
+			};
+
+			unit->OnCommandToMove(finalDestination);
+
+		}
+	}
+}
+
+#ifdef _DEBUG
 
 void MainLevel::DrawDebug(Renderer& renderer)
 {
@@ -164,11 +225,10 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	}
 
 	//
-	// 모드와 상관없이 그려지는 것들
+	// 모드와 상관없이 우하단에 쓰여질 설명들
 	// General Debug Information
 	//
 
-	// 우하단에 쓰여질 설명들
 	const static int bufferSize = Engine::Width();
 	std::vector<char> debugText(bufferSize);
 	int line = Engine::Height();
@@ -177,7 +237,8 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	int firstOffset = Engine::Width() - firstLength;
 	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
-	int secondLength = sprintf_s(debugText.data(), bufferSize, "ManagedQEntity:%d|A*Call:%d", quadTree.GetEntityCount(), aStar.GetCalled());
+	int secondLength = sprintf_s(debugText.data(), bufferSize, "FPS:%f|WH:%d/%d|ManagedQEntity:%d|A*Request:%d|A*Call:%d",
+		(1.f / debugDeltaTime), Engine::Width(), Engine::Height(), quadTree.GetEntityCount(), aStar.GetCurrentReQuest(), aStar.GetCalled());
 	int secondOffset = Engine::Width() - secondLength;
 	renderer.WriteToBuffer({ secondOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
@@ -227,48 +288,5 @@ void MainLevel::DrawDebug(Renderer& renderer)
 
 }
 
-void MainLevel::MoveSelectedUnits()
-{
-	if (Input::Get().GetMouseUp(MounseButton::Right))
-	{
-		if (selectedUnits.empty())
-		{
-			return;
-		}
+#endif
 
-		int unitCount = (int)selectedUnits.size();
-
-		// 최종 위치
-		Vector2I mouseDestination{ Input::Get().GetMouseX(), Input::Get().GetMouseY() };
-
-		// 유닛들을 5x5 그리드로 분산시키기 위한 오프셋 계산
-		const int offsetFactor = 1;
-		const int gridWidth = 5;
-
-		// 최종 너비 개산. 유닛이 5보다 적으면 n 열로
-		int groupWidth = (unitCount < gridWidth) ? unitCount : gridWidth;
-		int groupHeight = (unitCount) / gridWidth;
-
-		// 최종 너비에 따른 오프셋 적용
-		int groupOffsetX = (groupWidth - 1) * offsetFactor / 2;
-		int groupOffsetY = (groupHeight - 1) * offsetFactor / 2;
-
-		for (int i = 0; i < unitCount; ++i)
-		{
-			AUnit* unit = selectedUnits[i];
-
-			// 그리드 위치 계산
-			int gridX = i % gridWidth;
-			int gridY = i / gridWidth;
-
-			// 최종 목적지에 오프셋 적용
-			Vector2I finalDestination = {
-				mouseDestination.x + (gridX * offsetFactor) - groupOffsetX,
-				mouseDestination.y + (gridY * offsetFactor) - groupOffsetY
-			};
-
-			unit->SetMove(finalDestination);
-
-		}
-	}
-}

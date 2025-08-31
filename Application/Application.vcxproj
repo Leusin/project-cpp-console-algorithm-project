@@ -172,6 +172,7 @@
     <ClCompile Include="Actor\AUnit\UnitFactory.cpp" />
     <ClCompile Include="Actor\Territory\SpawnPool.cpp" />
     <ClCompile Include="Algorithm\AStar\AStar.cpp" />
+    <ClCompile Include="Algorithm\AStar\PathfindingManager.cpp" />
     <ClCompile Include="DragBox\DragBox.cpp" />
     <ClCompile Include="Actor\Territory\Territory.cpp" />
     <ClCompile Include="Utils\DebugManage.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Actor\AUnit\UnitFactory.h" />
     <ClInclude Include="Algorithm\AStar\ANode.h" />
     <ClInclude Include="Algorithm\AStar\AStar.h" />
+    <ClInclude Include="Algorithm\AStar\PathfindingManager.h" />
     <ClInclude Include="DragBox\DragBox.h" />
     <ClInclude Include="Actor\Territory\Territory.h" />
     <ClInclude Include="Utils\DebugManage.h" />
