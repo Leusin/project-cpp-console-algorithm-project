@@ -10,6 +10,7 @@ public:
 		QuadTree,
 		Weight,
 		Position,
+		Path,
 		NONE
 	};
 

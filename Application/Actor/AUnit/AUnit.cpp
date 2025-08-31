@@ -13,6 +13,11 @@
 
 int AUnit::count = 0;
 
+bool AUnit::IsOverMaxCount()
+{
+	return GetMaxCount() <= count;
+}
+
 int AUnit::GetCount()
 {
 	return count;
@@ -23,41 +28,42 @@ int AUnit::GetMaxCount()
 	return (int)(Engine::Width() * Engine::Height() / 100);
 }
 
-bool AUnit::IsOverMaxCount()
-{
-	return GetMaxCount() <= count;
-}
-
 AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, PathfindingManager& aStar, QuadTree& qTree)
 	: QEntity(spawnPosition, team.GetTeamColor(), team.img)
-	, currentPosition{ (float)spawnPosition.x, (float)spawnPosition.y }
+	// 유닛 속성
+	, state{ AUnitState::Idle }
+	, position{ (float)spawnPosition.x, (float)spawnPosition.y }
 	, minSpeed{ 0.01f }
-	, unitColor{ team.GetTeamColor() }
+	, tolerance{ 1e-6f /*= 0.000001*/ }
+	// 경로
 	, currentWaypointIndex{ 0 }
+	, lastTarget{}
 	, tryCount{ 0 }
-	, maxWiatTime{ 0.125f }
-	, minWiatTime{ 0.001f }
-	, tolerance{ 1e-6f } // 0.000001
 	, minTry{ 3 }
+	// 시각 효과
+	, isSelected{ false }
+	, unitColor{ team.GetTeamColor() }
+	, selectedColor{ Color::LightGreen }
+	// 경로 재검색 기다림
+	, minWaitTime{ 0.001f }
+	, maxWaitTime{ 0.125f }
+	// 의존성
 	, map{ map }
-	, pathfindingManager{ aStar }
-	, qTree{ qTree }
 	, team{ team }
-	, attackRange{ 3.0f }
-	, attackCooldown{ 1.0f }
-	, targetEnemy{ nullptr }
+	, qTree{ qTree }
+	, pathfindingManager{ aStar }
 {
 	++count;
 
+	// 랜더 순서
 	SetSortingOrder(200);
 
 	// 현위치 표시
 	map.SetOccupiedMap(spawnPosition, true);
 
 	// 길가다 막히면 잠시 기달림
-	blockedTimer.SetTargetTime(Utils::RandomFloat(maxWiatTime, minWiatTime));
+	blockedTimer.SetTargetTime(Utils::RandomFloat(minWaitTime, maxWaitTime));
 
-	attackTimer.SetTargetTime(attackCooldown);
 }
 
 AUnit::~AUnit()
@@ -73,59 +79,26 @@ void AUnit::Tick(float deltaTime)
 {
 	super::Tick(deltaTime);
 
-	// 유닛 이동
-	if (state == AUnitState::Move)
+	switch (state)
 	{
-		// 이동 이펙트 타이머
-		effectTimer.Tick(deltaTime);
-
-		// 경로를 따라 이동 시도
-		ProcessResult result = FollowPath(deltaTime);
-		if (result == ProcessResult::Success)
-		{
-			state = AUnitState::Idle;
-		}
-		else if (result == ProcessResult::Failed)
-		{
-			if (tryCount > 0)
-			{
-				blockedTimer.Tick(deltaTime);
-
-				if (blockedTimer.IsTimeout())
-				{
-					SetNewPath(lastTarget);
-
-					--tryCount;
-
-					// 기다리는 시간 재설정
-					blockedTimer.SetTargetTime(Utils::RandomFloat(maxWiatTime, minWiatTime));
-
-					blockedTimer.Reset();
-				}
-			}
-			else
-			{
-				state = AUnitState::Idle;
-			}
-		}
-	}
-	else if (state == AUnitState::Idle)
-	{
-		map.SetOccupiedMap(Position(), true);
+	case AUnitState::Idle:   TickIdle(deltaTime);   break;
+	case AUnitState::Move:   TickMove(deltaTime);   break;
+	case AUnitState::Attack: TickAttack(deltaTime); break;
+	case AUnitState::Dead:   TickDead(deltaTime);   break;
 	}
 }
 
 void AUnit::Draw(Renderer& renderer)
 {
 	// 색상 설정
-	color = (isSeleted) ? selectedColor : unitColor;
+	color = (isSelected) ? selectedColor : unitColor;
 
 	super::Draw(renderer);
 
 	// 이동 경로
 	if (state == AUnitState::Move && !path.empty())
 	{
-		int pathDrawIndex = currentWaypointIndex + (int)(effectTimer.GetElapsedTime() * team.speed * 2.f);
+		int pathDrawIndex = currentWaypointIndex + (int)(pathFindEffectTimer.GetElapsedTime() * team.speed * 2.f);
 		for (int i = pathDrawIndex; i < path.size(); ++i)
 		{
 			renderer.WriteToBuffer(path[i], "#", Color::White, DebugManage::RenderOrder() + 1);
@@ -145,65 +118,132 @@ void AUnit::Draw(Renderer& renderer)
 		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);
 		renderer.WriteToBuffer({ Position().x, Position().y + 1 }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 3);
 	}
+	else if (mode == DebugManage::Mode::Path || mode == DebugManage::Mode::ALL)
+	{
+		// 이동 경로
+		if (state == AUnitState::Move && !path.empty())
+		{
+			for (int i = currentWaypointIndex; i < path.size(); ++i)
+			{
+				renderer.WriteToBuffer(path[i], "#", Color::White, DebugManage::RenderOrder() + 1);
+			}
+
+			renderer.WriteToBuffer(path.back(), "@", unitColor, DebugManage::RenderOrder() + 2);
+		}
+	}
 
 #endif
-}
-
-Vector2I AUnit::GetCurrentPosition() const
-{
-	return Vector2I((int)round(currentPosition.x), (int)round(currentPosition.y));
 }
 
 void AUnit::OnCommandToMove(const Vector2I& targetPos)
 {
 	lastTarget = targetPos;
 	tryCount = minTry;
-
-	SetNewPath(targetPos);
+	RequestPath(targetPos);
 }
 
+Vector2I AUnit::GetCurrentPosition() const
+{
+	return Vector2I((int)round(position.x), (int)round(position.y));
+}
+
+// 경로 할당 시 처리하는 것 여러가지
 void AUnit::SetPath(std::vector<Vector2I> path)
 {
-	state = AUnitState::Move;
 	this->path = path;
+	state = AUnitState::Move;
+	currentWaypointIndex = 0;
+	pathFindEffectTimer.Reset();
 }
 
-ProcessResult AUnit::FollowPath(float deltaTime)
+void AUnit::TickIdle(float dt)
+{
+	map.SetOccupiedMap(GetCurrentPosition(), true);
+	// 추후: 주변 적 탐색해서 state = Attack 으로 전환
+}
+
+// 이동및 경로 재탐색
+void AUnit::TickMove(float dt)
+{
+	switch (AdvancePath(dt))
+	{
+	case PathStepResult::InProgress:
+	{
+		pathFindEffectTimer.Tick(dt);
+	}
+	break;
+	case PathStepResult::Success:
+	{
+		state = AUnitState::Idle;
+	}
+	break;
+
+	case PathStepResult::Blocked:
+	{
+		// 시도 횟수 종료
+		if (tryCount <= 0)
+		{
+			state = AUnitState::Idle;
+		}
+
+		if (ShouldRetryPath(dt))
+		{
+			RequestPath(lastTarget);
+		}
+	}
+	break;
+	}
+}
+
+void AUnit::TickAttack(float dt)
+{
+	// TODO: 적 공격 로직 추가 예정
+}
+
+void AUnit::TickDead(float dt)
+{
+	// TODO: 사망 처리
+}
+
+AUnit::PathStepResult AUnit::AdvancePath(float dt)
 {
 	if (path.empty() || currentWaypointIndex >= (int)path.size())
 	{
-		return ProcessResult::Failed;
+		return PathStepResult::Blocked;
 	}
 
 	Vector2F fTarget = path[currentWaypointIndex];
-	Vector2F toTarget = fTarget - currentPosition;
+	Vector2F toTarget = fTarget - position;
 	float dist = toTarget.Magnitude();
 
 	// 목표 도착 체크
 	if (dist < tolerance)
 	{
 		++currentWaypointIndex;
+
+		// 최종 목적지 도착
 		if (currentWaypointIndex >= path.size())
 		{
-			return ProcessResult::Success; // 최종 목적지 도착
+			return PathStepResult::Success;
 		}
 		fTarget = path[currentWaypointIndex];
-		toTarget = fTarget - currentPosition;
+		toTarget = fTarget - position;
 		dist = toTarget.Magnitude();
 	}
 
 	// 이미 도착
 	if (dist < tolerance)
 	{
-		return ProcessResult::Success;
+		return PathStepResult::Success;
 	}
 
-	// 이동 속도 계산
-	Vector2I iPosition = Position();
+	Vector2I iPosition = Position(); // 정수형 위치 가져오기
 	float terrainWeight = map.GetWeightMap(iPosition);
+
+	// 이동할 수 없는 지형
 	if (terrainWeight <= 0.0f)
 	{
-		return ProcessResult::Failed; // 이동 불가
+		return PathStepResult::Blocked;
 	}
 
 	// 최종 이속
@@ -216,36 +256,57 @@ ProcessResult AUnit::FollowPath(float deltaTime)
 	}
 
 	// 이동량 계산 (목표를 지나치지 않도록 보정)
-	Vector2F movement = (toTarget / dist)/* = toTarget.Normaize*/ * finalSpeed * deltaTime;
+	Vector2F movement = (toTarget / dist)/* = toTarget.Normaize*/ * finalSpeed * dt;
 	if (movement.Magnitude() > dist)
 	{
 		movement = toTarget; // 목표까지만 이동
 	}
 
 	// 최종 좌표 업데이트
-	Vector2F fNextPos = currentPosition + movement;
+	Vector2F fNextPos = position + movement;
 	Vector2I iNextPos((int)round(fNextPos.x), (int)round(fNextPos.y));
 	fNextPos.RoundToVector2I(iNextPos);
 
+	// 다음 위치는 이동 불가한 경우
 	if (iPosition != iNextPos && !map.CanMove(iNextPos))
 	{
-		return ProcessResult::Failed;
+		return PathStepResult::Blocked;
 	}
 
-	currentPosition = fNextPos;
+	position = fNextPos;
 	SetPosition(iNextPos);
 	map.SetOccupiedMap(iPosition, false);
 	map.SetOccupiedMap(iNextPos, true);
 	bounds.SetPosition(GetCurrentPosition());
 
-	return ProcessResult::InProgress;
+	// 이동 중
+	return PathStepResult::InProgress;
 }
 
-void AUnit::SetNewPath(const Vector2I& targetPos)
+// 이동 실패시 호출
+// 이동 횟수가 남았는지, 대기 시간이 남았는지
+bool AUnit::ShouldRetryPath(float dt)
+{
+	blockedTimer.Tick(dt);
+
+	if (blockedTimer.IsTimeout())
+	{
+		// 시도 횟수 감소
+		--tryCount;
+
+		// 기다리는 시간 재설정
+		blockedTimer.SetTargetTime(Utils::RandomFloat(maxWaitTime, minWaitTime));
+		blockedTimer.Reset();
+
+		return true;
+	}
+
+	return false;
+}
+
+// 길찾기 요청
+void AUnit::RequestPath(const Vector2I& targetPos)
 {
 	path.clear();
 	pathfindingManager.AddRequest(this, GetCurrentPosition(), targetPos, map);
-
-	effectTimer.Reset();
-	currentWaypointIndex = 0;
 }

@@ -8,23 +8,28 @@
 #include "ProcessResult.h"
 #include "QuadTree/Bounds.h"
 
-enum class AUnitState
-{
-	Idle,
-	Move,
-	Attack // 추가
-};
+
 
 /// <summary>
 /// QaudTree가 관리하고 AStar를 가진 객체
 /// </summary>
 class AUnit : public QEntity
 {
-	enum class PathResult
+	enum class AUnitState
 	{
-		InProgress, // 계속 진행 중
+		Idle,
+		Move,
+		Attack, // 추가
+		Dead // 이동 불가
+
+	};
+
+	// Move 의 상태 (FSM 안의 FSM... )
+	enum class PathStepResult 
+	{
+		InProgress, // 계속 이동 가능
 		Success,    // 최종 목적지 도착
-		Blocked      // 이동 불가
+		Blocked     // 장애물로 이동 불가
 	};
 
 	RTTI_DECLARATIONS(AUnit, QEntity)
@@ -34,73 +39,65 @@ public: // RAII
 	virtual ~AUnit();
 
 public: // EVENT
+
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
 	virtual void Draw(class Renderer& renderer) override;
 
 public: // MESSAGE
 
-public: // GET SET
-
-	static int GetCount();
-
-	static int GetMaxCount();
-
+	void OnCommandToMove(const Vector2I& targetPos);
 	static bool IsOverMaxCount();
 
+public: // GET SET
+
 	Vector2I GetCurrentPosition() const;
-	void SetIsSelected(bool val) { isSeleted = val; }
-
-	void OnCommandToMove(const Vector2I& targetPos);
-
 	Team::Type GetTeamType() const { return team.type; }
 
 	void SetPath(std::vector<Vector2I> path);
+	void SetIsSelected(bool val) { isSelected = val; }
+
+	static int GetCount();
+	static int GetMaxCount();
 
 private: // METHOD
 
-	ProcessResult FollowPath(float deltaTime);
+	// 상태별 틱 함수
+	void TickIdle(float dt);
+	void TickMove(float dt);
+	void TickAttack(float dt);
+	void TickDead(float dt);
 
-	void SetNewPath(const Vector2I& targetPos);
+	// 경로 관련
+	PathStepResult AdvancePath(float dt);
+	bool ShouldRetryPath(float dt);
+	void RequestPath(const Vector2I& targetPos);
 
 private: // FILD
 
-	// 유닛의 현재 상태
-	AUnitState state = AUnitState::Idle;
+	// 유닛 속성
+	AUnitState state;
+	Vector2F position; // 실수 좌표
+	const float minSpeed; // 최소 속도
+	const float tolerance; // 좌표 도착 판정 오차
 
-	// 현재 위치(실수 좌표) - 내보낼땐 정수 좌표로 변환
-	Vector2F currentPosition;
-
-	// 최소한의 속도
-	const float minSpeed;
-
-	// 길찾기 경로
+	// 경로
 	std::vector<Vector2I> path;
-	int currentWaypointIndex; // 현재 탐색중인 인덱스
-	Vector2I lastTarget; // 최근 목적지
-	int tryCount; // 현재 길찾기 시도 횟수
-	const int minTry; // 최소 시도 횟수
+	int currentWaypointIndex;
+	Vector2I lastTarget;
+	int tryCount;
+	const int minTry;
 	Timer blockedTimer;
-	float maxWiatTime;
-	float minWiatTime;
-	const float tolerance; // 최소 오차, 기다리기 최소 
-	Timer effectTimer;
 
+	// 시각 효과
+	bool isSelected;
+	Color unitColor;
+	Color selectedColor;
+	Timer pathFindEffectTimer;
 
-	// 선택 되었는지
-	bool isSeleted = false;
-
-	// 선택되었을 때 색
-	Color selectedColor = Color::LightGreen;
-
-	// 원래 색
-	Color unitColor = Color::White;
-
-	// 공격 관련
-	float attackRange;      // 사거리
-	float attackCooldown;   // 공격 간격
-	Timer attackTimer;             // 공격 타이머
-	AUnit* targetEnemy;  // 현재 공격중인 적
+	// 기다림
+	float maxWaitTime;
+	float minWaitTime;
 
 	// 의존성
 	class Map& map;

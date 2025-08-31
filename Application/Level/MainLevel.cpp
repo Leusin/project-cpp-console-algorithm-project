@@ -36,21 +36,6 @@ MainLevel::MainLevel()
 		pools.clear();
 	}
 
-	/*
-	AddActor(unitFactory.CreatUnit({1, 5}, Team::Type::T));
-	AddActor(unitFactory.CreatUnit({2, 5}, Team::Type::T));
-	AddActor(unitFactory.CreatUnit({3, 5}, Team::Type::T));
-	AddActor(unitFactory.CreatUnit({4, 10}, Team::Type::Z));
-	AddActor(unitFactory.CreatUnit({5, 10}, Team::Type::Z));
-	AddActor(unitFactory.CreatUnit({6, 10}, Team::Type::Z));
-	AddActor(unitFactory.CreatUnit({30, 15}, Team::Type::Z));
-	AddActor(unitFactory.CreatUnit({31, 15}, Team::Type::Z));
-	AddActor(unitFactory.CreatUnit({32, 15}, Team::Type::Z));
-	AddActor(unitFactory.CreatUnit({36, 25}, Team::Type::P));
-	AddActor(unitFactory.CreatUnit({37, 25}, Team::Type::P));
-	AddActor(unitFactory.CreatUnit({38, 25}, Team::Type::P));
-	*/
-
 	// TODO: 마무리 할 떄쯤 아래 디버그 켜기 함수 지우기
 	debug.ToggleDebugMode();
 }
@@ -164,17 +149,16 @@ void MainLevel::MoveSelectedUnits()
 		// 최종 위치
 		Vector2I mouseDestination{ Input::Get().GetMouseX(), Input::Get().GetMouseY() };
 
-		// 유닛들을 6열로 분산시키기 위한 오프셋 계산
-		const int offsetFactor = 1;
-		const int gridWidth = 6;
+		// 유닛들을 n열로 분산시키기 위한 오프셋 계산
+		int gridWidth = static_cast<int>(ceil(sqrt(unitCount))); // 루트 한 다음에 올림함
 
 		// 최종 너비 개산. 유닛이 5보다 적으면 n 열로
 		int groupWidth = (unitCount < gridWidth) ? unitCount : gridWidth;
 		int groupHeight = (unitCount) / gridWidth;
 
 		// 최종 너비에 따른 오프셋 적용
-		int groupOffsetX = (groupWidth - 1) * offsetFactor / 2;
-		int groupOffsetY = (groupHeight - 1) * offsetFactor / 2;
+		int groupOffsetX = (groupWidth - 1) / 2;
+		int groupOffsetY = (groupHeight - 1) / 2;
 
 		for (int i = 0; i < unitCount; ++i)
 		{
@@ -187,8 +171,8 @@ void MainLevel::MoveSelectedUnits()
 			// 최종 목적지에 오프셋 적용
 			Vector2I finalDestination =
 			{
-				mouseDestination.x + (gridX * offsetFactor) - groupOffsetX,
-				mouseDestination.y + (gridY * offsetFactor) - groupOffsetY
+				mouseDestination.x + (gridX) - groupOffsetX,
+				mouseDestination.y + (gridY) - groupOffsetY
 			};
 
 			unit->OnCommandToMove(finalDestination);
@@ -240,7 +224,7 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	std::vector<char> debugText(bufferSize);
 	int line = Engine::Height();
 
-	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG/[0]All [1]QT [2]weight [3]Pos [4]next/IDX:%d", (int)debug.mode);
+	int firstLength = sprintf_s(debugText.data(), bufferSize, "[~]ToggleDEBUG/[0]All [1]QT [2]weight [3]Pos [4]Path [5]next/IDX:%d", (int)debug.mode);
 	int firstOffset = Engine::Width() - firstLength;
 	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
@@ -276,6 +260,11 @@ void MainLevel::DrawDebug(Renderer& renderer)
 		char debugMouse[100];
 		sprintf_s(debugMouse, sizeof(debugMouse), "M(%d,%d)", Input::Get().GetMouseX(), Input::Get().GetMouseY());
 		renderer.WriteToBuffer({ Input::Get().GetMouseX(), Input::Get().GetMouseY() }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 2);
+	}
+	break;
+	case DebugManage::Mode::Path:
+	{
+
 	}
 	break;
 	case DebugManage::Mode::ALL:
