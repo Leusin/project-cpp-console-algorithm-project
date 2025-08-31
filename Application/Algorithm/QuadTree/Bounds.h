@@ -51,6 +51,11 @@ public: // GET SET
 	int GetWidth() const { return width; }
 	int GetHeight() const { return height; }
 
+	void SetX(int x) {this->x = x; }
+	void SetY(int y) { this->y = y; }
+	void SetWidth(int w) { this->width = w; }
+	void SetHeight(int h) { this->height = h; }
+
 	int MaxX() const { return x + width; }
 	int MaxY() const { return y + height; }
 

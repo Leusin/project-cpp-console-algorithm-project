@@ -164,6 +164,12 @@ void MainLevel::MoveSelectedUnits()
 		{
 			AUnit* unit = selectedUnits[i];
 
+			// 삭제된 경우
+			if (unit == nullptr || unit->IsExpired())
+			{
+				continue;
+			}
+
 			// 그리드 위치 계산
 			int gridX = i % gridWidth;
 			int gridY = i / gridWidth;

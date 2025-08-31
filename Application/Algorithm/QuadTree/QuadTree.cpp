@@ -80,24 +80,46 @@ bool QuadTree::Query(const QEntity* targetUnit, std::vector<QNode*>& possibleNod
 
 bool QuadTree::Query(const Bounds& targetBounds, std::vector<class QEntity*>& intersects)
 {
-	std::vector<QNode*> possibleNode;
-
 	if (!root)
 	{
 		return false;
 	}
 
+
+	Bounds clipped = { targetBounds };
+
+	// 좌표 보정 (화면 밖이면 Clamp)
+	if (clipped.GetX() < 0)
+	{
+		clipped.SetX(0);
+	}
+	if (clipped.GetY() < 0)
+	{
+		clipped.SetY(0);
+	}
+	if (clipped.MaxX() > Engine::Width())
+	{
+		clipped.SetWidth(Engine::Width() - clipped.GetX() - 1);
+	}
+	if (clipped.MaxY() > Engine::Height())
+	{
+		clipped.SetHeight(Engine::Height() - clipped.GetY() - 1);
+	}
+
+	std::vector<QNode*> possibleNode;
+
 	// 겹침 가능성이 있는 영역 확인
-	root->Query(targetBounds, possibleNode);
+	root->Query(clipped, possibleNode);
 
 	// 겹침 가능성 있는 영역 순회
 	for (QNode* node : possibleNode)
 	{
+
 		// 각 영역이 가지는 노드 순회
 		for (QEntity* point : node->GetPointers())
 		{
 			// 겹침 검사
-			if (point->GetBounds().Intersects(targetBounds))
+			if (point->GetBounds().Intersects(clipped))
 			{
 				intersects.emplace_back(point);
 				continue;

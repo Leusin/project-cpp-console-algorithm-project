@@ -9,7 +9,7 @@
 
 UnitFactory::UnitFactory(PathfindingManager& aStar, Map& map, QuadTree& qTree)
 	: none{ Team::Type::NONE , "U" ,  1.0f }
-	, zerg{ Team::Type::Z, "Z", 1.5f }
+	, zerg{ Team::Type::Z, "Z", 1.2f }
 	, terran{ Team::Type::T, "T", 1.0f }
 	, protoss{ Team::Type::P, "P", 0.8f }
 	, aStar{ aStar }

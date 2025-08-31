@@ -21,7 +21,6 @@
     <ClCompile Include="Algorithm\AStar\PathfindingManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Actor\QEntity\QEntity.h" />
     <ClInclude Include="Actor\AUnit\AUnit.h" />
     <ClInclude Include="Algorithm\AStar\ANode.h" />
     <ClInclude Include="Algorithm\AStar\AStar.h" />
@@ -39,5 +38,6 @@
     <ClInclude Include="Actor\Territory\SpawnPool.h" />
     <ClInclude Include="Actor\Territory\Territory.h" />
     <ClInclude Include="Algorithm\AStar\PathfindingManager.h" />
+    <ClInclude Include="Actor\QEntity\QEntity.h" />
   </ItemGroup>
 </Project>

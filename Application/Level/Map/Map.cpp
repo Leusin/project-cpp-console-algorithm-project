@@ -62,7 +62,7 @@ void Map::Initialize()
 			dataX = (dataX >= dataWidth) ? dataWidth - 1 : dataX;
 			dataY = (dataY >= dataHeight) ? dataHeight - 1 : dataY;
 
-			int terrainIndex = data[dataX][dataY];
+			int terrainIndex = data[dataY][dataX];
 			terrainIndex %= (int)TerrainType::Size;
 
 			TerrainType type = static_cast<TerrainType>(terrainIndex);
@@ -100,7 +100,7 @@ bool Map::CreateTerritory(QuadTree& qTree, const UnitFactory& factory, std::vect
 			dataX = (dataX >= dataWidth) ? dataWidth - 1 : dataX;
 			dataY = (dataY >= dataHeight) ? dataHeight - 1 : dataY;
 
-			int terrainIndex = data[dataX][dataY];
+			int terrainIndex = data[dataY][dataX];
 			terrainIndex %= (int)TerrainType::Size;
 
 			TerrainType type = static_cast<TerrainType>(terrainIndex);
@@ -171,7 +171,7 @@ bool Map::CreateSpawnPool(QuadTree& qTree, const UnitFactory& factory, std::vect
 			dataX = (dataX >= dataWidth) ? dataWidth - 1 : dataX;
 			dataY = (dataY >= dataHeight) ? dataHeight - 1 : dataY;
 
-			int terrainIndex = data[dataX][dataY];
+			int terrainIndex = data[dataY][dataX];
 			terrainIndex %= (int)TerrainType::Size;
 
 			TerrainType type = static_cast<TerrainType>(terrainIndex);

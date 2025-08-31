@@ -31,7 +31,7 @@ int AUnit::GetMaxCount()
 AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, PathfindingManager& aStar, QuadTree& qTree)
 	: QEntity(spawnPosition, team.GetTeamColor(), team.img)
 	// 유닛 속성
-	, state{ AUnitState::Idle }
+	, state{ State::Idle }
 	, position{ (float)spawnPosition.x, (float)spawnPosition.y }
 	, minSpeed{ 0.01f }
 	, tolerance{ 1e-6f /*= 0.000001*/ }
@@ -43,12 +43,19 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, Pathfind
 	, lastTarget{}
 	// 전투
 	, attackRange{ 1.5f }
+	, searchRange{ 7 }
 	, attackCooldown{ 0.5f }
 	, attackDamage{ 10.0f }
 	, targetEnemy{ nullptr }
+	// 피격
+	, hp{ 50.0f }
+	, isDamaged{ false }
+	, damagedCooldown{ 0.55f }
 	// 시각 효과
 	, isSelected{ false }
 	, unitColor{ team.GetTeamColor() }
+	, damagedColor{ Color::Red }
+	, onAttackColor{ (Color)((int)team.GetTeamColor() | (int)Color::Intensity) }
 	, selectedColor{ Color::LightGreen }
 	// 경로 재검색 기다림
 	, minWaitTime{ 0.001f }
@@ -70,10 +77,23 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, Pathfind
 	// 길가다 막히면 잠시 기달림
 	blockedTimer.SetTargetTime(Utils::RandomFloat(minWaitTime, maxWaitTime));
 
+	// 종족치(?) 반영
+	float teamBonous = team.bonus;
+	hp += hp * (1.0f - teamBonous);
+	attackCooldown += attackCooldown * (1.0f - teamBonous);
+	attackDamage += attackDamage *(1.0f - teamBonous);
+	damagedCooldown *= teamBonous;
+
+	// 공격 타이머 설정
+	attackTimer.SetTargetTime(attackCooldown);
+	// 피격 타이머 설정
+	damagedTimer.SetTargetTime(damagedCooldown);
 }
 
 AUnit::~AUnit()
 {
+	pathfindingManager.CancelRequest(this);
+
 	--count;
 }
 
@@ -87,10 +107,19 @@ void AUnit::Tick(float deltaTime)
 
 	switch (state)
 	{
-	case AUnitState::Idle:   TickIdle(deltaTime);   break;
-	case AUnitState::Move:   TickMove(deltaTime);   break;
-	case AUnitState::Attack: TickAttack(deltaTime); break;
-	case AUnitState::Dead:   TickDead(deltaTime);   break;
+	case State::Idle:   TickIdle(deltaTime);   break;
+	case State::Move:   TickMove(deltaTime);   break;
+	case State::Attack: TickAttack(deltaTime); break;
+	case State::Dead:   TickDead(deltaTime);   break;
+	}
+
+	if (isDamaged)
+	{
+		damagedTimer.Tick(deltaTime);
+		if (damagedTimer.IsTimeout())
+		{
+			isDamaged = false;
+		}
 	}
 }
 
@@ -98,11 +127,13 @@ void AUnit::Draw(Renderer& renderer)
 {
 	// 색상 설정
 	color = (isSelected) ? selectedColor : unitColor;
+	color = (state == State::Attack) ? onAttackColor : color;
+	color = (isDamaged) ? damagedColor : color;
 
 	super::Draw(renderer);
 
 	// 이동 경로
-	if (state == AUnitState::Move && !path.empty())
+	if (state == State::Move && !path.empty())
 	{
 		int pathDrawIndex = currentWaypointIndex + (int)(pathFindEffectTimer.GetElapsedTime() * speed * team.bonus * 2.f);
 		for (int i = pathDrawIndex; i < path.size(); ++i)
@@ -127,7 +158,7 @@ void AUnit::Draw(Renderer& renderer)
 	else if (mode == DebugManage::Mode::Path || mode == DebugManage::Mode::ALL)
 	{
 		// 이동 경로
-		if (state == AUnitState::Move && !path.empty())
+		if (state == State::Move && !path.empty())
 		{
 			for (int i = currentWaypointIndex; i < path.size(); ++i)
 			{
@@ -141,11 +172,35 @@ void AUnit::Draw(Renderer& renderer)
 #endif
 }
 
+void AUnit::OnDestroy()
+{
+	// 죽으면 맵 점유 해제
+	map.SetOccupiedMap(GetCurrentPosition(), false);
+}
+
 void AUnit::OnCommandToMove(const Vector2I& targetPos)
 {
 	lastTarget = targetPos;
 	tryCount = minTry;
 	RequestPath(targetPos);
+}
+
+void AUnit::TakeDamage(float dmg)
+{
+	if (isDamaged)
+	{
+		return;
+	}
+
+	isDamaged = true;
+	damagedTimer.Reset();
+
+	hp -= dmg;
+	if (hp <= 0.0f)
+	{
+		hp = 0.0f;
+		state = State::Dead;
+	}
 }
 
 Vector2I AUnit::GetCurrentPosition() const
@@ -156,8 +211,8 @@ Vector2I AUnit::GetCurrentPosition() const
 // 경로 할당 시 처리하는 것 여러가지
 void AUnit::SetPath(std::vector<Vector2I> path)
 {
-	this->path = path;
-	state = AUnitState::Move;
+	this->path = std::move(path);
+	state = State::Move;
 	currentWaypointIndex = 0;
 	pathFindEffectTimer.Reset();
 }
@@ -165,7 +220,44 @@ void AUnit::SetPath(std::vector<Vector2I> path)
 void AUnit::TickIdle(float dt)
 {
 	map.SetOccupiedMap(GetCurrentPosition(), true);
-	// 추후: 주변 적 탐색해서 state = Attack 으로 전환
+
+	// 근처 적 찾기
+	Vector2I point = { Position() - Vector2I{searchRange / 2, searchRange / 2} };
+	if (std::vector<QEntity*> nearby; qTree.Query(Bounds(point, searchRange, searchRange), nearby))
+	{
+		AUnit* closest = nullptr;
+		float closestDist = (float)(Engine::Width() * Engine::Height());
+
+		for (QEntity* entity : nearby)
+		{
+			if (!entity->As<AUnit>())
+			{
+				continue;
+			}
+
+			AUnit* unit = (AUnit*)entity;
+
+			// 같은 팀인지 검사
+			if (unit->GetTeamType() == team.type)
+			{
+				continue;
+			}
+
+			float dist = Vector2F(unit->Position() - Position()).Magnitude();
+			if (dist < closestDist && dist <= searchRange)
+			{
+				closest = unit;
+				closestDist = dist;
+			}
+		}
+
+		if (closest != nullptr)
+		{
+			targetEnemy = closest;
+			state = State::Attack;
+		}
+	}
+
 }
 
 // 이동및 경로 재탐색
@@ -180,7 +272,7 @@ void AUnit::TickMove(float dt)
 	break;
 	case PathStepResult::Success:
 	{
-		state = AUnitState::Idle;
+		state = State::Idle;
 	}
 	break;
 
@@ -189,7 +281,7 @@ void AUnit::TickMove(float dt)
 		// 시도 횟수 종료
 		if (tryCount <= 0)
 		{
-			state = AUnitState::Idle;
+			state = State::Idle;
 		}
 
 		if (ShouldRetryPath(dt))
@@ -203,12 +295,41 @@ void AUnit::TickMove(float dt)
 
 void AUnit::TickAttack(float dt)
 {
-	// TODO: 적 공격 로직 추가 예정
+	if (targetEnemy == nullptr || targetEnemy->IsDead())
+	{
+		state = State::Idle;
+		return;
+	}
+
+	// 사거리 체크
+	Vector2F toTarget = targetEnemy->Position() - Position();
+	float dist = toTarget.Magnitude();
+	if (dist > attackRange)
+	{
+		// 다시 쫓아감
+		RequestPath(targetEnemy->GetCurrentPosition());
+		state = State::Move;
+		return;
+	}
+
+	// 공격 타이머
+	attackTimer.Tick(dt);
+	if (attackTimer.IsTimeout())
+	{
+		targetEnemy->TakeDamage(attackDamage);
+
+		// 쿨타임 초기화
+		attackTimer.Reset();
+	}
 }
 
 void AUnit::TickDead(float dt)
 {
-	// TODO: 사망 처리
+	// 길찾기 요청 해제
+	pathfindingManager.CancelRequest(this);
+
+	// 사망 처리
+	Destroy();
 }
 
 AUnit::PathStepResult AUnit::AdvancePath(float dt)
@@ -253,7 +374,7 @@ AUnit::PathStepResult AUnit::AdvancePath(float dt)
 	}
 
 	// 최종 이속
-	float finalSpeed = terrainWeight * speed  * team.bonus;
+	float finalSpeed = terrainWeight * speed * team.bonus;
 
 	// 최소 속도 보정
 	if (finalSpeed < minSpeed)

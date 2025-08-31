@@ -36,7 +36,7 @@ SpawnPool::SpawnPool(int id, Vector2I position, Vector2I size, QuadTree& qTree, 
 	SetImage("X");
 	boundsImg = "&";
 
-	spawnTimer.SetTargetTime(spawnInterval);
+	spawnTimer.SetTargetTime(spawnInterval + spawnInterval * (1 - GetOwnerTeam()->bonus));
 }
 
 SpawnPool::~SpawnPool()
@@ -62,6 +62,9 @@ void SpawnPool::Tick(float deltaTime)
 	if (spawnTimer.IsTimeout() && !AUnit::IsOverMaxCount())
 	{
 		SpawnUnit();
+
+		// 팀이 바꼈을 경우를 대비해 재설정
+		spawnTimer.SetTargetTime(spawnInterval + spawnInterval * (1 - GetOwnerTeam()->bonus));
 		spawnTimer.Reset();
 	}
 }

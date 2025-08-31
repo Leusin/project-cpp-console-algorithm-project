@@ -15,7 +15,7 @@
 /// </summary>
 class AUnit : public QEntity
 {
-	enum class AUnitState
+	enum class State
 	{
 		Idle,
 		Move,
@@ -44,9 +44,18 @@ public: // EVENT
 	virtual void Tick(float deltaTime) override;
 	virtual void Draw(class Renderer& renderer) override;
 
+	virtual void OnDestroy() override;
+
 public: // MESSAGE
 
+	// 이동 명령 받음
 	void OnCommandToMove(const Vector2I& targetPos);
+	
+	// 피격
+	void TakeDamage(float dmg);
+
+	bool IsDead() const { return state == State::Dead; }
+
 	static bool IsOverMaxCount();
 
 public: // GET SET
@@ -77,7 +86,7 @@ private: // METHOD
 private: // FILD
 
 	// 유닛 속성
-	AUnitState state;
+	State state;
 	Vector2F position; // 실수 좌표
 	const float minSpeed; // 최소 속도
 	const float tolerance; // 좌표 도착 판정 오차
@@ -92,18 +101,24 @@ private: // FILD
 	std::vector<Vector2I> path;
 
 	// 전투
-	float attackRange; // 공격 사거리: 대각선으로 공격할 수 있는 거리
+	float attackRange; // 공격 사거리(타일 기반이라 3이상 홀수야 함)
+	int searchRange; // 적 탐색 거리 (공격보다 넓게)
 	float attackCooldown; // 공격 딜레이
 	float attackDamage;  // 공격력
 	AUnit* targetEnemy; // 현재 공격중인 대상
 	Timer attackTimer;
 
 	// 피격
-	float hp = 50.0f;             // 체력
+	float hp; // 체력
+	bool isDamaged;
+	float damagedCooldown; // 피격 딜레이
+	Timer damagedTimer;
 
 	// 시각 효과
 	bool isSelected;
 	Color unitColor;
+	Color damagedColor;
+	Color onAttackColor;
 	Color selectedColor;
 	Timer pathFindEffectTimer;
 

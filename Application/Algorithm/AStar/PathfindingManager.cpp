@@ -12,17 +12,25 @@ void PathfindingManager::AddRequest(AUnit* unit, const Vector2I& start, const Ve
 	CancelRequest(unit);
 
 	PathfindingRequest newRequest = { unit, start, goal, map, false };
-	requestQueue.push_back(newRequest);
+	requestQueue.push_back({ unit, start, goal, map, false });
 }
 
 void PathfindingManager::CancelRequest(AUnit* unit)
 {
-	for (auto& request : requestQueue)
+	// unit이 nullptr이면 무시
+	if (!unit)
 	{
-		if (request.unit == unit)
+		return;
+	}
+
+	for (auto& req : requestQueue)
+	{
+		if (auto u = req.unit)
 		{
-			request.isCancelled = true;
-			break;
+			if (u == unit || u->IsExpired())
+			{
+				req.isCancelled = true;
+			}
 		}
 	}
 }
@@ -43,17 +51,21 @@ void PathfindingManager::Update(float deltaTime)
 		}
 
 		// 취소된 요청은 처리하지 않고 바로 제거
-		if (it->isCancelled)
+		auto u = it->unit;
+		if (!u || it->isCancelled)
 		{
-			it = requestQueue.erase(it);
+			it = requestQueue.erase(it); // 이미 삭제되었거나 취소된 경우 제거
 			continue;
 		}
 
-		PathfindingRequest request = *it;
+		// 동기적으로 경로 계산
+		std::vector<Vector2I> path = std::move(aStar.FindPath(it->start, it->goal, it->map));
 
-		std::vector<Vector2I> path = aStar.FindPath(request.start, request.goal, request.map);
+		if (it->unit)
+		{
+			it->unit->SetPath(std::move(path));
 
-		it->unit->SetPath(path);
+		}
 		it = requestQueue.erase(it);
 
 		++processedCount;

@@ -116,7 +116,12 @@ std::vector<Vector2I> AStar::FindPath(const Vector2I& start, const Vector2I& goa
 
 			// 이동 비용
 			const float baseCost = (direction.x != 0 && direction.y != 0) ? 1.414f : 1.0f;
-			float stepCost = baseCost + baseCost * map.GetWeightMap({ newX , newY });
+			float speedFactor = map.GetWeightMap({ newX, newY }); // 속도 계수
+			if (speedFactor <= 0.f)
+			{
+				continue;
+			}
+			float stepCost = baseCost / speedFactor; // 속도가 빠르면 비용 낮음
 
 			// 이미 방문했는지 확인
 			const int newId = GridIndex(newX, newY, width);

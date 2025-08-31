@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+
 #include "Math/Vector2I.h"
 #include "Actor/AUnit/AUnit.h"
 #include "Level/Map/Map.h"
@@ -39,6 +40,6 @@ private:
     const int maxReQuestsPerFrame;
 
     AStar aStar;
-
+    // 연산 시간 조절
     Timer timer;
 };

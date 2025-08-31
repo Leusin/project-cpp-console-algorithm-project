@@ -189,8 +189,8 @@
   <ItemGroup>
     <ClInclude Include="Actor\AUnit\ProcessResult.h" />
     <ClInclude Include="Actor\AUnit\Team.h" />
-    <ClInclude Include="Actor\Territory\SpawnPool.h" />
     <ClInclude Include="Actor\QEntity\QEntity.h" />
+    <ClInclude Include="Actor\Territory\SpawnPool.h" />
     <ClInclude Include="Actor\AUnit\AUnit.h" />
     <ClInclude Include="Actor\AUnit\UnitFactory.h" />
     <ClInclude Include="Algorithm\AStar\ANode.h" />
