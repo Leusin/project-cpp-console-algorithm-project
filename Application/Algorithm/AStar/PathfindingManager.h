@@ -17,6 +17,9 @@ class PathfindingManager
         Vector2I goal;
         const Map& map;
         bool isCancelled = false; // 취소 플래그
+
+        // 요청이 유효한지
+        bool IsValid() const { return unit != nullptr && !unit->IsExpired(); }
     };
 
 public: // RAII
@@ -32,7 +35,12 @@ public: // MESSAGE
 public: // GET SET
 
     const int& GetCalled()const { return aStar.GetCalled(); }
+
     const int GetCurrentReQuest()const { return (int)requestQueue.size(); }
+
+private:
+
+    bool CanAddRequest(const AUnit* unit) const;
 
 private:
     std::list<PathfindingRequest> requestQueue;

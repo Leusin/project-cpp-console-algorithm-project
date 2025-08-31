@@ -78,8 +78,11 @@ void Level::ProcessAddAndDestroyActors()
 	// 삭제할 액터 배열 제외
 	for (auto it = actors.begin(); it != actors.end();)
 	{
+
 		if ((*it)->IsExpired())
 		{
+			OnActorDestroyed(*it);
+
 			// erase 함수를 사용하면 iterator가 무효화되기 때문에 
 			// 반환되는 값을 저장해야 한다.
 			it = actors.erase(it);
@@ -110,7 +113,7 @@ void Level::ProcessAddAndDestroyActors()
 	// 새로운 액터 추가 처리
 	for (auto* const actor : addRequestedActors)
 	{
- 		actors.emplace_back(actor);
+		actors.emplace_back(actor);
 		actor->SetOwner(this); // 오너 설정.
 	}
 

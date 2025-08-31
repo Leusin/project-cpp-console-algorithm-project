@@ -8,6 +8,11 @@ PathfindingManager::PathfindingManager()
 
 void PathfindingManager::AddRequest(AUnit* unit, const Vector2I& start, const Vector2I& goal, const Map& map)
 {
+	if (unit == nullptr || unit->IsExpired())
+	{
+		return;
+	}
+
 	// 이미 요청이 존재하는 경우를 대비하여 기존 요청 취소
 	CancelRequest(unit);
 
@@ -51,8 +56,7 @@ void PathfindingManager::Update(float deltaTime)
 		}
 
 		// 취소된 요청은 처리하지 않고 바로 제거
-		auto u = it->unit;
-		if (!u || it->isCancelled)
+		if (!it->unit || it->isCancelled)
 		{
 			it = requestQueue.erase(it); // 이미 삭제되었거나 취소된 경우 제거
 			continue;

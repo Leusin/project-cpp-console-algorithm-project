@@ -29,6 +29,9 @@ public: // EVENT
 	virtual void SlowTick(float deltaTime) override;
 	virtual void Draw(class Renderer& renderer) override;
 
+protected:
+	virtual void OnActorDestroyed(Actor* actor) override;
+
 private: // METHOD
 
 	// 업데이트

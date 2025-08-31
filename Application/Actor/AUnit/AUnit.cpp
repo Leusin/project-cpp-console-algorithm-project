@@ -176,6 +176,7 @@ void AUnit::OnDestroy()
 {
 	// 죽으면 맵 점유 해제
 	map.SetOccupiedMap(GetCurrentPosition(), false);
+	pathfindingManager.CancelRequest(this);
 }
 
 void AUnit::OnCommandToMove(const Vector2I& targetPos)

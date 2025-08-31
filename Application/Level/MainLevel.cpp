@@ -89,9 +89,9 @@ void MainLevel::SlowTick(float deltaTime)
 	// 쿼드트리 업데이트
 	UpdateQuadTree();
 
+
 	// 길찾기 요청 처리
 	aStar.Update(deltaTime);
-
 
 #ifdef _DEBUG
 
@@ -140,6 +140,16 @@ void MainLevel::Draw(Renderer& renderer)
 #endif
 }
 
+void MainLevel::OnActorDestroyed(Actor* actor) 
+{
+	if (auto unit = dynamic_cast<AUnit*>(actor)) 
+	{
+		selectedUnits.erase(
+			std::remove(selectedUnits.begin(), selectedUnits.end(), unit),
+			selectedUnits.end()
+		);
+	}
+}
 void MainLevel::UpdateQuadTree()
 {
 	quadTree.Clear();
@@ -186,11 +196,10 @@ void MainLevel::MoveSelectedUnits()
 		int groupOffsetX = (groupWidth - 1) / 2;
 		int groupOffsetY = (groupHeight - 1) / 2;
 
-		for (int i = 0; i < unitCount; ++i)
+		int i = 0;
+		for (AUnit* unit : selectedUnits) // 인덱스 대신 범위 기반 for 루프 사용
 		{
-			AUnit* unit = selectedUnits[i];
-
-			// 삭제된 경우
+			// 삭제된 경우 다시 검사
 			if (unit == nullptr || unit->IsExpired())
 			{
 				continue;
@@ -209,6 +218,7 @@ void MainLevel::MoveSelectedUnits()
 
 			unit->OnCommandToMove(finalDestination);
 
+			++i;
 		}
 	}
 }
