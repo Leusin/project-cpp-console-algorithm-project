@@ -5,6 +5,7 @@
 #include "Render/Renderer.h"
 #include "Actor/AUnit/Team.h"
 #include "QuadTree/QuadTree.h"
+#include "Actor/AUnit/AUnit.h"
 #include "Actor/AUnit/UnitFactory.h"
 
 
@@ -44,7 +45,7 @@ void SpawnPool::Tick(float deltaTime)
 
 	spawnTimer.Tick(deltaTime);
 
-	if (spawnTimer.IsTimeout())
+	if (spawnTimer.IsTimeout() && !AUnit::IsOverMaxCount())
 	{
 		SpawnUnit();
 		spawnTimer.Reset();

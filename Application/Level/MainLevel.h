@@ -62,6 +62,7 @@ private: // DEBUG
 
 	DebugManage debug;
 	float debugDeltaTime = 0;
+	float debugSlowDeltaTime = 0;
 	void DrawDebug(class Renderer& renderer);
 
 #endif

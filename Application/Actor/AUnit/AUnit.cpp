@@ -11,6 +11,22 @@
 #include "Utils/DebugManage.h"
 #include "AStar/PathfindingManager.h"
 
+int AUnit::count = 0;
+
+int AUnit::GetCount()
+{
+	return count;
+}
+
+int AUnit::GetMaxCount()
+{
+	return (int)(Engine::Width() * Engine::Height() / 100);
+}
+
+bool AUnit::IsOverMaxCount()
+{
+	return GetMaxCount() <= count;
+}
 
 AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, PathfindingManager& aStar, QuadTree& qTree)
 	: QEntity(spawnPosition, team.GetTeamColor(), team.img)
@@ -27,7 +43,12 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, Pathfind
 	, pathfindingManager{ aStar }
 	, qTree{ qTree }
 	, team{ team }
+	, attackRange{ 3.0f }
+	, attackCooldown{ 1.0f }
+	, targetEnemy{ nullptr }
 {
+	++count;
+
 	SetSortingOrder(200);
 
 	// 현위치 표시
@@ -35,6 +56,13 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, Pathfind
 
 	// 길가다 막히면 잠시 기달림
 	blockedTimer.SetTargetTime(Utils::RandomFloat(maxWiatTime, minWiatTime));
+
+	attackTimer.SetTargetTime(attackCooldown);
+}
+
+AUnit::~AUnit()
+{
+	--count;
 }
 
 void AUnit::BeginPlay()
@@ -103,7 +131,7 @@ void AUnit::Draw(Renderer& renderer)
 			renderer.WriteToBuffer(path[i], "#", Color::White, DebugManage::RenderOrder() + 1);
 		}
 
-		renderer.WriteToBuffer(path.back(), "X", unitColor, DebugManage::RenderOrder() + 2);
+		renderer.WriteToBuffer(path.back(), "@", unitColor, DebugManage::RenderOrder() + 2);
 	}
 
 #ifdef _DEBUG

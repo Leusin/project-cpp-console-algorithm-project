@@ -105,11 +105,12 @@ void Engine::Run()
 			Tick(deltaTime);
 			Render();
 
-			// 프레임이 높은 업데이트를 위한 구간
+			// 낮은 프레임 업데이트를 위한 구간
 			slowUpdateAccumulator += deltaTime;
 			if (slowUpdateAccumulator >= slowUpdateInterval)
 			{
 				SlowTick(slowUpdateAccumulator);
+				slowUpdateAccumulator -= slowUpdateInterval;
 			}
 
 			// 이전 프레임 시간 갱신

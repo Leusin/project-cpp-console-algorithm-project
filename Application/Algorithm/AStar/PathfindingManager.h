@@ -5,6 +5,7 @@
 #include "Actor/AUnit/AUnit.h"
 #include "Level/Map/Map.h"
 #include "AStar.h"
+#include "Utils/Timer.h"
 
 class PathfindingManager 
 {
@@ -25,7 +26,7 @@ public: // MESSAGE
 
     void AddRequest(AUnit* unit, const Vector2I& start, const Vector2I& goal, const Map& map);
     void CancelRequest(AUnit* unit);
-    void Update();
+    void Update(float deltaTime);
 
 public: // GET SET
 
@@ -38,4 +39,6 @@ private:
     const int maxReQuestsPerFrame;
 
     AStar aStar;
+
+    Timer timer;
 };

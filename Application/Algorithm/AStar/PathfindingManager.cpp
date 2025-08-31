@@ -1,8 +1,9 @@
 #include "PathfindingManager.h"
 
 PathfindingManager::PathfindingManager()
-	: maxReQuestsPerFrame{ 5 }
+	: maxReQuestsPerFrame{ 3 }
 {
+	timer.SetTargetTime(1.f);
 }
 
 void PathfindingManager::AddRequest(AUnit* unit, const Vector2I& start, const Vector2I& goal, const Map& map)
@@ -26,13 +27,21 @@ void PathfindingManager::CancelRequest(AUnit* unit)
 	}
 }
 
-void PathfindingManager::Update()
+void PathfindingManager::Update(float deltaTime)
 {
+	timer.Tick(deltaTime);
+
 	int processedCount = 0;
 	auto it = requestQueue.begin();
 
 	while (it != requestQueue.end() && processedCount < maxReQuestsPerFrame)
 	{
+		if (timer.IsTimeout())
+		{
+			timer.Reset();
+			break;
+		}
+
 		// 취소된 요청은 처리하지 않고 바로 제거
 		if (it->isCancelled)
 		{

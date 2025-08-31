@@ -87,7 +87,14 @@ void MainLevel::SlowTick(float deltaTime)
 	UpdateQuadTree();
 
 	// 길찾기 요청 처리
-	aStar.Update();
+	aStar.Update(deltaTime);
+
+
+#ifdef _DEBUG
+
+	debugSlowDeltaTime = deltaTime;
+
+#endif
 }
 
 /*
@@ -237,10 +244,13 @@ void MainLevel::DrawDebug(Renderer& renderer)
 	int firstOffset = Engine::Width() - firstLength;
 	renderer.WriteToBuffer({ firstOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
-	int secondLength = sprintf_s(debugText.data(), bufferSize, "FPS:%f|WH:%d/%d|ManagedQEntity:%d|A*Request:%d|A*Call:%d",
-		(1.f / debugDeltaTime), Engine::Width(), Engine::Height(), quadTree.GetEntityCount(), aStar.GetCurrentReQuest(), aStar.GetCalled());
+	int secondLength = sprintf_s(debugText.data(), bufferSize, "AUnit:(%d/%d)|A*Call:%d|A*Request:%d", AUnit::GetCount(), AUnit::GetMaxCount(), aStar.GetCalled(), aStar.GetCurrentReQuest());
 	int secondOffset = Engine::Width() - secondLength;
 	renderer.WriteToBuffer({ secondOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
+
+	int thirdLength = sprintf_s(debugText.data(), bufferSize, "FPS:%f/%f|WH:%d/%d", (1.f / debugDeltaTime), (1.f / debugSlowDeltaTime), Engine::Width(), Engine::Height());
+	int thirdOffset = Engine::Width() - thirdLength;
+	renderer.WriteToBuffer({ thirdOffset, --line }, debugText.data(), Color::LightGreen, DebugManage::RenderOrder() + 50);
 
 	//
 	// 모드에 따라 그려지는 것들

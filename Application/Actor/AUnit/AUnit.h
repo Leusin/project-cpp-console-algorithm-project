@@ -11,7 +11,8 @@
 enum class AUnitState
 {
 	Idle,
-	Move
+	Move,
+	Attack // 추가
 };
 
 /// <summary>
@@ -30,7 +31,7 @@ class AUnit : public QEntity
 
 public: // RAII
 	AUnit(const Vector2I& spawnPosition, const struct Team& team, class Map& map, class PathfindingManager& aStar, class QuadTree& qTree);
-	virtual ~AUnit() = default;
+	virtual ~AUnit();
 
 public: // EVENT
 	virtual void BeginPlay() override;
@@ -40,6 +41,12 @@ public: // EVENT
 public: // MESSAGE
 
 public: // GET SET
+
+	static int GetCount();
+
+	static int GetMaxCount();
+
+	static bool IsOverMaxCount();
 
 	Vector2I GetCurrentPosition() const;
 	void SetIsSelected(bool val) { isSeleted = val; }
@@ -79,6 +86,7 @@ private: // FILD
 	const float tolerance; // 최소 오차, 기다리기 최소 
 	Timer effectTimer;
 
+
 	// 선택 되었는지
 	bool isSeleted = false;
 
@@ -88,9 +96,18 @@ private: // FILD
 	// 원래 색
 	Color unitColor = Color::White;
 
+	// 공격 관련
+	float attackRange;      // 사거리
+	float attackCooldown;   // 공격 간격
+	Timer attackTimer;             // 공격 타이머
+	AUnit* targetEnemy;  // 현재 공격중인 적
+
 	// 의존성
 	class Map& map;
 	class QuadTree& qTree;
 	const Team& team;
 	class PathfindingManager& pathfindingManager;
+
+	// 현재 존재하는 유닛 수
+	static int count;
 };
