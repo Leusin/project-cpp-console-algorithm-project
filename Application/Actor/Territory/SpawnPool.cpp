@@ -77,7 +77,7 @@ void SpawnPool::Draw(Renderer& renderer)
 	{
 		for (int y = bounds.GetY(); y <= bounds.MaxY(); ++y)
 		{
-			renderer.WriteToBuffer({ x, y }, GetImage(), Color::White, 2);
+			renderer.WriteToBuffer({ x, y }, GetImage(), Color::LightGreen, 2);
 		}
 	}
 
