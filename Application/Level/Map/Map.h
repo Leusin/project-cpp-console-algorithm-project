@@ -35,7 +35,7 @@ public: // MESSAGE
 
 	// 초기화
 	void Initialize();
-	bool CreateTerritory(class QuadTree& qTree, std::vector<class Territory*>& territorys);
+	bool CreateTerritory(class QuadTree& qTree, const class UnitFactory& factory, std::vector<class Territory*>& territorys);
 	bool CreateSpawnPool(class QuadTree& qTree, const class UnitFactory& factory, std::vector<class SpawnPool*>& SpawnPools);
 
 	// 배경 그리기

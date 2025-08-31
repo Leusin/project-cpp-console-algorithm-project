@@ -17,7 +17,7 @@ struct Team
 
 	Type type;
 	const char* img;
-	float speed;
+	float bonus; // 보정치
 	
 	Color GetTeamColor() const { return GetTeamColor(type); }
 

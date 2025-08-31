@@ -17,7 +17,7 @@ class Territory : public QEntity
 
 public: // RAII
 
-	Territory(int id, Vector2I position, Vector2I size, class QuadTree& qTree, Team::Type initialOwner = Team::Type::NONE);
+	Territory(int id, Vector2I position, Vector2I size, class QuadTree& qTree, const Team* initialOwner );
 	virtual ~Territory() = default;
 public: // EVENT
 
@@ -30,8 +30,8 @@ public: // GET SET
 
 	const int& GetId() const { return id; }
 
-	const Team::Type& GetOwnerTeam() const { return owner; }
-	void SetOwnerTeam(const Team::Type& type);
+	const Team* GetOwnerTeam() const { return ownerTeam; }
+	void SetOwnerTeam(const Team* type);
 
 private: // METHOD
 
@@ -46,7 +46,7 @@ private: // FILD
 
 	bool isContested;
 
-	Team::Type owner;
+	const Team* ownerTeam;
 
 	Timer captureTimer;
 

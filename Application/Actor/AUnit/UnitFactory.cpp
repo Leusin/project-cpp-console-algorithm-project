@@ -8,10 +8,10 @@
 #include "QuadTree/QuadTree.h"
 
 UnitFactory::UnitFactory(PathfindingManager& aStar, Map& map, QuadTree& qTree)
-	: none{ Team::Type::NONE , "U" ,  13.0f }
-	, zerg{ Team::Type::Z, "Z", 13.5f }
-	, terran{ Team::Type::T, "T", 13.0f }
-	, protoss{ Team::Type::P, "P", 12.8f }
+	: none{ Team::Type::NONE , "U" ,  1.0f }
+	, zerg{ Team::Type::Z, "Z", 1.5f }
+	, terran{ Team::Type::T, "T", 1.0f }
+	, protoss{ Team::Type::P, "P", 0.8f }
 	, aStar{ aStar }
 	, map{ map }
 	, qTree{ qTree }

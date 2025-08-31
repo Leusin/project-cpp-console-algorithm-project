@@ -53,6 +53,7 @@ public: // GET SET
 
 	Vector2I GetCurrentPosition() const;
 	Team::Type GetTeamType() const { return team.type; }
+	const Team& GetTeam() const { return team; }
 
 	void SetPath(std::vector<Vector2I> path);
 	void SetIsSelected(bool val) { isSelected = val; }
@@ -82,12 +83,23 @@ private: // FILD
 	const float tolerance; // 좌표 도착 판정 오차
 
 	// 경로
-	std::vector<Vector2I> path;
+	float speed;
 	int currentWaypointIndex;
-	Vector2I lastTarget;
 	int tryCount;
 	const int minTry;
+	Vector2I lastTarget;
 	Timer blockedTimer;
+	std::vector<Vector2I> path;
+
+	// 전투
+	float attackRange; // 공격 사거리: 대각선으로 공격할 수 있는 거리
+	float attackCooldown; // 공격 딜레이
+	float attackDamage;  // 공격력
+	AUnit* targetEnemy; // 현재 공격중인 대상
+	Timer attackTimer;
+
+	// 피격
+	float hp = 50.0f;             // 체력
 
 	// 시각 효과
 	bool isSelected;

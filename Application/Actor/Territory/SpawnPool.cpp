@@ -12,11 +12,25 @@
 int SpawnPool::count = 0;
 
 SpawnPool::SpawnPool(int id, Vector2I position, Vector2I size, QuadTree& qTree, Map& map, const UnitFactory& factory)
-	: Territory(id, position, size, qTree, (Team::Type)(count % (int)Team::Type::NONE))
+	: Territory(id, position, size, qTree, &factory.none)
 	, factory{ factory }
 	, spawnInterval{5.0f}
 	, map{ map }
 {
+	Team::Type team = (Team::Type)(count % (int)Team::Type::NONE);
+	if (team == Team::Type::P)
+	{
+		SetOwnerTeam(&factory.protoss);
+	}
+	else if (team == Team::Type::T)
+	{
+		SetOwnerTeam(&factory.terran);
+	}
+	else if (team == Team::Type::Z)
+	{
+		SetOwnerTeam(&factory.zerg);
+	}
+
 	++count;
 
 	SetImage("X");
@@ -85,7 +99,7 @@ bool SpawnPool::SpawnUnit()
 		// 스폰 검사
 		if (map.CanMove(currentPos))
 		{
-			AUnit* unit = factory.CreatUnit(currentPos, GetOwnerTeam());
+			AUnit* unit = factory.CreatUnit(currentPos, GetOwnerTeam()->type);
 			GetOwner()->AddActor((Actor*)unit);
 			map.SetOccupiedMap(currentPos, true);
 

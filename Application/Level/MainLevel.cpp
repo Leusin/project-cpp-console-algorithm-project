@@ -17,7 +17,7 @@ MainLevel::MainLevel()
 	map.Initialize();
 
 	// 땅따먹기 영역 만들기
-	if (std::vector<Territory*> terrs; map.CreateTerritory(quadTree, terrs))
+	if (std::vector<Territory*> terrs; map.CreateTerritory(quadTree, unitFactory, terrs))
 	{
 		for (Territory* terr : terrs)
 		{

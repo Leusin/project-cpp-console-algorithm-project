@@ -4,6 +4,7 @@
 #include "Math/Vector2I.h"
 #include "Render/Renderer.h"
 #include "QuadTree/QuadTree.h"
+#include "Actor/AUnit/UnitFactory.h"
 #include "Actor/Territory/Territory.h"
 #include "Actor/Territory/SpawnPool.h"
 
@@ -71,7 +72,7 @@ void Map::Initialize()
 	}
 }
 
-bool Map::CreateTerritory(QuadTree& qTree, std::vector<Territory*>& territorys)
+bool Map::CreateTerritory(QuadTree& qTree, const UnitFactory& factory, std::vector<Territory*>& territorys)
 {
 	if (data.empty())
 	{
@@ -130,11 +131,10 @@ bool Map::CreateTerritory(QuadTree& qTree, std::vector<Territory*>& territorys)
 					break;
 				}
 			}
-			
 			// 새로운 지형 만들기
 			if (!find)
 			{
-				Territory* terr = new Territory(key, Vector2I{ x, y }, Vector2I::Zero, qTree, Team::Type::NONE);
+				Territory* terr = new Territory(key, Vector2I{ x, y }, Vector2I::Zero, qTree, &factory.none);
 				territorys.emplace_back(terr);
 			}
 		}

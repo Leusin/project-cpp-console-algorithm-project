@@ -13,12 +13,14 @@ public: // MESSAGE
 
 	class AUnit* CreatUnit(const struct Vector2I& spawnPos, Team::Type type) const;
 
-private:
+public:
 
 	const Team none;
 	const Team zerg;
 	const Team terran;
 	const Team protoss;
+
+private:
 
 	class PathfindingManager& aStar;
 	class Map& map;

@@ -36,10 +36,16 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, Pathfind
 	, minSpeed{ 0.01f }
 	, tolerance{ 1e-6f /*= 0.000001*/ }
 	// 경로
-	, currentWaypointIndex{ 0 }
-	, lastTarget{}
+	, speed{ 10.0f }
 	, tryCount{ 0 }
+	, currentWaypointIndex{ 0 }
 	, minTry{ 3 }
+	, lastTarget{}
+	// 전투
+	, attackRange{ 1.5f }
+	, attackCooldown{ 0.5f }
+	, attackDamage{ 10.0f }
+	, targetEnemy{ nullptr }
 	// 시각 효과
 	, isSelected{ false }
 	, unitColor{ team.GetTeamColor() }
@@ -98,7 +104,7 @@ void AUnit::Draw(Renderer& renderer)
 	// 이동 경로
 	if (state == AUnitState::Move && !path.empty())
 	{
-		int pathDrawIndex = currentWaypointIndex + (int)(pathFindEffectTimer.GetElapsedTime() * team.speed * 2.f);
+		int pathDrawIndex = currentWaypointIndex + (int)(pathFindEffectTimer.GetElapsedTime() * speed * team.bonus * 2.f);
 		for (int i = pathDrawIndex; i < path.size(); ++i)
 		{
 			renderer.WriteToBuffer(path[i], "#", Color::White, DebugManage::RenderOrder() + 1);
@@ -247,7 +253,7 @@ AUnit::PathStepResult AUnit::AdvancePath(float dt)
 	}
 
 	// 최종 이속
-	float finalSpeed = terrainWeight * team.speed;
+	float finalSpeed = terrainWeight * speed  * team.bonus;
 
 	// 최소 속도 보정
 	if (finalSpeed < minSpeed)

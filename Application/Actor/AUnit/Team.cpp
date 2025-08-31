@@ -3,7 +3,7 @@
 Team::Team(Type type = Type::NONE, const char* img = "U", const float& speed = 13.0f)
 	: type{ type }
 	, img{ img }
-	, speed{ speed }
+	, bonus{ speed }
 {
 }
 

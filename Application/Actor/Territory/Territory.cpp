@@ -5,12 +5,12 @@
 #include "Render/Renderer.h"
 #include "Actor/AUnit/AUnit.h"
 
-Territory::Territory(int id, Vector2I position, Vector2I size, QuadTree& qTree, Team::Type initialOwner)
-	: QEntity(position, Team::GetTeamColor(initialOwner), "X", size)
+Territory::Territory(int id, Vector2I position, Vector2I size, QuadTree& qTree, const Team* team)
+	: QEntity(position, team->GetTeamColor(), "X", size)
 	, id{ id }
 	, isContested{ false }
 	, qTree{ qTree }
-	, owner{ initialOwner }
+	, ownerTeam{ team }
 	, boundsImg{ "x" }
 {
 
@@ -50,10 +50,10 @@ void Territory::Draw(Renderer& renderer)
 	//bounds.Draw(renderer, boundsImg, (Color)((int)color | (int)Color::Intensity), 2);
 }
 
-void Territory::SetOwnerTeam(const Team::Type& type)
+void Territory::SetOwnerTeam(const Team* team)
 {
-	color = Team::GetTeamColor(type);
-	owner = type;
+	color = team->GetTeamColor();
+	ownerTeam = team;
 	captureTimer.Reset();
 }
 
@@ -83,14 +83,14 @@ void Territory::UpdateCaptureLogic(float deltaTime)
 	}
 
 	// 유닛 수를 세어 다수결 팀을 결정
-	std::unordered_map<Team::Type, int> unitCounts;
+	std::unordered_map<const Team*, int> unitCounts;
 	for (AUnit* unit : nearbyUnits)
 	{
-		++unitCounts[unit->GetTeamType()];
+		++unitCounts[&unit->GetTeam()];
 	}
 
 	// 가장 많은 유닛을 가진 팀을 찾음
-	Team::Type majorityTeam = Team::Type::NONE;
+	const Team* majorityTeam = nullptr;
 	int maxCount = 0;
 	isContested = false;
 
@@ -113,7 +113,7 @@ void Territory::UpdateCaptureLogic(float deltaTime)
 	if (!isContested)
 	{
 		// 다른팀이 점령 중인 경우
-		if (owner != majorityTeam)
+		if (ownerTeam->type != majorityTeam->type)
 		{
 			captureTimer.Tick(maxCount * deltaTime);
 		}
