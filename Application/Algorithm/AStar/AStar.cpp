@@ -186,12 +186,7 @@ float AStar::CalculateHeuristic(const ANode& current, const ANode& goal) const
 
 	diff.Abs();
 
-	// 채비쇼프 거리로
-	/*
-	* 체비쇼프 거리(Chebyshev distance)란
-	* - 체스판 거리(chessboard distance) 라고도 불fla
-	* - 두 점이 있을 때 각 좌표의 차이 중 더 큰 값을 취함
-	*/
+	// 디아고널(diagonal) 거리 휴리스틱
 	if (diff.x > diff.y)
 	{
 		return (diff.x + diff.y) + (1.414f - 2.0f) * diff.y;
