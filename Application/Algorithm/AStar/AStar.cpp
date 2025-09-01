@@ -207,7 +207,7 @@ float AStar::CalculateHeuristic(const ANode& current, const ANode& goal) const
 	// 채비쇼프Chebyshev 거리 (대각선 허용 + 대각선 비용을 1로 취급할 때)
 	return (float)std::max(std::abs(diff.x), std::abs(diff.y));
 
-	// 디아고널(diagonal) 거리 휴리스틱
+	// 디아고널(diagonal) 거리 휴리스틱 = 옥타일 휴리스틱
 	return (float)(diff.x + diff.y) + (1.414f - 2.0f) * std::min(dx, dy);
 	*/
 }
