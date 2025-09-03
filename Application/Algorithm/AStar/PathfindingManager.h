@@ -40,14 +40,10 @@ public: // GET SET
 
 private:
 
-    bool CanAddRequest(const AUnit* unit) const;
-
 private:
     std::list<PathfindingRequest> requestQueue;
 
     const int maxReQuestsPerFrame;
 
     AStar aStar;
-    // 연산 시간 조절
-    Timer timer;
 };

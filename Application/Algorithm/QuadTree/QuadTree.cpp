@@ -85,26 +85,7 @@ bool QuadTree::Query(const Bounds& targetBounds, std::vector<class QEntity*>& in
 		return false;
 	}
 
-
 	Bounds clipped = { targetBounds };
-
-	// 좌표 보정 (화면 밖이면 Clamp)
-	if (clipped.GetX() < 0)
-	{
-		clipped.SetX(1);
-	}
-	if (clipped.GetY() < 0)
-	{
-		clipped.SetY(1);
-	}
-	if (clipped.MaxX() > Engine::Width())
-	{
-		clipped.SetWidth(Engine::Width() - clipped.GetX() - 1);
-	}
-	if (clipped.MaxY() > Engine::Height())
-	{
-		clipped.SetHeight(Engine::Height() - clipped.GetY() - 1);
-	}
 
 	std::vector<QNode*> possibleNode;
 

@@ -40,10 +40,10 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, Pathfind
 	, tryCount{ 0 }
 	, currentWaypointIndex{ 0 }
 	, minTry{ 3 }
-	, lastTarget{}
+	, lastTarget{ spawnPosition }
 	// 전투
 	, attackRange{ 1.5f }
-	, searchRange{ 7 }
+	, searchRange{ 5 }
 	, attackCooldown{ 0.5f }
 	, attackDamage{ 10.0f }
 	, targetEnemy{ nullptr }
@@ -92,8 +92,6 @@ AUnit::AUnit(const Vector2I& spawnPosition, const Team& team, Map& map, Pathfind
 
 AUnit::~AUnit()
 {
-	pathfindingManager.CancelRequest(this);
-
 	--count;
 }
 
@@ -154,6 +152,10 @@ void AUnit::Draw(Renderer& renderer)
 		char debugMouse[16];
 		sprintf_s(debugMouse, sizeof(debugMouse), "(%d,%d)", Position().x, Position().y);
 		renderer.WriteToBuffer({ Position().x, Position().y + 1 }, debugMouse, Color::LightGreen, DebugManage::RenderOrder() + 3);
+
+		// 탐색 범위
+		Vector2I point = { Position() - Vector2I{searchRange / 2, searchRange / 2} };
+		Bounds(point, searchRange, searchRange).Draw(renderer, "*", Color::LightGreen, DebugManage::RenderOrder());
 	}
 	else if (mode == DebugManage::Mode::Path || mode == DebugManage::Mode::ALL)
 	{
@@ -176,7 +178,6 @@ void AUnit::OnDestroy()
 {
 	// 죽으면 맵 점유 해제
 	map.SetOccupiedMap(GetCurrentPosition(), false);
-	pathfindingManager.CancelRequest(this);
 }
 
 void AUnit::OnCommandToMove(const Vector2I& targetPos)
@@ -231,11 +232,17 @@ void AUnit::TickIdle(float dt)
 	Vector2I point = { Position() - Vector2I{searchRange / 2, searchRange / 2} };
 	if (std::vector<QEntity*> nearby; qTree.Query(Bounds(point, searchRange, searchRange), nearby))
 	{
+		targetEnemy = nullptr;
 		AUnit* closest = nullptr;
-		float closestDist = (float)(Engine::Width() * Engine::Height());
+		float closestDist = (float)searchRange;
 
 		for (QEntity* entity : nearby)
 		{
+			if (entity->IsExpired())
+			{
+				continue;
+			}
+
 			if (!entity->As<AUnit>())
 			{
 				continue;
@@ -250,7 +257,7 @@ void AUnit::TickIdle(float dt)
 			}
 
 			float dist = Vector2F(unit->Position() - Position()).Magnitude();
-			if (dist < closestDist && dist <= searchRange)
+			if (dist < closestDist)
 			{
 				closest = unit;
 				closestDist = dist;
@@ -263,7 +270,6 @@ void AUnit::TickIdle(float dt)
 			state = State::Attack;
 		}
 	}
-
 }
 
 // 이동및 경로 재탐색
@@ -303,6 +309,7 @@ void AUnit::TickAttack(float dt)
 {
 	if (targetEnemy == nullptr || targetEnemy->IsDead())
 	{
+		targetEnemy = nullptr;
 		state = State::Idle;
 		return;
 	}
@@ -313,7 +320,8 @@ void AUnit::TickAttack(float dt)
 	if (dist > attackRange)
 	{
 		// 다시 쫓아감
-		RequestPath(targetEnemy->GetCurrentPosition());
+		Vector2I targetPos = targetEnemy->Position();
+		RequestPath(targetPos);
 		state = State::Move;
 		return;
 	}

@@ -37,7 +37,7 @@ MainLevel::MainLevel()
 	}
 
 	// TODO: 마무리 할 떄쯤 아래 디버그 켜기 함수 지우기
-	debug.ToggleDebugMode();
+	//debug.ToggleDebugMode();
 }
 
 MainLevel::~MainLevel()
@@ -77,6 +77,9 @@ void MainLevel::Tick(float deltaTime)
 	// 유닛 선택 해제
 	MoveSelectedUnits();
 
+	// 쿼드트리 업데이트
+	UpdateQuadTree();
+
 #ifdef _DEBUG
 
 	debugDeltaTime = deltaTime;
@@ -86,10 +89,6 @@ void MainLevel::Tick(float deltaTime)
 
 void MainLevel::SlowTick(float deltaTime)
 {
-	// 쿼드트리 업데이트
-	UpdateQuadTree();
-
-
 	// 길찾기 요청 처리
 	aStar.Update(deltaTime);
 

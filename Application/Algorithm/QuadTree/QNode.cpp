@@ -210,20 +210,6 @@ std::vector<NodeIndex> QNode::GetQuads(const Bounds& bounds)
 	int centerX = x + halfWidth;
 	int centerY = y + halfHeight;
 
-	/*
-	// 왼쪽 영역과 겹쳤는지 확인.
-	bool left = bounds.GetX() < centerX && bounds.MaxX() >= x;
-
-	// 오른쪽 영역과 겹쳤는지 확인.
-	bool right = bounds.MaxX() >= centerX && bounds.GetX() < this->bounds.MaxX();
-
-	// 위쪽 영역과 겹쳤는지 확인.
-	bool top = bounds.GetY() < centerY && bounds.MaxY() >= y;
-
-	// 아래쪽 영역과 겹쳤는지 확인.
-	bool bottom = bounds.MaxY() >= centerY && bounds.GetY() < this->bounds.MaxY();
-	*/
-
 	bool left = bounds.GetX() <= centerX;
 	bool right = bounds.MaxX() >= centerX;
 	bool top = bounds.GetY() <= centerY;
