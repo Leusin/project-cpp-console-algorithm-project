@@ -56,6 +56,23 @@ void MainLevel::Tick(float deltaTime)
 	// 드래그 박스 업데이트
 	dragBox.Tick();
 
+	SelectUnitSortCut();
+
+	// 유닛 선택 해제
+	MoveSelectedUnits();
+
+	// 쿼드트리 업데이트
+	UpdateQuadTree();
+
+#ifdef _DEBUG
+
+	debugDeltaTime = deltaTime;
+
+#endif
+}
+
+void MainLevel::SelectUnitSortCut()
+{
 	// 모든 유닛 선택 (Ctrl+A)
 	if (Input::Get().GetKey(VK_CONTROL) && Input::Get().GetKeyDown('A'))
 	{
@@ -74,17 +91,83 @@ void MainLevel::Tick(float deltaTime)
 		}
 	}
 
-	// 유닛 선택 해제
-	MoveSelectedUnits();
+	// T 유닛 
+	if (Input::Get().GetKey(VK_CONTROL) && Input::Get().GetKeyDown('T'))
+	{
+		for (AUnit* unit : selectedUnits)
+		{
+			unit->SetIsSelected(false);
+		}
 
-	// 쿼드트리 업데이트
-	UpdateQuadTree();
+		selectedUnits.clear();
+		const auto& actors = GetActors();
+		for (Actor* actor : actors)
+		{
+			if (!actor->IsExpired())
+			{
+				if (AUnit* unit = actor->As<AUnit>())
+				{
+					if (unit->GetTeamType() == Team::Type::T)
+					{
+						unit->SetIsSelected(true);
+						selectedUnits.push_back(const_cast<AUnit*>(unit));
+					}
+				}
+			}
+		}
+	}
 
-#ifdef _DEBUG
+	// Z 유닛 
+	if (Input::Get().GetKey(VK_CONTROL) && Input::Get().GetKeyDown('Z'))
+	{
+		for (AUnit* unit : selectedUnits)
+		{
+			unit->SetIsSelected(false);
+		}
 
-	debugDeltaTime = deltaTime;
+		selectedUnits.clear();
+		const auto& actors = GetActors();
+		for (Actor* actor : actors)
+		{
+			if (!actor->IsExpired())
+			{
+				if (AUnit* unit = actor->As<AUnit>())
+				{
+					if (unit->GetTeamType() == Team::Type::Z)
+					{
+						unit->SetIsSelected(true);
+						selectedUnits.push_back(const_cast<AUnit*>(unit));
+					}
+				}
+			}
+		}
+	}
 
-#endif
+	// P 유닛 
+	if (Input::Get().GetKey(VK_CONTROL) && Input::Get().GetKeyDown('P'))
+	{
+		for (AUnit* unit : selectedUnits)
+		{
+			unit->SetIsSelected(false);
+		}
+
+		selectedUnits.clear();
+		const auto& actors = GetActors();
+		for (Actor* actor : actors)
+		{
+			if (!actor->IsExpired())
+			{
+				if (AUnit* unit = actor->As<AUnit>())
+				{
+					if (unit->GetTeamType() == Team::Type::P)
+					{
+						unit->SetIsSelected(true);
+						selectedUnits.push_back(const_cast<AUnit*>(unit));
+					}
+				}
+			}
+		}
+	}
 }
 
 void MainLevel::SlowTick(float deltaTime)
@@ -139,9 +222,9 @@ void MainLevel::Draw(Renderer& renderer)
 #endif
 }
 
-void MainLevel::OnActorDestroyed(Actor* actor) 
+void MainLevel::OnActorDestroyed(Actor* actor)
 {
-	if (auto unit = dynamic_cast<AUnit*>(actor)) 
+	if (auto unit = dynamic_cast<AUnit*>(actor))
 	{
 		selectedUnits.erase(
 			std::remove(selectedUnits.begin(), selectedUnits.end(), unit),

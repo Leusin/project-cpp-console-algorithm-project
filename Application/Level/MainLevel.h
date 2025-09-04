@@ -40,6 +40,9 @@ private: // METHOD
 	// 우클릭 시 선택된 유닛들 이동 처리
 	void MoveSelectedUnits();
 
+	// 유닛 선택 단축 키
+	void SelectUnitSortCut();
+
 private: // FILD
 
 	// 마우스 드래그

@@ -116,7 +116,9 @@ void Input::ProcessInput()
 				break;
 			case FOCUS_EVENT:
 			{
-				hasFocus = irInBuf[i].Event.FocusEvent.bSetFocus;
+				//hasFocus = irInBuf[i].Event.FocusEvent.bSetFocus;
+				// 터미널 포커스 상태가 명확하지 않아 임시로 항상 ture로 둠
+				hasFocus = true;
 
 				// 포커스를 잃었을 때 모든 키와 마우스 상태를 초기화
 				if (!hasFocus)
